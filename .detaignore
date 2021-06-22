@@ -1,0 +1,8 @@
+svelte/node_modules
+svelte/scripts
+svelte/src
+svelte/package.json
+svelte/package-lock.json
+svelte/README.md
+svelte/rollup.config.js
+svelte/.gitignore
