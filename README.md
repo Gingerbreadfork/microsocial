@@ -9,6 +9,10 @@ This is extremely janky, it barely works at all or does much currently, but it i
 ```
 git clone https://github.com/Gingerbreadfork/microsocial
 cd microsocial
+cd svelte
+npm i
+npm run build
+cd ..
 deta new
 ```
 
