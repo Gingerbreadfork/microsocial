@@ -190,6 +190,5 @@ def change_key(access_key: str, new_key: str, response: Response):
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': private_key}
-    
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
