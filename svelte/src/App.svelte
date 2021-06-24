@@ -15,7 +15,7 @@
             on:click={() => {
                 currentComponent = "Home";
             }}
-            class="text-2xl pr-2">Microsocial</button
+            class="text-2xl pr-2 focus:outline-none">Microsocial</button
         >
         <span
             ><svg
@@ -35,23 +35,23 @@
     </div>
     <div class="flex items-end">
         <button
-            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400"
+            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
                 currentComponent = "Profile";
             }}>Profile</button
         >
         <button
-            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400"
+            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
                 currentComponent = "Friends";
             }}>Friends</button
         ><button
-            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400"
+            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
                 currentComponent = "Feed";
             }}>Feed</button
         ><button
-            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400"
+            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
                 currentComponent = "Everything";
             }}>Sandbox</button
