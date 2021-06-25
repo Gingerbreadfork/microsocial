@@ -1,8 +1,8 @@
 <script>
     import ManageFriends from "./components/ManageFriends.svelte";
-    import Sandbox from "./components/Sandbox.svelte";
     import Feed from "./components/Feed.svelte";
     import Profile from "./components/Profile.svelte";
+    import Settings from "./components/Preferences.svelte";
 
     let currentComponent = "Home";
 </script>
@@ -53,16 +53,16 @@
         ><button
             class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
-                currentComponent = "Everything";
-            }}>Sandbox</button
+                currentComponent = "Settings";
+            }}>Settings</button
         >
     </div>
 </nav>
 
 {#if currentComponent == "Friends"}
     <ManageFriends />
-{:else if currentComponent == "Everything"}
-    <Sandbox />
+{:else if currentComponent == "Settings"}
+    <Settings />
 {:else if currentComponent == "Feed"}
     <Feed />
 {:else if currentComponent == "Profile"}

@@ -50,6 +50,10 @@ class NewFriend(BaseModel):
 class DeletedFriend(BaseModel):
     access_key: str
     name: str
+    
+class NewKey(BaseModel):
+    access_key: str
+    new_key: str
 
 def get_my_key():
     fetchedkey = next(db.fetch({'type': 'my_key'}))
@@ -66,6 +70,10 @@ def get_my_key():
     
     return private_key
 
+# Grab Personal Key at Launch
+private_key = get_my_key()
+
+
 async def get_posts(name):
     friend = next(db.fetch({'name': name,'type': 'friend'}))
     key = friend[0]['key']
@@ -78,11 +86,8 @@ async def get_posts(name):
     
     return friend_posts.json()
 
-# Grab Personal Key at Launch
-private_key = get_my_key()
-
 @app.post("/add-friend", status_code=200)
-def root(newfriend: NewFriend, response: Response):
+def add_friend(newfriend: NewFriend, response: Response):
     if newfriend.access_key == private_key:
         friend_json = {'key': newfriend.public_key, 'name': newfriend.name, 'type': 'friend', 'bridge': newfriend.bridge}
         added_friend = db.put(friend_json)
@@ -199,13 +204,13 @@ async def friend_feed(access_key: str, response: Response):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
 
-@app.post("/change-key")
-def change_key(access_key: str, new_key: str, response: Response):
+@app.put("/change-key")
+def change_key(keys: NewKey, response: Response):
     # This very much needs to be private/authed to only the owner
     global private_key
-    if access_key == private_key:
-        db.put({'key': new_key, 'type': 'my_key'})
-        private_key = new_key
+    if keys.access_key == private_key:
+        db.put({'key': keys.new_key.strip(), 'type': 'my_key'})
+        private_key = keys.new_key.strip()
         response.status_code = status.HTTP_200_OK
         return {response}
 

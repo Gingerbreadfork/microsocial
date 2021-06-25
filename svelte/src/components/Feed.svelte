@@ -113,7 +113,7 @@
 
             {#each friendFeedPosts as { name, post, time }}
                 <div
-                    class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 select-none border border-gray-300"
+                    class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
                 >
                     <div class="flex sm:flex-1 flex-col gap-2 p-1">
                         <div class="grid grid-cols-2">
