@@ -3,7 +3,7 @@
     import { onMount, onDestroy } from "svelte";
 
     let hostAccessKey = "";
-    let addFriendName;
+    let manageFriendName;
     let addFriendKey;
     let addFriendBridge;
     let friendFeedLoaded = false;
@@ -25,35 +25,58 @@
         getFriends();
     };
 
-    function addFriend() {
+    const addFriend = async () => {
         var friendBridge = addFriendBridge;
         var friendKey = addFriendKey;
-        var friendName = addFriendName;
-        fetch(
-            "add-friend?" +
-                new URLSearchParams({
-                    name: friendName,
-                    access_key: hostAccessKey,
-                    bridge: friendBridge,
-                    public_key: friendKey,
-                })
-        );
+        var friendName = manageFriendName;
+
+        var friendToPost = {
+            name: friendName,
+            access_key: hostAccessKey,
+            bridge: friendBridge,
+            public_key: friendKey,
+        };
+
+        var postResp = await fetch("add-friend", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(friendToPost),
+        });
+        var friendResult = await postResp.json();
+
         addFriendBridge = "";
         addFriendKey = "";
         friendName = "";
-        getFriends();
-    }
 
-    function removeFriend() {
-        fetch(
-            "remove-friend?" +
-                new URLSearchParams({
-                    name: addFriendName,
-                    access_key: hostAccessKey,
-                })
-        );
         getFriends();
-    }
+    };
+
+    const removeFriend = async () => {
+        var friendToDelete = {
+            name: manageFriendName,
+            access_key: hostAccessKey,
+        };
+
+        var postResp = await fetch("remove-friend", {
+            method: "DELETE",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(friendToDelete),
+        });
+
+        var friendResult = await postResp.json();
+
+        addFriendBridge = "";
+        addFriendKey = "";
+        manageFriendName = "";
+
+        getFriends();
+    };
 
     const getFriends = async () => {
         var listReq = await fetch(
@@ -90,7 +113,7 @@
                         />
                     </svg>
                     <input
-                        bind:value={addFriendName}
+                        bind:value={manageFriendName}
                         type="text"
                         placeholder="Name"
                         class="bg-gray-300 w-full focus:outline-none text-gray-700"

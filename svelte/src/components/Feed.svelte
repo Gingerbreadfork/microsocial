@@ -28,18 +28,23 @@
         getFriends();
     };
 
-    function createPost() {
-        fetch(
-            "create-post?" +
-                new URLSearchParams({
-                    my_name: myName,
-                    access_key: hostAccessKey,
-                    post: newPost,
-                })
-        );
-        newPost = "";
-        getFeed();
-    }
+    const createPost = async () => {
+        var contentToPost = {
+            my_name: myName,
+            access_key: hostAccessKey,
+            post: newPost,
+        };
+
+        var postResp = await fetch("create-post", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contentToPost),
+        });
+        var postResult = await postResp.json();
+    };
 
     const getFeed = async () => {
         var FeedReq = await fetch(
