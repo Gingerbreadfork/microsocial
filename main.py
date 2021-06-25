@@ -9,6 +9,7 @@ import time
 import httpx
 from operator import itemgetter
 from pydantic import BaseModel
+import os
 
 log.basicConfig(level=log.INFO)
 
@@ -23,7 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-deta = Deta()
+# For Local Dev Throw Deta Project Key in .detakey
+if os.path.isfile(".detakey"):
+    with open(".detakey") as projectkey_file:
+        projectkey = projectkey_file.read()
+        deta = Deta(projectkey)
+else:
+    deta = Deta()
+
+
 db = deta.Base("microsocial")
 database_items = db.fetch()
 
