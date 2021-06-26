@@ -4,7 +4,6 @@
 
     let hostAccessKey = "";
     let newPost;
-    let myName = "Me";
     let friendFeedLoaded = false;
     let friendFeedPosts;
     let friendListResp;
@@ -30,7 +29,6 @@
 
     const createPost = async () => {
         var contentToPost = {
-            my_name: myName,
             access_key: hostAccessKey,
             post: newPost,
         };

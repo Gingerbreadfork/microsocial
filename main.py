@@ -9,6 +9,8 @@ import time
 import httpx
 from operator import itemgetter
 from pydantic import BaseModel
+import secrets
+import string
 import os
 
 log.basicConfig(level=log.INFO)
@@ -49,36 +51,52 @@ class NewFriend(BaseModel):
     
 class DeletedFriend(BaseModel):
     access_key: str
-    name: str
+    key: str
     
 class NewKey(BaseModel):
     access_key: str
     new_key: str
 
-def get_my_key():
-    fetchedkey = next(db.fetch({'type': 'my_key'}))
-
-    if fetchedkey == []:
-        log.warning("No Private Key Exists! Creating key")
-        db.put({'key': uuid.uuid4().hex, 'type': 'my_key'})
-
-    try:
-        private_key = fetchedkey[0]['key']
-    except:
-        fetchedkey = next(db.fetch({'type': 'my_key'}))
-        private_key = fetchedkey[0]['key']
+class NewName(BaseModel):
+    access_key: str
+    new_name: str
     
+class AddFriend(BaseModel):
+    name: str
+    bridge: str
+    public_key: str
+    
+def get_my_key():
+    try:
+        my_key_obj = db.get('my_key')
+        private_key = my_key_obj['value']
+    except TypeError:
+        log.warning("No Private Key Exists! Creating key")
+        created_key = uuid.uuid4().hex
+        db.put({'key': 'my_key', 'value': created_key})
+        private_key = created_key
+        
     return private_key
 
-# Grab Personal Key at Launch
-private_key = get_my_key()
+def get_my_name():
+    try:
+        name_obj = db.get('my_name')
+        username = name_obj['value']
+    except:
+        username = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        db.put({'key': 'my_name', 'value': username})
+        
+    return username
 
+# Grab Personal Info to Keep it Handy
+private_key = get_my_key()
+username = get_my_name()
 
 async def get_posts(name):
     friend = next(db.fetch({'name': name,'type': 'friend'}))
     key = friend[0]['key']
     bridge = friend[0]['bridge']
-    posts_endpoint = f"{bridge}shared-posts"
+    posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
     params = {'access_key': key}
     
     async with httpx.AsyncClient() as client:
@@ -104,16 +122,21 @@ def add_friend(newfriend: NewFriend, response: Response):
 
 @app.delete("/remove-friend", status_code=200)
 def remove_friend(deletedfriend: DeletedFriend, response: Response):
-    unfriend = next(db.fetch({'name': deletedfriend.name}))
+    unfriend = db.get(deletedfriend.key)
     if deletedfriend.access_key == private_key:
         if unfriend == []:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {response}
         
-        else:
-            unfriend_key = unfriend[0]['key']
+        elif unfriend['type'] == 'friend' or unfriend['type'] == 'pending_friend':
+            unfriend_key = unfriend['key']
             db.delete(unfriend_key)
+            response.body = "Unfriended Successfully"
             response.status_code = status.HTTP_200_OK
+            return {response}
+        
+        else:
+            response.status_code = status.HTTP_400_BAD_REQUEST
             return {response}
 
     else:
@@ -133,14 +156,13 @@ def read_post(access_key: str, response: Response):
     
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
-    if NewPost.access_key == private_key:
+    if newpost.access_key == private_key:
         post_id = uuid.uuid4().hex
         timestamp_now = time.time()
-        post_json = {"key": post_id, "post": newpost.post, 'type': 'post', 'time': timestamp_now, 'name': newpost.my_name}
+        post_json = {"key": post_id, "post": newpost.post, 'type': 'post', 'time': timestamp_now}
         create_post = db.put(post_json)
 
         if create_post == post_json:
-            response.status_code = status.HTTP_200_OK
             return {response}
         else:
             response.status_code = status.HTTP_400_BAD_REQUEST
@@ -161,11 +183,18 @@ async def read_friend_posts(name: str, access_key: str, response: Response):
         return {response}
 
 @app.get("/friend-list")
-def friend_list(access_key: str, response: Response):
+def friend_list(access_key: str, response: Response, pending: Optional[bool] = None):
     if access_key == private_key:
-        friends = next(db.fetch({'type': 'friend'}))
-        return friends
-    
+        try:
+            if pending:
+                friends = next(db.fetch([{'type': 'pending_friend'}, {'type': 'friend'}]))
+                return friends
+            else:
+                friends = next(db.fetch({'type': 'friend'}))
+                return friends
+        except:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {response}
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
@@ -178,17 +207,27 @@ async def friend_feed(access_key: str, response: Response):
         friends = next(db.fetch({'type': 'friend'}))
         
         for friend in friends:
+            name = friend['name']
             key = friend['key']
             bridge = friend['bridge']
-            posts_endpoint = f"{bridge}shared-posts"
+            posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
             params = {'access_key': key}
         
             async with httpx.AsyncClient() as client:
                 friend_posts = await client.get(posts_endpoint, params=params)
 
-            posts.append(friend_posts.json())
+            lists_of_posts = friend_posts.json()
+            
+            for post in lists_of_posts:
+                post['name'] = name
+                
+            posts.append(lists_of_posts)
 
         my_posts = next(db.fetch({'type': 'post'}))
+
+        for post in my_posts:
+            post['name'] = username
+            
         posts.append(my_posts)
 
 
@@ -204,14 +243,24 @@ async def friend_feed(access_key: str, response: Response):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
 
-@app.put("/change-key")
+@app.put("/change-key", status_code=200)
 def change_key(keys: NewKey, response: Response):
     # This very much needs to be private/authed to only the owner
     global private_key
     if keys.access_key == private_key:
-        db.put({'key': keys.new_key.strip(), 'type': 'my_key'})
+        db.put({'key': 'my_key', 'value': keys.new_key.strip()})
         private_key = keys.new_key.strip()
-        response.status_code = status.HTTP_200_OK
+        return {response}
+
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {response}
+    
+@app.put("/change-name", status_code=200)
+def change_key(namechange: NewName, response: Response):
+    # This very much needs to be private/authed to only the owner
+    if namechange.access_key == private_key:
+        db.update({'value': namechange.new_name.strip()}, "my_name")
         return {response}
 
     else:
@@ -222,5 +271,34 @@ def change_key(keys: NewKey, response: Response):
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': private_key}
+
+@app.get("/my-name")
+def show_my_key():
+    # This very much needs to be private/authed to only the owner
+    my_name = db.get('my_name')
+    return {'name': my_name['value']}
+
+@app.post("/add", status_code=200)
+def request_friend(addfriend: AddFriend, response: Response):
+        try:
+            checkFriendExists = db.get(addfriend.public_key)
+            checkType = checkFriendExists['type']
+            
+            if checkType == "friend":
+                response.body = "Already a Friend"
+            
+            if checkType == "pending_friend":
+                db.update({'type': 'friend'}, addfriend.public_key)
+                response.body = "Made a New Friend"
+            
+            return {response}
+        
+        except:
+            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'type': 'pending_friend', 'bridge': addfriend.bridge}
+            pending_friend = db.put(pending_friend_json)
+        
+            if pending_friend == pending_friend_json:
+                response.status_code = status.HTTP_201_CREATED
+                return pending_friend_json
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
