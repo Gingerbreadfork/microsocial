@@ -65,6 +65,9 @@ class AddFriend(BaseModel):
     bridge: str
     public_key: str
     
+class NewBio(BaseModel):
+    bio: str
+    
 def get_my_key():
     try:
         my_key_obj = db.get('my_key')
@@ -266,16 +269,31 @@ def change_key(namechange: NewName, response: Response):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
     
-@app.get("/my-key")
+@app.get("/my-key", status_code=200)
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': private_key}
 
-@app.get("/my-name")
+@app.get("/my-name", status_code=200)
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     my_name = db.get('my_name')
     return {'name': my_name['value']}
+
+@app.get("/bio", status_code=200)
+def show_my_key():
+    # This very much needs to be private/authed to only the owner
+    try:
+        my_bio = db.get('my_bio')
+        return {my_bio['value']}
+    except:
+        return {"Nothing to see here..."}
+    
+@app.put("/change-bio", status_code=200)
+def show_my_key(updated_bio: NewBio, response: Response):
+    # This very much needs to be private/authed to only the owner
+    db.put({'key': 'my_bio', 'value': updated_bio.bio})
+    return {response}
 
 @app.post("/accept", status_code=200)
 def accept_friend(addfriend: AddFriend, response: Response):
@@ -323,5 +341,5 @@ def request_friend(addfriend: AddFriend, response: Response):
             if pending_friend == pending_friend_json:
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
-
+            
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
