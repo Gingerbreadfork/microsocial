@@ -92,7 +92,28 @@
             public_key: hostAccessKey,
         };
 
-        var friendReqURL = "https://" + bridge + ".deta.dev/add";
+        var friendReqURL = "https://" + bridge + ".deta.dev/request";
+        var friendReqResp = await fetch(friendReqURL, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(friendReqContent),
+        });
+
+        var friendResult = await friendReqResp.json();
+        getFriends();
+    };
+
+    const acceptFriendRequest = async (bridge, key, name) => {
+        var friendReqContent = {
+            name: name,
+            bridge: bridge,
+            public_key: key,
+        };
+
+        var friendReqURL = "accept";
         var friendReqResp = await fetch(friendReqURL, {
             method: "POST",
             headers: {
@@ -109,7 +130,7 @@
 
 <div class="container mx-auto sm:p-10">
     <div
-        class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg md:w-1/2 lg:w-1/3 w-full flex m-auto"
+        class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg lg:w-1/2 w-full flex m-auto"
     >
         <div class="border border-gray-300 p-2 rounded w-full">
             <div class="flex border rounded bg-gray-300 items-center p-2 ">
@@ -141,7 +162,7 @@
             on:click={() => {
                 sendFriendRequest(addFriendBridge);
             }}
-            class="m-2 p-2 border bg-green-500 text-white rounded-3xl focus:outline-none"
+            class="m-2 p-2 border bg-green-500 hover:bg-green-400 text-white rounded-3xl focus:outline-none"
             ><svg
                 class="w-6 h-6"
                 fill="currentColor"
@@ -162,7 +183,6 @@
             <tr class="text-left border-b-2 border-gray-300">
                 <th class="px-4 py-3">Name</th>
                 <th class="px-4 py-3">Bridge</th>
-                <th class="px-4 py-3">Key</th>
                 <th class="px-4 py-3">Actions</th>
             </tr>
             {#each friendListResp as { bridge, name, key, type }}
@@ -170,10 +190,9 @@
                     <tr class="bg-gray-100 border-b border-gray-200">
                         <td class="px-4 py-3">{name}</td>
                         <td class="px-4 py-3">{bridge}</td>
-                        <td class="px-4 py-3 text-red-500">{key}</td>
                         <td class="px-4 py-3">
                             <button
-                                class="outline-none"
+                                class="focus:outline-none hover:text-red-500"
                                 on:click={() => {
                                     removeFriend(key);
                                 }}
@@ -190,7 +209,7 @@
                                 ></button
                             >
                             <button
-                                class="outline-none"
+                                class="focus:outline-none hover:text-indigo-500"
                                 on:click={() => {
                                     console.log(bridge);
                                 }}
@@ -200,8 +219,10 @@
                                     viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg"
                                     ><path
+                                        d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                                    /><path
                                         fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                         clip-rule="evenodd"
                                     /></svg
                                 ></button
@@ -216,14 +237,13 @@
         </table>
 
         {#if anyPending == true}
-            <h2 class="text-2xl pt-4 pb-2">Friend Requests</h2>
+            <h2 class="text-2xl pt-4 pb-2">Requests</h2>
             <table
                 class="rounded-t-lg rounded-b-lg w-full mx-auto bg-gray-200 text-gray-800"
             >
                 <tr class="text-left border-b-2 border-gray-300">
                     <th class="px-4 py-3">Name</th>
                     <th class="px-4 py-3">Bridge</th>
-                    <th class="px-4 py-3">Key</th>
                     <th class="px-4 py-3">Actions</th>
                 </tr>
                 {#each friendListResp as { bridge, name, key, type }}
@@ -231,12 +251,11 @@
                         <tr class="bg-gray-100 border-b border-gray-200">
                             <td class="px-4 py-3">{name}</td>
                             <td class="px-4 py-3">{bridge}</td>
-                            <td class="px-4 py-3 text-red-500">{key}</td>
                             <td class="px-4 py-3">
                                 <button
-                                    class="outline-none"
+                                    class="focus:outline-none hover:text-green-500"
                                     on:click={() => {
-                                        sendFriendRequest(bridge);
+                                        acceptFriendRequest(bridge, key, name);
                                     }}
                                     ><svg
                                         class="w-6 h-6"
@@ -251,7 +270,7 @@
                                     ></button
                                 >
                                 <button
-                                    class="outline-none"
+                                    class="focus:outline-none hover:text-red-500"
                                     on:click={() => {
                                         removeFriend(key);
                                     }}
@@ -268,7 +287,7 @@
                                     ></button
                                 >
                                 <button
-                                    class="outline-none"
+                                    class="focus:outline-none hover:text-indigo-500"
                                     on:click={() => {
                                         console.log(bridge);
                                     }}
@@ -278,8 +297,10 @@
                                         viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg"
                                         ><path
+                                            d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                                        /><path
                                             fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                             clip-rule="evenodd"
                                         /></svg
                                     ></button
