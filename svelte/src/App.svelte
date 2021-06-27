@@ -4,16 +4,16 @@
     import Profile from "./components/Profile.svelte";
     import Settings from "./components/Preferences.svelte";
 
-    let currentComponent = "Home";
+    let currentComponent = "Profile";
 </script>
 
 <nav
-    class="flex text-center sm:flex-row sm:text-left sm:justify-between p-2 bg-gray-800 shadow sm:items-baseline w-full"
+    class="flex text-center sm:flex-row sm:text-left text-sm md:text-md sm:justify-between p-2 bg-gray-800 shadow sm:items-baseline w-full"
 >
     <div class="flex text-purple-100 mb-2 sm:mb-0">
         <button
             on:click={() => {
-                currentComponent = "Home";
+                currentComponent = "Profile";
             }}
             class="text-2xl pr-2 focus:outline-none">Microsocial</button
         >
@@ -34,12 +34,6 @@
         >
     </div>
     <div class="flex items-end">
-        <button
-            class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
-            on:click={() => {
-                currentComponent = "Profile";
-            }}>Profile</button
-        >
         <button
             class="pl-2 pr-2 text-indigo-500 hover:text-indigo-400 focus:outline-none"
             on:click={() => {
@@ -67,8 +61,4 @@
     <Feed />
 {:else if currentComponent == "Profile"}
     <Profile />
-{:else if currentComponent == "Home"}
-    <div class="container mx-auto sm:p-10">
-        <p class="text-xl">Welcome, use the Nav to look around!</p>
-    </div>
 {/if}
