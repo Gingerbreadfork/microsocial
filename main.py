@@ -39,7 +39,6 @@ db = deta.Base("microsocial")
 database_items = db.fetch()
 
 class NewPost(BaseModel):
-    my_name: str
     access_key: str
     post: str
     
@@ -278,8 +277,33 @@ def show_my_key():
     my_name = db.get('my_name')
     return {'name': my_name['value']}
 
-@app.post("/add", status_code=200)
+@app.post("/accept", status_code=200)
+def accept_friend(addfriend: AddFriend, response: Response):
+    # This very much needs to be private/authed to only the owner
+        try:
+            checkFriendExists = db.get(addfriend.public_key)
+            checkType = checkFriendExists['type']
+            
+            if checkType == "friend":
+                response.body = "Already Connected"
+            
+            if checkType == "pending_friend":
+                db.update({'type': 'friend'}, addfriend.public_key)
+                response.body = "Connection Request Accepted"
+            
+            return {response}
+        
+        except:
+            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'type': 'pending_friend', 'bridge': addfriend.bridge}
+            pending_friend = db.put(pending_friend_json)
+        
+            if pending_friend == pending_friend_json:
+                response.status_code = status.HTTP_201_CREATED
+                return pending_friend_json
+
+@app.post("/request", status_code=200)
 def request_friend(addfriend: AddFriend, response: Response):
+    # You can only lodge a friend request here, approval can only be done via /accept
         try:
             checkFriendExists = db.get(addfriend.public_key)
             checkType = checkFriendExists['type']
@@ -288,8 +312,7 @@ def request_friend(addfriend: AddFriend, response: Response):
                 response.body = "Already a Friend"
             
             if checkType == "pending_friend":
-                db.update({'type': 'friend'}, addfriend.public_key)
-                response.body = "Made a New Friend"
+                response.body = "Already Pending"
             
             return {response}
         
