@@ -34,9 +34,7 @@ if os.path.isfile(".detakey"):
 else:
     deta = Deta()
 
-
 db = deta.Base("microsocial")
-database_items = db.fetch()
 
 class NewPost(BaseModel):
     access_key: str
