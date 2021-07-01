@@ -1,5 +1,4 @@
 <script>
-    import "../lib/TailwindCSS.svelte";
     import { onMount, onDestroy } from "svelte";
 
     let hostAccessKey = "";

@@ -1,4 +1,5 @@
 <script>
+    import "./lib/TailwindCSS.svelte";
     import ManageFriends from "./components/ManageFriends.svelte";
     import Feed from "./components/Feed.svelte";
     import Profile from "./components/Profile.svelte";

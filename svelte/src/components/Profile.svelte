@@ -1,5 +1,4 @@
 <script>
-    import "../lib/TailwindCSS.svelte";
     import { onMount, onDestroy } from "svelte";
 
     let hostAccessKey = "";
@@ -44,17 +43,17 @@
     {#if hostUsername != ""}
         <h2 class="text-2xl pt-4 pb-2">{hostUsername}'s Profile</h2>
     {/if}
-    <div
-        class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
-    >
-        {#if myKeyLoaded}
-            {#if myNameLoaded}
+    {#if myKeyLoaded}
+        {#if myNameLoaded}
+            <div
+                class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
+            >
                 <p><b>Access Key:</b> {hostAccessKey}</p>
                 <p><b>Name:</b> {hostUsername}</p>
                 <p><b>Bridge:</b> {hostBridge}</p>
-            {/if}
+            </div>
         {/if}
-    </div>
+    {/if}
     {#if myBioLoaded}
         <h2 class="text-2xl pt-4 pb-2">Bio</h2>
         <div

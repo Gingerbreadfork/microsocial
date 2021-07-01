@@ -1,5 +1,4 @@
 <script>
-    import "../lib/TailwindCSS.svelte";
     import { onMount, onDestroy } from "svelte";
 
     let hostAccessKey = "";
@@ -42,6 +41,7 @@
             body: JSON.stringify(contentToPost),
         });
         var postResult = await postResp.json();
+        newPost = "";
     };
 
     const getFeed = async () => {
