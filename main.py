@@ -361,4 +361,19 @@ def receive_notification(notification: ReceivedNotif, response: Response):
         response.body = "unknown auth or not a friend"
         response.status_code = status.HTTP_404_NOT_FOUND
 
+@app.get("/notifications", status_code=200)
+def check_notifications():
+    friends = next(db.fetch({'category': 'friend'}))
+    
+    notified_friends = []
+    
+    for friend in friends:
+        try:
+            if friend['value'] == 'notified':
+                notified_friends.append(friend)
+        except:
+            pass
+        
+    return {"notifications:": notified_friends}
+    
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
