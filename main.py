@@ -1,3 +1,4 @@
+from xmlrpc.client import boolean
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -66,6 +67,11 @@ class AddFriend(BaseModel):
 class NewBio(BaseModel):
     bio: str
     
+class ReceivedNotif(BaseModel):
+    bridge: str
+    key: str
+    timestamp: float
+    
 def get_my_key():
     try:
         my_key_obj = db.get('my_key')
@@ -93,7 +99,7 @@ private_key = get_my_key()
 username = get_my_name()
 
 async def get_posts(name):
-    friend = next(db.fetch({'name': name,'type': 'friend'}))
+    friend = next(db.fetch({'name': name,'category': 'friend'}))
     key = friend[0]['key']
     bridge = friend[0]['bridge']
     posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
@@ -107,7 +113,7 @@ async def get_posts(name):
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
     if newfriend.access_key == private_key:
-        friend_json = {'key': newfriend.public_key, 'name': newfriend.name, 'type': 'friend', 'bridge': newfriend.bridge}
+        friend_json = {'key': newfriend.public_key, 'name': newfriend.name, 'category': 'friend', 'bridge': newfriend.bridge}
         added_friend = db.put(friend_json)
         
         if added_friend == friend_json:
@@ -128,7 +134,7 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {response}
         
-        elif unfriend['type'] == 'friend' or unfriend['type'] == 'pending_friend':
+        elif unfriend['category'] == 'friend' or unfriend['category'] == 'pending_friend':
             unfriend_key = unfriend['key']
             db.delete(unfriend_key)
             response.body = "Unfriended Successfully"
@@ -146,7 +152,7 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
 @app.get("/shared-posts", status_code=200)
 def read_post(access_key: str, response: Response):
     if access_key == private_key:
-        my_posts = db.fetch({'type': 'post'})
+        my_posts = db.fetch({'category': 'post'})
         response = [item for sublist in my_posts for item in sublist]
         return response
     
@@ -159,7 +165,7 @@ def create_post(newpost: NewPost, response: Response):
     if newpost.access_key == private_key:
         post_id = uuid.uuid4().hex
         timestamp_now = time.time()
-        post_json = {"key": post_id, "post": newpost.post, 'type': 'post', 'time': timestamp_now}
+        post_json = {"key": post_id, "post": newpost.post, 'category': 'post', 'time': timestamp_now}
         create_post = db.put(post_json)
 
         if create_post == post_json:
@@ -187,10 +193,10 @@ def friend_list(access_key: str, response: Response, pending: Optional[bool] = N
     if access_key == private_key:
         try:
             if pending:
-                friends = next(db.fetch([{'type': 'pending_friend'}, {'type': 'friend'}]))
+                friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
                 return friends
             else:
-                friends = next(db.fetch({'type': 'friend'}))
+                friends = next(db.fetch({'category': 'friend'}))
                 return friends
         except:
             response.status_code = status.HTTP_404_NOT_FOUND
@@ -204,7 +210,7 @@ async def friend_feed(access_key: str, response: Response):
     if access_key == private_key:
         posts = []
 
-        friends = next(db.fetch({'type': 'friend'}))
+        friends = next(db.fetch({'category': 'friend'}))
         
         for friend in friends:
             name = friend['name']
@@ -223,7 +229,7 @@ async def friend_feed(access_key: str, response: Response):
                 
             posts.append(lists_of_posts)
 
-        my_posts = next(db.fetch({'type': 'post'}))
+        my_posts = next(db.fetch({'category': 'post'}))
 
         for post in my_posts:
             post['name'] = username
@@ -242,6 +248,7 @@ async def friend_feed(access_key: str, response: Response):
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
+    
 
 @app.put("/change-key", status_code=200)
 def change_key(keys: NewKey, response: Response):
@@ -298,19 +305,19 @@ def accept_friend(addfriend: AddFriend, response: Response):
     # This very much needs to be private/authed to only the owner
         try:
             checkFriendExists = db.get(addfriend.public_key)
-            checkType = checkFriendExists['type']
+            checkType = checkFriendExists['category']
             
             if checkType == "friend":
                 response.body = "Already Connected"
             
             if checkType == "pending_friend":
-                db.update({'type': 'friend'}, addfriend.public_key)
+                db.update({'category': 'friend'}, addfriend.public_key)
                 response.body = "Connection Request Accepted"
             
             return {response}
         
         except:
-            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'type': 'pending_friend', 'bridge': addfriend.bridge}
+            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'category': 'pending_friend', 'bridge': addfriend.bridge}
             pending_friend = db.put(pending_friend_json)
         
             if pending_friend == pending_friend_json:
@@ -322,7 +329,7 @@ def request_friend(addfriend: AddFriend, response: Response):
     # You can only lodge a friend request here, approval can only be done via /accept
         try:
             checkFriendExists = db.get(addfriend.public_key)
-            checkType = checkFriendExists['type']
+            checkType = checkFriendExists['category']
             
             if checkType == "friend":
                 response.body = "Already a Friend"
@@ -333,11 +340,27 @@ def request_friend(addfriend: AddFriend, response: Response):
             return {response}
         
         except:
-            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'type': 'pending_friend', 'bridge': addfriend.bridge}
+            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'category': 'pending_friend', 'bridge': addfriend.bridge}
             pending_friend = db.put(pending_friend_json)
         
             if pending_friend == pending_friend_json:
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
             
+@app.post("/notify", status_code=201)
+def receive_notification(notification: ReceivedNotif, response: Response):
+    friend_data = db.get(notification.key)
+    bridge = friend_data['bridge']
+    category = friend_data['category']
+    key = friend_data['key']
+    
+    if category == 'friend' and bridge == notification.bridge and key == notification.key:
+        db.update({'value': 'notified'}, key)
+        response.body = "notification created if it didn't already exist"
+        return {response}
+
+    else:
+        response.body = "unknown auth or not a friend"
+        response.status_code = status.HTTP_404_NOT_FOUND
+
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
