@@ -70,7 +70,6 @@ class NewBio(BaseModel):
 class ReceivedNotif(BaseModel):
     bridge: str
     key: str
-    timestamp: float
     
 def get_my_key():
     try:
@@ -165,7 +164,7 @@ def create_post(newpost: NewPost, response: Response):
     if newpost.access_key == private_key:
         post_id = uuid.uuid4().hex
         timestamp_now = time.time()
-        post_json = {"key": post_id, "post": newpost.post, 'category': 'post', 'time': timestamp_now}
+        post_json = {"key": post_id, 'value': newpost.post, 'category': 'post', 'time': timestamp_now}
         create_post = db.put(post_json)
 
         if create_post == post_json:
