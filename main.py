@@ -1,4 +1,3 @@
-from xmlrpc.client import boolean
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
