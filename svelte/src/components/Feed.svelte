@@ -1,5 +1,4 @@
 <script>
-    import "../lib/TailwindCSS.svelte";
     import { onMount, onDestroy } from "svelte";
 
     let hostAccessKey = "";
@@ -30,7 +29,7 @@
     const createPost = async () => {
         var contentToPost = {
             access_key: hostAccessKey,
-            post: newPost,
+            value: newPost,
         };
 
         var postResp = await fetch("create-post", {
@@ -42,6 +41,7 @@
             body: JSON.stringify(contentToPost),
         });
         var postResult = await postResp.json();
+        newPost = "";
     };
 
     const getFeed = async () => {
@@ -109,7 +109,7 @@
         {#if friendFeedLoaded}
             <h2 class="text-2xl pt-4 pb-2">Friend Feed</h2>
 
-            {#each friendFeedPosts as { name, post, time }}
+            {#each friendFeedPosts as { name, value, time }}
                 <div
                     class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
                 >
@@ -123,7 +123,7 @@
                         <p
                             class="text-gray-500 text-sm sm:text-base line-clamp-3"
                         >
-                            {post}
+                            {value}
                         </p>
                     </div>
                 </div>
