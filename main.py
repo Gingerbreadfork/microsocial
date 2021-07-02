@@ -74,6 +74,27 @@ async def get_posts(name):
     
     return friend_posts.json()
 
+@app.get('/notify-all', status_code=201)
+async def notify_friends(bridge, response: Response):
+    try:
+        friends = db.fetch({'category': 'friend'})
+        for friend in friends:
+            try:
+                bridge = friend['bridge']
+                notify_endpoint = f"https://{bridge}.deta.dev/notify"
+                params = {'access_key': private_key, 'bridge': host_bridge}
+        
+                async with httpx.AsyncClient() as client:
+                    await client.get(notify_endpoint, params=params)
+            except:
+                pass
+            
+            response.body = "Notifications Sent"
+            return {response}
+    except:
+        response.body = "No Friends Found"
+        return {response}
+
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
     if newfriend.access_key == private_key:
@@ -153,7 +174,7 @@ async def read_friend_posts(name: str, access_key: str, response: Response):
         return {response}
 
 @app.get("/friend-list")
-def friend_list(access_key: str, response: Response, pending: Optional[bool] = None):
+def friend_list(access_key: str, response: Response, pending: Optional[bool] = False):
     if access_key == private_key:
         try:
             if pending:
@@ -297,11 +318,15 @@ def request_friend(addfriend: AddFriend, response: Response):
             
             if checkType == "friend":
                 response.body = "Already a Friend"
+                return {response}
             
-            if checkType == "pending_friend":
+            elif checkType == "pending_friend":
                 response.body = "Already Pending"
+                return {response}
             
-            return {response}
+            else:
+                response.body = "Something is Wrong"
+                response.status_code = status.HTTP_400_BAD_REQUEST
         
         except:
             pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'category': 'pending_friend', 'bridge': addfriend.bridge}
@@ -320,17 +345,17 @@ def receive_notification(notification: ReceivedNotif, response: Response):
     
     if category == 'friend' and bridge == notification.bridge and key == notification.key:
         db.update({'value': 'notified'}, key)
-        response.body = "notification created if it didn't already exist"
+        response.body = "Notification Created"
         return {response}
 
     else:
-        response.body = "unknown auth or not a friend"
-        response.status_code = status.HTTP_404_NOT_FOUND
+        response.body = "Unable to Trigger Notification"
+        response.status_code = status.HTTP_400_BAD_REQUEST
 
 @app.get("/notifications", status_code=200)
-def check_notifications():
+def check_notifications(clear: Optional[bool] = False):
+    # This very much needs to be private/authed to only the owner
     friends = next(db.fetch({'category': 'friend'}))
-    
     notified_friends = []
     
     for friend in friends:
@@ -340,6 +365,15 @@ def check_notifications():
         except:
             pass
         
-    return {"notifications:": notified_friends}
-    
+    if clear == False:
+        if len(notified_friends) > 0:
+            return {'notifications': notified_friends}
+        else:
+            return {'notifications': 'No Notifications'}
+    else:
+        for friend in notified_friends:
+            db.update({'value': 'inactive'}, friend['key'])
+        return {'notifications': 'Notifications Cleared'}
+
+
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
