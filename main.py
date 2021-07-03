@@ -12,6 +12,7 @@ import secrets
 import string
 import os
 from models import *
+from config import *
 
 log.basicConfig(level=log.INFO)
 
@@ -33,8 +34,8 @@ if os.path.isfile(".detakey"):
         deta = Deta(projectkey)
 else:
     deta = Deta()
-
-db = deta.Base("microsocial")
+    
+db = deta.Base(dbname)
 
 def get_my_key():
     try:
@@ -74,31 +75,32 @@ async def get_posts(name):
     
     return friend_posts.json()
 
-@app.get('/notify-all', status_code=201)
-async def notify_friends(bridge, response: Response):
-    try:
-        friends = db.fetch({'category': 'friend'})
-        for friend in friends:
-            try:
-                bridge = friend['bridge']
-                notify_endpoint = f"https://{bridge}.deta.dev/notify"
-                params = {'access_key': private_key, 'bridge': host_bridge}
-        
-                async with httpx.AsyncClient() as client:
-                    await client.get(notify_endpoint, params=params)
-            except:
-                pass
-            
-            response.body = "Notifications Sent"
-            return {response}
-    except:
-        response.body = "No Friends Found"
-        return {response}
+def check_usernames(friends):
+    detected_change = False
+    for friend in friends:
+        stored_username = friend['name']
+        bridge = friend['bridge']
+        nameURL = f"https://{bridge}.deta.dev/my-name"
+        latest_username = httpx.get(nameURL)
+        new_name = latest_username.json()['name']
+
+        if stored_username != new_name:
+            db.update({'name': new_name, 'value': 'notified'}, friend['key'])
+            detected_change = True
+
+    return detected_change
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
     if newfriend.access_key == private_key:
-        friend_json = {'key': newfriend.public_key, 'name': newfriend.name, 'category': 'friend', 'bridge': newfriend.bridge}
+        friend_json = {
+            'key': newfriend.public_key,
+            'name': newfriend.name,
+            'category': 'friend',
+            'bridge': newfriend.bridge,
+            'value': 'notified'
+            }
+        
         added_friend = db.put(friend_json)
         
         if added_friend == friend_json:
@@ -177,12 +179,23 @@ async def read_friend_posts(name: str, access_key: str, response: Response):
 def friend_list(access_key: str, response: Response, pending: Optional[bool] = False):
     if access_key == private_key:
         try:
-            if pending:
+            if pending == True:
                 friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
-                return friends
+                checked_friends = check_usernames(friends)
+                if checked_friends == False:
+                    return friends
+                else:
+                    updated_friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
+                    return updated_friends
+                
             else:
                 friends = next(db.fetch({'category': 'friend'}))
-                return friends
+                checked_friends = check_usernames(friends)
+                if checked_friends == False:
+                    return friends
+                else:
+                    updated_friends = next(db.fetch({'category': 'friend'}))
+                    return updated_friends
         except:
             response.status_code = status.HTTP_404_NOT_FOUND
             return {response}
@@ -227,7 +240,7 @@ async def friend_feed(access_key: str, response: Response):
         try:        
             sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
             return sorted_feed
-        except:
+        except Exception as e:
             return None
     
     else:
@@ -296,14 +309,29 @@ def accept_friend(addfriend: AddFriend, response: Response):
                 response.body = "Already Connected"
             
             if checkType == "pending_friend":
-                db.update({'category': 'friend'}, addfriend.public_key)
+                db.update(
+                    {
+                    'category': 'friend',
+                    'name': addfriend.name,
+                    'bridge': addfriend.bridge,
+                    'value': 'notified'
+                    }, addfriend.public_key
+                        )
+                
                 response.body = "Connection Request Accepted"
             
             return {response}
         
         except:
-            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'category': 'pending_friend', 'bridge': addfriend.bridge}
-            pending_friend = db.put(pending_friend_json)
+            pending_friend_json = {
+                'key': addfriend.public_key,
+                'name': addfriend.name,
+                'category': 'pending_friend',
+                'bridge': addfriend.bridge,
+                'value': 'notified'
+                }
+            
+            pending_friend = db.update(pending_friend_json)
         
             if pending_friend == pending_friend_json:
                 response.status_code = status.HTTP_201_CREATED
@@ -336,22 +364,6 @@ def request_friend(addfriend: AddFriend, response: Response):
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
             
-@app.post("/notify", status_code=201)
-def receive_notification(notification: ReceivedNotif, response: Response):
-    friend_data = db.get(notification.key)
-    bridge = friend_data['bridge']
-    category = friend_data['category']
-    key = friend_data['key']
-    
-    if category == 'friend' and bridge == notification.bridge and key == notification.key:
-        db.update({'value': 'notified'}, key)
-        response.body = "Notification Created"
-        return {response}
-
-    else:
-        response.body = "Unable to Trigger Notification"
-        response.status_code = status.HTTP_400_BAD_REQUEST
-
 @app.get("/notifications", status_code=200)
 def check_notifications(clear: Optional[bool] = False):
     # This very much needs to be private/authed to only the owner
@@ -363,7 +375,7 @@ def check_notifications(clear: Optional[bool] = False):
             if friend['value'] == 'notified':
                 notified_friends.append(friend)
         except:
-            pass
+            return {'notifications': 'Fetching Notifications Failed'}
         
     if clear == False:
         if len(notified_friends) > 0:
@@ -375,5 +387,31 @@ def check_notifications(clear: Optional[bool] = False):
             db.update({'value': 'inactive'}, friend['key'])
         return {'notifications': 'Notifications Cleared'}
 
+@app.post("/notify", status_code=201)
+def receive_notification(notification: ReceivedNotif, response: Response):
+    friend_data = db.get(notification.key)
+    bridge = friend_data['bridge']
+    category = friend_data['category']
+    key = friend_data['key']
+
+    if category == 'friend' and bridge == notification.bridge and key == notification.key:
+        update_check = db.update({'value': 'notified'}, key)
+        
+        if not update_check:
+            response.body = "Notification Created"
+            again = db.get(notification.key)
+            return again
+
+    elif key == private_key:
+        response.body = "You Cannot Notify Yourself"
+        return {response}
+        
+    elif key != notification.key:
+        response.body = "Unknown or Incorrect Key"
+        return {response}
+
+    else:
+        response.body = "Unable to Trigger Notification"
+        response.status_code = status.HTTP_400_BAD_REQUEST
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")

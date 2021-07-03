@@ -140,3 +140,4 @@ cython_debug/
 # Deta
 .deta/
 .detakey
+.detabase
