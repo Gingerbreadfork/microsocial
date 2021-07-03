@@ -45,6 +45,7 @@
         var postResult = await postResp.json();
         newPost = "";
         notifyFriends();
+        getFeed();
     };
 
     const getFeed = async () => {
@@ -59,15 +60,23 @@
     };
 
     const notifyFriends = async () => {
-        var notifyReq = await fetch(
-            "notify-all?" +
-                new URLSearchParams({
-                    access_key: hostAccessKey,
-                    bridge: hostBridge,
-                })
-        );
-        var notifyResp = await notifyReq.json();
-        console.log(notifyResp);
+        friendListResp.forEach(async (friend) => {
+            console.log(friend);
+            var contentToPost = {
+                key: hostAccessKey,
+                bridge: hostBridge,
+            };
+            var friendNotifURL =
+                "https://" + friend.bridge + ".deta.dev/notify";
+            var notifyResp = await fetch(friendNotifURL, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(contentToPost),
+            });
+        });
     };
 
     const getFriends = async () => {
@@ -87,7 +96,7 @@
         return readableDate;
     }
 
-    const clearkNotifications = async () => {
+    const clearNotifications = async () => {
         await fetch(
             "notifications?" +
                 new URLSearchParams({
@@ -100,9 +109,11 @@
         if (friendFeedLoaded && friendListLoaded) {
             var notificationsReq = await fetch("notifications?");
             notifications = await notificationsReq.json();
-            if (notifications.notifications != "No Notifications") {
+            console.log(notifications.notifications);
+            if (notifications.notifications !== "No Notifications") {
                 getFeed();
-                clearkNotifications();
+                console.log("notification found");
+                clearNotifications();
             }
         }
     };
