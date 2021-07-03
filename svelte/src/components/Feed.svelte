@@ -8,13 +8,15 @@
     let friendListResp;
     let friendListLoaded = false;
     let myKeyLoaded = false;
+    let notifications;
+    let hostBridge = window.location.hostname.split(".")[0];
 
     onMount(async () => {
         getMyKey();
     });
 
     onDestroy(async () => {
-        clearInterval(getFeedAgain);
+        clearInterval(getNotifications);
     });
 
     const getMyKey = async () => {
@@ -42,6 +44,7 @@
         });
         var postResult = await postResp.json();
         newPost = "";
+        notifyFriends();
     };
 
     const getFeed = async () => {
@@ -53,6 +56,18 @@
         );
         friendFeedPosts = await FeedReq.json();
         friendFeedLoaded = true;
+    };
+
+    const notifyFriends = async () => {
+        var notifyReq = await fetch(
+            "notify-all?" +
+                new URLSearchParams({
+                    access_key: hostAccessKey,
+                    bridge: hostBridge,
+                })
+        );
+        var notifyResp = await notifyReq.json();
+        console.log(notifyResp);
     };
 
     const getFriends = async () => {
@@ -72,8 +87,28 @@
         return readableDate;
     }
 
-    // Aggressive but Fine for Testing
-    const getFeedAgain = setInterval(getFeed, 5000);
+    const clearkNotifications = async () => {
+        await fetch(
+            "notifications?" +
+                new URLSearchParams({
+                    clear: "True",
+                })
+        );
+    };
+
+    const checkNotifications = async () => {
+        if (friendFeedLoaded && friendListLoaded) {
+            var notificationsReq = await fetch("notifications?");
+            notifications = await notificationsReq.json();
+            if (notifications.notifications != "No Notifications") {
+                getFeed();
+                clearkNotifications();
+            }
+        }
+    };
+
+    // Intervals
+    const getNotifications = setInterval(checkNotifications, 1000);
 </script>
 
 <div class="container mx-auto sm:p-10">
