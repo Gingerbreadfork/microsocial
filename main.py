@@ -228,7 +228,7 @@ async def friend_feed(access_key: str, response: Response):
             posts.append(lists_of_posts)
 
         my_posts = next(db.fetch({'category': 'post'}))
-
+        username = get_my_name()
         for post in my_posts:
             post['name'] = username
             
