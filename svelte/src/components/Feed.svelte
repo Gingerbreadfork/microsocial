@@ -61,7 +61,6 @@
 
     const notifyFriends = async () => {
         friendListResp.forEach(async (friend) => {
-            console.log(friend);
             var contentToPost = {
                 key: hostAccessKey,
                 bridge: hostBridge,
@@ -109,10 +108,8 @@
         if (friendFeedLoaded && friendListLoaded) {
             var notificationsReq = await fetch("notifications?");
             notifications = await notificationsReq.json();
-            console.log(notifications.notifications);
             if (notifications.notifications !== "No Notifications") {
                 getFeed();
-                console.log("notification found");
                 clearNotifications();
             }
         }

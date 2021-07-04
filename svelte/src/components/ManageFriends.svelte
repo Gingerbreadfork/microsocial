@@ -14,6 +14,9 @@
     let viewingName;
     let viewingFriendBio = "";
     let actualFriendCount = 0;
+    let viewingFriendsPosts = false;
+    let viewingPosts;
+    let hostBridge = window.location.hostname.split(".")[0];
 
     onMount(async () => {
         getMyKey();
@@ -109,7 +112,6 @@
         });
 
         var friendResult = await friendReqResp.json();
-        console.log(friendResult);
         getFriends();
     };
 
@@ -131,7 +133,6 @@
         });
 
         var friendResult = await friendReqResp.json();
-        console.log(friendResult);
         sendFriendRequest(bridge);
         getFriends();
     };
@@ -143,6 +144,26 @@
         viewingBio = friendBioResp;
         viewingFriendProfile = true;
     };
+
+    const getFriendPosts = async () => {
+        var friendURL =
+            "https://" +
+            hostBridge +
+            ".deta.dev/friend-posts?access_key=" +
+            hostAccessKey +
+            "&name=" +
+            viewingName;
+        var friendPostsReq = await fetch(friendURL);
+        var friendPostsResp = await friendPostsReq.json();
+        viewingPosts = friendPostsResp.posts;
+        viewingFriendsPosts = true;
+    };
+
+    function convertTimestamp(timestamp) {
+        var dateObject = new Date(timestamp * 1000);
+        var readableDate = dateObject.toLocaleString();
+        return readableDate;
+    }
 
     const checkFriends = setInterval(getFriends, 5000);
 </script>
@@ -234,6 +255,7 @@
                                         on:click={() => {
                                             viewingName = name;
                                             getFriendBio(bridge);
+                                            getFriendPosts();
                                         }}
                                         ><svg
                                             class="w-6 h-6"
@@ -318,6 +340,7 @@
                                         on:click={() => {
                                             viewingName = name;
                                             getFriendBio(bridge);
+                                            getFriendPosts();
                                         }}
                                         ><svg
                                             class="w-6 h-6"
@@ -367,5 +390,25 @@
         >
             <p>{viewingBio}</p>
         </div>
+        {#if viewingFriendsPosts}
+            <h2 class="text-2xl pt-4 pb-2">Posts</h2>
+            {#each viewingPosts as { value, time }}
+                <div
+                    class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
+                >
+                    <div class="flex sm:flex-1 flex-col gap-2 p-1">
+                        <p class="text-gray-400">
+                            {convertTimestamp(time)}
+                        </p>
+
+                        <p
+                            class="text-gray-500 text-sm sm:text-base line-clamp-3"
+                        >
+                            {value}
+                        </p>
+                    </div>
+                </div>
+            {/each}
+        {/if}
     {/if}
 </div>

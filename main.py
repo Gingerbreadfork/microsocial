@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi.staticfiles import StaticFiles
 from deta import Deta
 import logging as log
+import asyncio
 import uuid
 import time
 import httpx
@@ -89,6 +90,31 @@ def check_usernames(friends):
             detected_change = True
 
     return detected_change
+
+async def get_posts_from_friend(friend):
+    name = friend['name']
+    key = friend['key']
+    bridge = friend['bridge']
+    posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
+    params = {'access_key': key}
+
+    async with httpx.AsyncClient() as client:
+        friend_posts = await client.get(posts_endpoint, params=params)
+
+    lists_of_posts = friend_posts.json()
+
+    for post in lists_of_posts:
+        post['name'] = name
+        
+    return lists_of_posts
+
+async def get_my_posts():
+    my_posts = next(db.fetch({'category': 'post'}))
+    for post in my_posts:
+        post['name'] = username
+    
+    print("got my posts")
+    return my_posts
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
@@ -207,42 +233,22 @@ def friend_list(access_key: str, response: Response, pending: Optional[bool] = F
 async def friend_feed(access_key: str, response: Response):
     if access_key == private_key:
         posts = []
-
         friends = next(db.fetch({'category': 'friend'}))
-        
-        for friend in friends:
-            name = friend['name']
-            key = friend['key']
-            bridge = friend['bridge']
-            posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
-            params = {'access_key': key}
-        
-            async with httpx.AsyncClient() as client:
-                friend_posts = await client.get(posts_endpoint, params=params)
+        my_posts = asyncio.create_task(get_my_posts())
 
-            lists_of_posts = friend_posts.json()
-            
-            for post in lists_of_posts:
-                post['name'] = name
-                
-            posts.append(lists_of_posts)
+        for future in asyncio.as_completed(map(get_posts_from_friend, friends)):
+            lists_of_posts = await future
 
-        my_posts = next(db.fetch({'category': 'post'}))
-
-        for post in my_posts:
-            post['name'] = username
-            
-        posts.append(my_posts)
-
+        posts.append(lists_of_posts)
+        posts.append(my_posts.result())
 
         combined = [item for sublist in posts for item in sublist]
 
-        try:        
+        try:
             sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
             return sorted_feed
         except Exception as e:
             return None
-    
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {response}
