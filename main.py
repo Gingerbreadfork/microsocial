@@ -108,6 +108,13 @@ async def get_posts_from_friend(friend):
         
     return lists_of_posts
 
+async def get_my_posts():
+    my_posts = next(db.fetch({'category': 'post'}))
+    for post in my_posts:
+        post['name'] = username
+    
+    print("got my posts")
+    return my_posts
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
@@ -226,19 +233,15 @@ def friend_list(access_key: str, response: Response, pending: Optional[bool] = F
 async def friend_feed(access_key: str, response: Response):
     if access_key == private_key:
         posts = []
-
         friends = next(db.fetch({'category': 'friend'}))
-        
+        my_posts = asyncio.create_task(get_my_posts())
+
         for future in asyncio.as_completed(map(get_posts_from_friend, friends)):
             lists_of_posts = await future
-        
-        posts.append(lists_of_posts)
 
-        my_posts = next(db.fetch({'category': 'post'}))
-        for post in my_posts:
-            post['name'] = username
-            
-        posts.append(my_posts)
+        posts.append(lists_of_posts)
+        posts.append(my_posts.result())
+
         combined = [item for sublist in posts for item in sublist]
 
         try:
