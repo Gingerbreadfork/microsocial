@@ -234,13 +234,13 @@ async def friend_feed(access_key: str, response: Response):
     if access_key == private_key:
         posts = []
         friends = next(db.fetch({'category': 'friend'}))
-        my_posts = asyncio.create_task(get_my_posts())
+        my_posts = await get_my_posts()
 
-        for future in asyncio.as_completed(map(get_posts_from_friend, friends)):
-            lists_of_posts = await future
-
-        posts.append(lists_of_posts)
-        posts.append(my_posts.result())
+        for friend in friends:
+            friend_posts = await get_posts_from_friend(friend)
+            posts.append(friend_posts)  
+        
+        posts.append(my_posts)
 
         combined = [item for sublist in posts for item in sublist]
 
