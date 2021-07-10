@@ -130,26 +130,21 @@ async def get_my_posts():
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
-    if newfriend.access_key == host_key:
-        friend_json = {
-            'key': newfriend.public_key,
-            'name': newfriend.name,
-            'category': 'friend',
-            'bridge': newfriend.bridge,
-            'value': 'notified'
-            }
-        
-        added_friend = db.put(friend_json)
-        
-        if added_friend == friend_json:
-            return friend_json
-        else:
-            response.status_code = status.HTTP_404_NOT_FOUND
-            return response
-
+    friend_json = {
+        'key': newfriend.public_key,
+        'name': newfriend.name,
+        'category': 'friend',
+        'bridge': newfriend.bridge,
+        'value': 'notified'
+        }
+    
+    added_friend = db.put(friend_json)
+    
+    if added_friend == friend_json:
+        return friend_json
     else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return response
 
 @app.delete("/remove-friend", status_code=200)
 def remove_friend(deletedfriend: DeletedFriend, response: Response):
@@ -392,5 +387,29 @@ def receive_notification(notification: ReceivedNotif, response: Response):
     else:
         response.body = "Unable to Trigger Notification"
         response.status_code = status.HTTP_400_BAD_REQUEST
+
+@app.post("/edit", status_code=200)
+def edit_post(post: EditingPost, response: Response):
+    # This very much needs to be private/authed to only the owner
+    try:
+        if post.updated_post and post.delete == False:
+            post_data = db.get(post.key)
+            if post_data['category'] == 'post':
+                new_post = encrypt_str_with_key(host_key, post.updated_post)
+                db.update({'value': new_post.decode('utf8')}, post.key)
+                response.body = "Post Updated"
+                return {response}
+
+        elif post.delete:
+            post_data = db.get(post.key)
+            if post_data['category'] == 'post':
+                db.delete(post.key)
+                response.body = "Post Deleted"
+                return {response}
+
+    except:
+        response.body = "Post Not Found or Not a Post"
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {response}
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
