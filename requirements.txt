@@ -2,3 +2,4 @@ fastapi
 aiofiles
 httpx
 starlette
+cryptography

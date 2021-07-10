@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class NewPost(BaseModel):
     access_key: str
@@ -33,3 +34,8 @@ class NewBio(BaseModel):
 class ReceivedNotif(BaseModel):
     bridge: str
     key: str
+    
+class EditingPost(BaseModel):
+    key: str
+    updated_post: Optional[str] = None
+    delete: Optional[bool] = False

@@ -50,7 +50,7 @@
 
     const getFeed = async () => {
         var FeedReq = await fetch(
-            "friend-feed?" +
+            "feed?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
                 })
@@ -164,7 +164,7 @@
                             </p>
                         </div>
                         <p
-                            class="text-gray-500 text-sm sm:text-base line-clamp-3"
+                            class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
                         >
                             {value}
                         </p>

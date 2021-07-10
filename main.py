@@ -4,7 +4,6 @@ from typing import Optional
 from fastapi.staticfiles import StaticFiles
 from deta import Deta
 import logging as log
-import asyncio
 import uuid
 import time
 import httpx
@@ -14,6 +13,7 @@ import string
 import os
 from models import *
 from config import *
+from encryption import *
 
 log.basicConfig(level=log.INFO)
 
@@ -40,15 +40,14 @@ db = deta.Base(dbname)
 
 def get_my_key():
     try:
-        my_key_obj = db.get('my_key')
-        private_key = my_key_obj['value']
+        host_access_key_obj = db.get('host_key')
+        host_key = host_access_key_obj['value'].encode()
     except TypeError:
         log.warning("No Private Key Exists! Creating key")
-        created_key = uuid.uuid4().hex
-        db.put({'key': 'my_key', 'value': created_key})
-        private_key = created_key
-        
-    return private_key
+        host_key = Fernet.generate_key()
+        db.put({'key': 'host_key', 'value': host_key.decode('utf-8')})
+
+    return host_key
 
 def get_my_name():
     try:
@@ -61,8 +60,9 @@ def get_my_name():
     return username
 
 # Grab Personal Info to Keep it Handy
-private_key = get_my_key()
+host_key = get_my_key()
 username = get_my_name()
+
 
 async def get_posts(name):
     friend = next(db.fetch({'name': name,'category': 'friend'}))
@@ -81,9 +81,9 @@ def check_usernames(friends):
     for friend in friends:
         stored_username = friend['name']
         bridge = friend['bridge']
-        nameURL = f"https://{bridge}.deta.dev/my-name"
+        nameURL = f"https://{bridge}.deta.dev/profile"
         latest_username = httpx.get(nameURL)
-        new_name = latest_username.json()['name']
+        new_name = latest_username.json()['username']
 
         if stored_username != new_name:
             db.update({'name': new_name, 'value': 'notified'}, friend['key'])
@@ -93,210 +93,170 @@ def check_usernames(friends):
 
 async def get_posts_from_friend(friend):
     name = friend['name']
-    key = friend['key']
+    key = friend['key'].encode('utf8')
     bridge = friend['bridge']
     posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
-    params = {'access_key': key}
 
     async with httpx.AsyncClient() as client:
-        friend_posts = await client.get(posts_endpoint, params=params)
+        friend_posts = await client.get(posts_endpoint)
 
     lists_of_posts = friend_posts.json()
 
     for post in lists_of_posts:
         post['name'] = name
-        
+        post['value'] = decrypt_str_with_key(key, post['value'])
+
     return lists_of_posts
 
 async def get_my_posts():
     my_posts = next(db.fetch({'category': 'post'}))
+    latest_username = get_my_name()
     for post in my_posts:
-        post['name'] = username
+        post['name'] = latest_username
+        post['value'] = decrypt_str_with_key(host_key, post['value'])
+        del post['category']
     
-    print("got my posts")
     return my_posts
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
-    if newfriend.access_key == private_key:
-        friend_json = {
-            'key': newfriend.public_key,
-            'name': newfriend.name,
-            'category': 'friend',
-            'bridge': newfriend.bridge,
-            'value': 'notified'
-            }
-        
-        added_friend = db.put(friend_json)
-        
-        if added_friend == friend_json:
-            return friend_json
-        else:
-            response.status_code = status.HTTP_404_NOT_FOUND
-            return response
-
+    friend_json = {
+        'key': newfriend.public_key,
+        'name': newfriend.name,
+        'category': 'friend',
+        'bridge': newfriend.bridge,
+        'value': 'notified'
+        }
+    
+    added_friend = db.put(friend_json)
+    
+    if added_friend == friend_json:
+        return friend_json
     else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return response
 
 @app.delete("/remove-friend", status_code=200)
 def remove_friend(deletedfriend: DeletedFriend, response: Response):
     unfriend = db.get(deletedfriend.key)
-    if deletedfriend.access_key == private_key:
-        if unfriend == []:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return {response}
-        
-        elif unfriend['category'] == 'friend' or unfriend['category'] == 'pending_friend':
-            unfriend_key = unfriend['key']
-            db.delete(unfriend_key)
-            response.body = "Unfriended Successfully"
-            response.status_code = status.HTTP_200_OK
-            return {response}
-        
-        else:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return {response}
-
+    if unfriend == []:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {response}
+    
+    elif unfriend['category'] == 'friend' or unfriend['category'] == 'pending_friend':
+        unfriend_key = unfriend['key']
+        db.delete(unfriend_key)
+        response.body = "Unfriended Successfully"
+        response.status_code = status.HTTP_200_OK
+        return {response}
+    
     else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
 
 @app.get("/shared-posts", status_code=200)
-def read_post(access_key: str, response: Response):
-    if access_key == private_key:
-        my_posts = db.fetch({'category': 'post'})
-        response = [item for sublist in my_posts for item in sublist]
-        return response
-    
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
-    
+def read_post(response: Response, key: Optional[str] = None):
+    # Returns Encrypted Posts
+    my_posts = db.fetch({'category': 'post'})
+    posts = [item for sublist in my_posts for item in sublist]
+    for post in posts:
+        del post['category']
+        if key:
+            if key.encode('utf8') == host_key:
+                post['value'] = decrypt_str_with_key(host_key, post['value'])
+
+    return posts
+
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
-    if newpost.access_key == private_key:
-        post_id = uuid.uuid4().hex
-        timestamp_now = time.time()
-        post_json = {"key": post_id, 'value': newpost.value, 'category': 'post', 'time': timestamp_now}
-        create_post = db.put(post_json)
+    post_id = uuid.uuid4().hex
+    timestamp_now = time.time()
+    encrypted_post = encrypt_str_with_key(host_key, newpost.value)
+    post_json = {"key": post_id, 'value': encrypted_post.decode('utf8'), 'category': 'post', 'time': timestamp_now}
+    create_post = db.put(post_json)
 
-        if create_post == post_json:
-            return {response}
-        else:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return {response}
-
+    if create_post == post_json:
+        response.body = "Post Created"
+        return {response}
     else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+        response.body = "Error Creating Post"
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
         
 @app.get("/friend-posts", status_code=200)
-async def read_friend_posts(name: str, access_key: str, response: Response):
-    if access_key == private_key:
-        friend_posts = await get_posts(name)
-        return {'posts': friend_posts}
-
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
+async def read_friend_posts(name: str, response: Response):
+    friend_obj = next(db.fetch({'name': name, 'category': 'friend'}))
+    friend_key = friend_obj[0]['key']
+    friend_posts = await get_posts(name)
+    
+    for post in friend_posts:
+        post['value'] = decrypt_str_with_key(friend_key, post['value'])
+        
+    return {'posts': friend_posts}
 
 @app.get("/friend-list")
-def friend_list(access_key: str, response: Response, pending: Optional[bool] = False):
-    if access_key == private_key:
-        try:
-            if pending == True:
-                friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
-                checked_friends = check_usernames(friends)
-                if checked_friends == False:
-                    return friends
-                else:
-                    updated_friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
-                    return updated_friends
-                
+def friend_list(response: Response, pending: Optional[bool] = False):
+    try:
+        if pending == True:
+            friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
+            checked_friends = check_usernames(friends)
+            if checked_friends == False:
+                return friends
             else:
-                friends = next(db.fetch({'category': 'friend'}))
-                checked_friends = check_usernames(friends)
-                if checked_friends == False:
-                    return friends
-                else:
-                    updated_friends = next(db.fetch({'category': 'friend'}))
-                    return updated_friends
-        except:
-            response.status_code = status.HTTP_404_NOT_FOUND
-            return {response}
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+                updated_friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
+                return updated_friends
+        else:
+            friends = next(db.fetch({'category': 'friend'}))
+            checked_friends = check_usernames(friends)
+            if checked_friends == False:
+                return friends
+            else:
+                updated_friends = next(db.fetch({'category': 'friend'}))
+                return updated_friends
+    except:
+        response.status_code = status.HTTP_404_NOT_FOUND
         return {response}
     
-@app.get("/friend-feed")
-async def friend_feed(access_key: str, response: Response):
-    if access_key == private_key:
-        posts = []
-        friends = next(db.fetch({'category': 'friend'}))
-        my_posts = await get_my_posts()
+@app.get("/feed")
+async def friend_feed(response: Response):
+    posts = []
+    friends = next(db.fetch({'category': 'friend'}))
+    my_posts = await get_my_posts()
 
-        for friend in friends:
-            friend_posts = await get_posts_from_friend(friend)
-            posts.append(friend_posts)  
-        
-        posts.append(my_posts)
-
-        combined = [item for sublist in posts for item in sublist]
-
-        try:
-            sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
-            return sorted_feed
-        except Exception as e:
-            return None
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
+    for friend in friends:
+        friend_posts = await get_posts_from_friend(friend)
+        posts.append(friend_posts)  
     
+    posts.append(my_posts)
 
-@app.put("/change-key", status_code=200)
-def change_key(keys: NewKey, response: Response):
-    # This very much needs to be private/authed to only the owner
-    global private_key
-    if keys.access_key == private_key:
-        db.put({'key': 'my_key', 'value': keys.new_key.strip()})
-        private_key = keys.new_key.strip()
-        return {response}
+    combined = [item for sublist in posts for item in sublist]
 
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
-    
+    try:
+        sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
+        return sorted_feed
+    except Exception as e:
+        return None
+
 @app.put("/change-name", status_code=200)
 def change_key(namechange: NewName, response: Response):
     # This very much needs to be private/authed to only the owner
-    if namechange.access_key == private_key:
-        db.update({'value': namechange.new_name.strip()}, "my_name")
-        return {response}
-
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {response}
+    db.update({'value': namechange.new_name.strip()}, "my_name")
+    return {response}
     
 @app.get("/my-key", status_code=200)
 def show_my_key():
     # This very much needs to be private/authed to only the owner
-    return {'key': private_key}
-
-@app.get("/my-name", status_code=200)
-def show_my_key():
-    # This very much needs to be private/authed to only the owner
-    my_name = db.get('my_name')
-    return {'name': my_name['value']}
-
-@app.get("/bio", status_code=200)
-def show_my_key():
-    # This very much needs to be private/authed to only the owner
+    return {'key': host_key}
+    
+@app.get("/profile", status_code=200)
+def get_host_bio():
+    host_username = db.get('my_name')
     try:
-        my_bio = db.get('my_bio')
-        return {my_bio['value']}
-    except:
-        return {"Nothing to see here..."}
+        host_bio = db.get('my_bio')
+        return {'username': host_username['value'], 'bio': host_bio['value']}
+    except TypeError:
+        host_bio = "Nothing to see here..."
+        return {'username': host_username['value'], 'bio': host_bio}
     
 @app.put("/change-bio", status_code=200)
 def show_my_key(updated_bio: NewBio, response: Response):
@@ -327,7 +287,7 @@ def accept_friend(addfriend: AddFriend, response: Response):
                 response.body = "Connection Request Accepted"
             
             return {response}
-        
+
         except:
             pending_friend_json = {
                 'key': addfriend.public_key,
@@ -408,7 +368,7 @@ def receive_notification(notification: ReceivedNotif, response: Response):
             again = db.get(notification.key)
             return again
 
-    elif key == private_key:
+    elif key == host_key:
         response.body = "You Cannot Notify Yourself"
         return {response}
         
@@ -419,5 +379,29 @@ def receive_notification(notification: ReceivedNotif, response: Response):
     else:
         response.body = "Unable to Trigger Notification"
         response.status_code = status.HTTP_400_BAD_REQUEST
+
+@app.post("/edit", status_code=200)
+def edit_post(post: EditingPost, response: Response):
+    # This very much needs to be private/authed to only the owner
+    try:
+        if post.updated_post and post.delete == False:
+            post_data = db.get(post.key)
+            if post_data['category'] == 'post':
+                new_post = encrypt_str_with_key(host_key, post.updated_post)
+                db.update({'value': new_post.decode('utf8')}, post.key)
+                response.body = "Post Updated"
+                return {response}
+
+        elif post.delete:
+            post_data = db.get(post.key)
+            if post_data['category'] == 'post':
+                db.delete(post.key)
+                response.body = "Post Deleted"
+                return {response}
+
+    except:
+        response.body = "Post Not Found or Not a Post"
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {response}
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
