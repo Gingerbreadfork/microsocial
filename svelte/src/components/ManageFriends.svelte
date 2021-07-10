@@ -82,11 +82,9 @@
             if (friend.category == "pending_friend") {
                 anyPending = true;
             } else {
-                anyPending = false;
-            }
-
-            if (friend.category == "friend") {
-                actualFriendCount++;
+                if (friend.category == "friend") {
+                    actualFriendCount++;
+                }
             }
         });
 
