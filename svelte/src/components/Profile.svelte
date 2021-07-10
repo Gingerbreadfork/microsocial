@@ -7,6 +7,8 @@
     let hostProfileLoaded = false;
     let hostBridge = window.location.hostname.split(".")[0];
     let hostBio = "";
+    let hostPostsLoaded = false;
+    let hostPosts;
 
     onMount(async () => {
         getMyKey();
@@ -20,6 +22,7 @@
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
+        getHostPosts();
     };
 
     const getMyProfile = async () => {
@@ -29,19 +32,50 @@
         hostBio = hostProfileResp.bio;
         hostProfileLoaded = true;
     };
+
+    const getHostPosts = async () => {
+        var postsURL = "/shared-posts?key=" + hostAccessKey;
+        var hostPostsReq = await fetch(postsURL);
+        var hostPostsResp = await hostPostsReq.json();
+        hostPosts = hostPostsResp;
+        hostPostsLoaded = true;
+    };
+
+    function convertTimestamp(timestamp) {
+        var dateObject = new Date(timestamp * 1000);
+        var readableDate = dateObject.toLocaleString();
+        return readableDate;
+    }
 </script>
 
 <div class="container mx-auto sm:p-10">
     {#if hostUsername != ""}
         <h2 class="text-2xl pt-4 pb-2">{hostUsername}'s Profile</h2>
     {/if}
-    {#if myKeyLoaded}
-        {#if hostProfileLoaded}
+    {#if hostProfileLoaded}
+        <div
+            class="border border-gray-300 p-2 mb-4 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
+        >
+            <p class="break-words">{hostBio}</p>
+        </div>
+    {/if}
+    {#if hostPostsLoaded}
+        <h2 class="text-2xl pt-4 pb-2">Posts</h2>
+        {#each hostPosts as { value, time }}
             <div
-                class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
+                class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
             >
-                <p class="break-words">{hostBio}</p>
+                <div class="flex sm:flex-1 flex-col gap-2 p-1">
+                    <p class="text-gray-400">
+                        {convertTimestamp(time)}
+                    </p>
+                    <p
+                        class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
+                    >
+                        {value}
+                    </p>
+                </div>
             </div>
-        {/if}
+        {/each}
     {/if}
 </div>

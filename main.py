@@ -155,13 +155,15 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
 
 @app.get("/shared-posts", status_code=200)
-def read_post(response: Response):
+def read_post(response: Response, key: Optional[str] = None):
     # Returns Encrypted Posts
     my_posts = db.fetch({'category': 'post'})
-    log.warning(my_posts)
     posts = [item for sublist in my_posts for item in sublist]
     for post in posts:
         del post['category']
+        if key:
+            if key.encode('utf8') == host_key:
+                post['value'] = decrypt_str_with_key(host_key, post['value'])
 
     return posts
 
