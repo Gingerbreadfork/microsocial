@@ -91,9 +91,9 @@ def check_usernames(friends):
     for friend in friends:
         stored_username = friend['name']
         bridge = friend['bridge']
-        nameURL = f"https://{bridge}.deta.dev/my-name"
+        nameURL = f"https://{bridge}.deta.dev/profile"
         latest_username = httpx.get(nameURL)
-        new_name = latest_username.json()['name']
+        new_name = latest_username.json()['username']
 
         if stored_username != new_name:
             db.update({'name': new_name, 'value': 'notified'}, friend['key'])
@@ -180,18 +180,6 @@ def read_post(response: Response):
 
     return posts
 
-@app.get("/my-posts", status_code=200)
-def read_post(response: Response):
-    # Returns Decrypted Posts
-    my_posts = db.fetch({'category': 'post'})
-    log.warning(my_posts)
-    posts = [item for sublist in my_posts for item in sublist]
-    for post in posts:
-        post['value'] = decrypt_str_with_key(host_key, post['value'])
-        del post['category']
-
-    return posts
-    
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
     post_id = uuid.uuid4().hex
@@ -210,7 +198,13 @@ def create_post(newpost: NewPost, response: Response):
         
 @app.get("/friend-posts", status_code=200)
 async def read_friend_posts(name: str, response: Response):
+    friend_obj = next(db.fetch({'name': name, 'category': 'friend'}))
+    friend_key = friend_obj[0]['key']
     friend_posts = await get_posts(name)
+    
+    for post in friend_posts:
+        post['value'] = decrypt_str_with_key(friend_key, post['value'])
+        
     return {'posts': friend_posts}
 
 @app.get("/friend-list")
@@ -224,7 +218,6 @@ def friend_list(response: Response, pending: Optional[bool] = False):
             else:
                 updated_friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
                 return updated_friends
-            
         else:
             friends = next(db.fetch({'category': 'friend'}))
             checked_friends = check_usernames(friends)
@@ -237,7 +230,7 @@ def friend_list(response: Response, pending: Optional[bool] = False):
         response.status_code = status.HTTP_404_NOT_FOUND
         return {response}
     
-@app.get("/friend-feed")
+@app.get("/feed")
 async def friend_feed(response: Response):
     posts = []
     friends = next(db.fetch({'category': 'friend'}))
@@ -267,21 +260,16 @@ def change_key(namechange: NewName, response: Response):
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': host_key}
-
-@app.get("/my-name", status_code=200)
-def show_my_key():
-    # This very much needs to be private/authed to only the owner
-    my_name = db.get('my_name')
-    return {'name': my_name['value']}
-
-@app.get("/bio", status_code=200)
-def show_my_key():
-    # This very much needs to be private/authed to only the owner
+    
+@app.get("/profile", status_code=200)
+def get_host_bio():
+    host_username = db.get('my_name')
     try:
-        my_bio = db.get('my_bio')
-        return {my_bio['value']}
-    except:
-        return {"Nothing to see here..."}
+        host_bio = db.get('my_bio')
+        return {'username': host_username['value'], 'bio': host_bio['value']}
+    except TypeError:
+        host_bio = "Nothing to see here..."
+        return {'username': host_username['value'], 'bio': host_bio}
     
 @app.put("/change-bio", status_code=200)
 def show_my_key(updated_bio: NewBio, response: Response):
@@ -312,7 +300,7 @@ def accept_friend(addfriend: AddFriend, response: Response):
                 response.body = "Connection Request Accepted"
             
             return {response}
-        
+
         except:
             pending_friend_json = {
                 'key': addfriend.public_key,

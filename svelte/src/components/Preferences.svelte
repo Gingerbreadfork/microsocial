@@ -3,24 +3,23 @@
 
     let hostAccessKey = "";
     let hostUsername = "";
-    let myNameLoaded = false;
     let newAccessKey;
     let newUsername;
     let hostBio;
-    let myBioLoaded;
+    let hostProfileLoaded;
 
     onMount(async () => {
-        getMyName();
-        getMyBio();
+        getMyProfile();
     });
 
     onDestroy(async () => {});
 
-    const getMyName = async () => {
-        var myNameReq = await fetch("my-name");
-        var myNameResp = await myNameReq.json();
-        hostUsername = myNameResp.name;
-        myNameLoaded = true;
+    const getMyProfile = async () => {
+        var hostProfileReq = await fetch("profile");
+        var hostProfileResp = await hostProfileReq.json();
+        hostUsername = hostProfileResp.username;
+        hostBio = hostProfileResp.bio;
+        hostProfileLoaded = true;
     };
 
     const changeName = async () => {
@@ -38,14 +37,7 @@
         });
 
         var changeKeyResult = await changeNameResp.json();
-        getMyName();
-    };
-
-    const getMyBio = async () => {
-        var myBioReq = await fetch("bio");
-        var myBioResp = await myBioReq.json();
-        hostBio = myBioResp;
-        myBioLoaded = true;
+        getMyProfile();
     };
 
     const changeBio = async () => {
@@ -63,12 +55,12 @@
         });
 
         var changeBioResult = await changeBioResp.json();
-        getMyBio();
+        getMyProfile();
     };
 </script>
 
 <div class="container mx-auto sm:p-10">
-    {#if myNameLoaded}
+    {#if hostProfileLoaded}
         <h2 class="text-2xl pb-2 pt-2">Change Username</h2>
         <div
             class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
@@ -113,9 +105,7 @@
                 >
             </div>
         </div>
-    {/if}
 
-    {#if myBioLoaded}
         <h2 class="text-2xl pt-4 pb-2">Edit Bio</h2>
         <div
             class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg"

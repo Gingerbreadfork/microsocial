@@ -10,9 +10,8 @@
     let myNameLoaded;
     let anyPending = false;
     let viewingFriendProfile = false;
-    let viewingBio = "";
+    let viewingProfile;
     let viewingName;
-    let viewingFriendBio = "";
     let actualFriendCount = 0;
     let viewingFriendsPosts = false;
     let viewingPosts;
@@ -36,17 +35,17 @@
     };
 
     const getMyName = async () => {
-        var myNameReq = await fetch("my-name");
+        var myNameReq = await fetch("profile");
         var myNameResp = await myNameReq.json();
-        hostUsername = myNameResp.name;
+        hostUsername = myNameResp.username;
         myNameLoaded = true;
     };
 
     const getFriendName = async (bridge) => {
-        var friendURL = "https://" + bridge + ".deta.dev/my-name";
+        var friendURL = "https://" + bridge + ".deta.dev/profile";
         var friendNameReq = await fetch(friendURL);
         var friendNameResp = await friendNameReq.json();
-        return friendNameResp.name;
+        return friendNameResp.username;
     };
 
     const removeFriend = async (key) => {
@@ -135,11 +134,11 @@
         getFriends();
     };
 
-    const getFriendBio = async (bridge) => {
-        var friendURL = "https://" + bridge + ".deta.dev/bio";
-        var friendBioReq = await fetch(friendURL);
-        var friendBioResp = await friendBioReq.json();
-        viewingBio = friendBioResp;
+    const getFriendProfile = async (bridge) => {
+        var friendURL = "https://" + bridge + ".deta.dev/profile";
+        var friendProfileReq = await fetch(friendURL);
+        var friendProfileResp = await friendProfileReq.json();
+        viewingProfile = friendProfileResp;
         viewingFriendProfile = true;
     };
 
@@ -252,7 +251,7 @@
                                         class="focus:outline-none hover:text-indigo-500"
                                         on:click={() => {
                                             viewingName = name;
-                                            getFriendBio(bridge);
+                                            getFriendProfile(bridge);
                                             getFriendPosts();
                                         }}
                                         ><svg
@@ -337,7 +336,7 @@
                                         class="focus:outline-none hover:text-indigo-500"
                                         on:click={() => {
                                             viewingName = name;
-                                            getFriendBio(bridge);
+                                            getFriendProfile(bridge);
                                             getFriendPosts();
                                         }}
                                         ><svg
@@ -382,11 +381,11 @@
                 /></svg
             ></button
         >
-        <h2 class="text-2xl pb-2">{viewingName}'s Profile</h2>
+        <h2 class="text-2xl pb-2">{viewingProfile.username}'s Profile</h2>
         <div
             class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
         >
-            <p>{viewingBio}</p>
+            <p class="break-words">{viewingProfile.bio}</p>
         </div>
         {#if viewingFriendsPosts}
             <h2 class="text-2xl pt-4 pb-2">Posts</h2>
@@ -400,7 +399,7 @@
                         </p>
 
                         <p
-                            class="text-gray-500 text-sm sm:text-base line-clamp-3"
+                            class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
                         >
                             {value}
                         </p>

@@ -4,15 +4,13 @@
     let hostAccessKey = "";
     let myKeyLoaded = false;
     let hostUsername = "";
-    let myNameLoaded = false;
+    let hostProfileLoaded = false;
     let hostBridge = window.location.hostname.split(".")[0];
-    let myBioLoaded = false;
     let hostBio = "";
 
     onMount(async () => {
         getMyKey();
-        getMyName();
-        getMyBio();
+        getMyProfile();
     });
 
     onDestroy(async () => {});
@@ -24,18 +22,12 @@
         myKeyLoaded = true;
     };
 
-    const getMyName = async () => {
-        var myNameReq = await fetch("my-name");
-        var myNameResp = await myNameReq.json();
-        hostUsername = myNameResp.name;
-        myNameLoaded = true;
-    };
-
-    const getMyBio = async () => {
-        var myBioReq = await fetch("bio");
-        var myBioResp = await myBioReq.json();
-        hostBio = myBioResp;
-        myBioLoaded = true;
+    const getMyProfile = async () => {
+        var hostProfileReq = await fetch("profile");
+        var hostProfileResp = await hostProfileReq.json();
+        hostUsername = hostProfileResp.username;
+        hostBio = hostProfileResp.bio;
+        hostProfileLoaded = true;
     };
 </script>
 
@@ -44,22 +36,12 @@
         <h2 class="text-2xl pt-4 pb-2">{hostUsername}'s Profile</h2>
     {/if}
     {#if myKeyLoaded}
-        {#if myNameLoaded}
+        {#if hostProfileLoaded}
             <div
                 class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
             >
-                <p><b>Access Key:</b> {hostAccessKey}</p>
-                <p><b>Name:</b> {hostUsername}</p>
-                <p><b>Bridge:</b> {hostBridge}</p>
+                <p class="break-words">{hostBio}</p>
             </div>
         {/if}
-    {/if}
-    {#if myBioLoaded}
-        <h2 class="text-2xl pt-4 pb-2">Bio</h2>
-        <div
-            class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
-        >
-            <p>{hostBio}</p>
-        </div>
     {/if}
 </div>
