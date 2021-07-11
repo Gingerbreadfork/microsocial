@@ -249,7 +249,7 @@ async def friend_feed(
     
     if cached:
         try:
-            cached_feed = db.get("cached_feed")
+            cached_feed = db.get("cached_feed")['value']
             if cached_feed != None:
                 return cached_feed
         except:

@@ -13,6 +13,8 @@
 
     onMount(async () => {
         getMyKey();
+        quickFeed();
+        getFriends();
     });
 
     onDestroy(async () => {
@@ -24,8 +26,6 @@
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
-        getFeed();
-        getFriends();
     };
 
     const createPost = async () => {
@@ -53,6 +53,19 @@
             "feed?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
+                    cache: "true",
+                })
+        );
+        friendFeedPosts = await FeedReq.json();
+        friendFeedLoaded = true;
+    };
+
+    const quickFeed = async () => {
+        var FeedReq = await fetch(
+            "feed?" +
+                new URLSearchParams({
+                    access_key: hostAccessKey,
+                    cached: "true",
                 })
         );
         friendFeedPosts = await FeedReq.json();
