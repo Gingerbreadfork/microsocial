@@ -170,7 +170,7 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
 
 @app.get("/shared-posts", status_code=200)
-def read_post(
+def shared_posts(
     response: Response,
     key: Optional[str] = None,
     limit: Optional[int] = None,
@@ -242,9 +242,19 @@ def friend_list(response: Response, pending: Optional[bool] = False):
 async def friend_feed(
     response: Response,
     limit: Optional[int] = None,
-    offset: Optional[int] = None
+    offset: Optional[int] = None,
+    cached: Optional[bool] = False,
+    cache: Optional[bool] = False
     ):
     
+    if cached:
+        try:
+            cached_feed = db.get("cached_feed")
+            if cached_feed != None:
+                return cached_feed
+        except:
+            pass
+        
     posts = []
     friends = next(db.fetch({'category': 'friend'}))
     my_posts = await get_my_posts()
@@ -254,10 +264,12 @@ async def friend_feed(
         posts.append(friend_posts)  
     
     posts.append(my_posts)
-
     combined = [item for sublist in posts for item in sublist]
-
     sorted_posts = sort_and_trim(combined, limit, offset)
+
+    if cache:
+        db.put(sorted_posts, 'cached_feed')
+
     return sorted_posts
 
 @app.get("/my-key", status_code=200)
