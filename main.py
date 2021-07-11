@@ -113,6 +113,26 @@ async def get_my_posts():
     
     return my_posts
 
+def sort_and_trim(posts, limit=None, offset=None):
+    try:
+        sorted_posts = sorted(posts, key=itemgetter('time'), reverse=True)
+        
+        if offset is not None and limit is not None:
+            trimmed_posts = sorted_posts[offset:offset+limit]
+            
+        elif limit is not None and offset is None:
+            trimmed_posts = sorted_posts[:limit]
+            
+        elif offset is not None and limit is None:
+            trimmed_posts = sorted_posts[offset:]
+        else:
+            return sorted_posts
+            
+        return trimmed_posts
+    
+    except Exception as e:
+        return None
+
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
     friend_json = {
@@ -150,7 +170,12 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
 
 @app.get("/shared-posts", status_code=200)
-def read_post(response: Response, key: Optional[str] = None, limit: Optional[int] = None):
+def read_post(
+    response: Response,
+    key: Optional[str] = None,
+    limit: Optional[int] = None,
+    offset: Optional[int] = None
+    ):
     # Returns Encrypted Posts
     my_posts = db.fetch({'category': 'post'})
     posts = [item for sublist in my_posts for item in sublist]
@@ -160,16 +185,8 @@ def read_post(response: Response, key: Optional[str] = None, limit: Optional[int
             if key.encode('utf8') == host_key:
                 post['value'] = decrypt_str_with_key(host_key, post['value'])
     
-    try:
-        sorted_posts = sorted(posts, key=itemgetter('time'), reverse=True)
-    except:
-        return None
-    
-    if limit:
-        trimmed_posts = sorted_posts[:limit]
-        return trimmed_posts
-    else:
-        return sorted_posts
+    sorted_posts = sort_and_trim(posts, limit, offset)
+    return sorted_posts
 
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
@@ -222,7 +239,12 @@ def friend_list(response: Response, pending: Optional[bool] = False):
         return {response}
 
 @app.get("/feed")
-async def friend_feed(response: Response, limit: Optional[int] = None):
+async def friend_feed(
+    response: Response,
+    limit: Optional[int] = None,
+    offset: Optional[int] = None
+    ):
+    
     posts = []
     friends = next(db.fetch({'category': 'friend'}))
     my_posts = await get_my_posts()
@@ -235,16 +257,8 @@ async def friend_feed(response: Response, limit: Optional[int] = None):
 
     combined = [item for sublist in posts for item in sublist]
 
-    try:
-        sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
-    except Exception as e:
-        return None
-    
-    if limit:
-        trimmed_feed = sorted_feed[:limit]
-        return trimmed_feed
-    else:
-        return sorted_feed
+    sorted_posts = sort_and_trim(combined, limit, offset)
+    return sorted_posts
 
 @app.get("/my-key", status_code=200)
 def show_my_key():
