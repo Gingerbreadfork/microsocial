@@ -116,7 +116,7 @@
     };
 
     // Intervals
-    const getNotifications = setInterval(checkNotifications, 1000);
+    const getNotifications = setInterval(checkNotifications, 500);
 </script>
 
 <div class="container mx-auto sm:p-10">

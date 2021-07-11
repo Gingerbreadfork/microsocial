@@ -35,7 +35,8 @@ class ReceivedNotif(BaseModel):
     bridge: str
     key: str
     
-class EditingPost(BaseModel):
-    key: str
-    updated_post: Optional[str] = None
+class EditingItem(BaseModel):
+    item: str
+    key: Optional[str] = None
+    content: Optional[str] = None
     delete: Optional[bool] = False

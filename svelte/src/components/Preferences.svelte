@@ -23,17 +23,16 @@
     };
 
     const changeName = async () => {
-        var updateName = {
-            new_name: newUsername,
-        };
-
-        var changeNameResp = await fetch("change-name", {
+        var changeNameResp = await fetch("edit", {
             method: "PUT",
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updateName),
+            body: JSON.stringify({
+                content: newUsername,
+                item: "username",
+            }),
         });
 
         var changeKeyResult = await changeNameResp.json();
@@ -41,17 +40,16 @@
     };
 
     const changeBio = async () => {
-        var updateedBio = {
-            bio: hostBio,
-        };
-
-        var changeBioResp = await fetch("change-bio", {
+        var changeBioResp = await fetch("edit", {
             method: "PUT",
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updateedBio),
+            body: JSON.stringify({
+                content: hostBio,
+                item: "bio",
+            }),
         });
 
         var changeBioResult = await changeBioResp.json();
@@ -61,11 +59,11 @@
 
 <div class="container mx-auto sm:p-10">
     {#if hostProfileLoaded}
-        <h2 class="text-2xl pb-2 pt-2">Change Username</h2>
+        <h2 class="text-2xl pb-2 pt-2">Modify Username</h2>
         <div
             class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
         >
-            <p><b>Current Username: </b>{hostUsername}</p>
+            <p><b>Current: </b>{hostUsername}</p>
             <div class="grid border border-gray-300 p-2 rounded">
                 <div class="flex border rounded bg-gray-300 items-center p-2 ">
                     <svg

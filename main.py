@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from fastapi.staticfiles import StaticFiles
 from deta import Deta
-import logging as log
 import uuid
 import time
 import httpx
@@ -14,8 +13,6 @@ import os
 from models import *
 from config import *
 from encryption import *
-
-log.basicConfig(level=log.INFO)
 
 app = FastAPI()
 origins = ["*"]
@@ -43,7 +40,6 @@ def get_my_key():
         host_access_key_obj = db.get('host_key')
         host_key = host_access_key_obj['value'].encode()
     except TypeError:
-        log.warning("No Private Key Exists! Creating key")
         host_key = Fernet.generate_key()
         db.put({'key': 'host_key', 'value': host_key.decode('utf-8')})
 
@@ -62,7 +58,6 @@ def get_my_name():
 # Grab Personal Info to Keep it Handy
 host_key = get_my_key()
 username = get_my_name()
-
 
 async def get_posts(name):
     friend = next(db.fetch({'name': name,'category': 'friend'}))
@@ -155,7 +150,7 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
 
 @app.get("/shared-posts", status_code=200)
-def read_post(response: Response, key: Optional[str] = None):
+def read_post(response: Response, key: Optional[str] = None, limit: Optional[int] = None):
     # Returns Encrypted Posts
     my_posts = db.fetch({'category': 'post'})
     posts = [item for sublist in my_posts for item in sublist]
@@ -164,8 +159,17 @@ def read_post(response: Response, key: Optional[str] = None):
         if key:
             if key.encode('utf8') == host_key:
                 post['value'] = decrypt_str_with_key(host_key, post['value'])
-
-    return posts
+    
+    try:
+        sorted_posts = sorted(posts, key=itemgetter('time'), reverse=True)
+    except:
+        return None
+    
+    if limit:
+        trimmed_posts = sorted_posts[:limit]
+        return trimmed_posts
+    else:
+        return sorted_posts
 
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
@@ -182,7 +186,7 @@ def create_post(newpost: NewPost, response: Response):
         response.body = "Error Creating Post"
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
-        
+
 @app.get("/friend-posts", status_code=200)
 async def read_friend_posts(name: str, response: Response):
     friend_obj = next(db.fetch({'name': name, 'category': 'friend'}))
@@ -216,9 +220,9 @@ def friend_list(response: Response, pending: Optional[bool] = False):
     except:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {response}
-    
+
 @app.get("/feed")
-async def friend_feed(response: Response):
+async def friend_feed(response: Response, limit: Optional[int] = None):
     posts = []
     friends = next(db.fetch({'category': 'friend'}))
     my_posts = await get_my_posts()
@@ -233,21 +237,20 @@ async def friend_feed(response: Response):
 
     try:
         sorted_feed = sorted(combined, key=itemgetter('time'), reverse=True)
-        return sorted_feed
     except Exception as e:
         return None
-
-@app.put("/change-name", status_code=200)
-def change_key(namechange: NewName, response: Response):
-    # This very much needs to be private/authed to only the owner
-    db.update({'value': namechange.new_name.strip()}, "my_name")
-    return {response}
     
+    if limit:
+        trimmed_feed = sorted_feed[:limit]
+        return trimmed_feed
+    else:
+        return sorted_feed
+
 @app.get("/my-key", status_code=200)
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': host_key}
-    
+
 @app.get("/profile", status_code=200)
 def get_host_bio():
     host_username = db.get('my_name')
@@ -257,12 +260,6 @@ def get_host_bio():
     except TypeError:
         host_bio = "Nothing to see here..."
         return {'username': host_username['value'], 'bio': host_bio}
-    
-@app.put("/change-bio", status_code=200)
-def show_my_key(updated_bio: NewBio, response: Response):
-    # This very much needs to be private/authed to only the owner
-    db.put({'key': 'my_bio', 'value': updated_bio.bio})
-    return {response}
 
 @app.post("/accept", status_code=200)
 def accept_friend(addfriend: AddFriend, response: Response):
@@ -329,7 +326,7 @@ def request_friend(addfriend: AddFriend, response: Response):
             if pending_friend == pending_friend_json:
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
-            
+
 @app.get("/notifications", status_code=200)
 def check_notifications(clear: Optional[bool] = False):
     # This very much needs to be private/authed to only the owner
@@ -380,28 +377,49 @@ def receive_notification(notification: ReceivedNotif, response: Response):
         response.body = "Unable to Trigger Notification"
         response.status_code = status.HTTP_400_BAD_REQUEST
 
-@app.post("/edit", status_code=200)
-def edit_post(post: EditingPost, response: Response):
+@app.put("/edit", status_code=200)
+def edit_post(edit: EditingItem, response: Response):
     # This very much needs to be private/authed to only the owner
-    try:
-        if post.updated_post and post.delete == False:
-            post_data = db.get(post.key)
-            if post_data['category'] == 'post':
-                new_post = encrypt_str_with_key(host_key, post.updated_post)
-                db.update({'value': new_post.decode('utf8')}, post.key)
-                response.body = "Post Updated"
-                return {response}
+    if edit.item == "post":
+        try:
+            if edit.content and edit.delete == False:
+                post_data = db.get(edit.key)
+                if post_data['category'] == 'post':
+                    new_post = encrypt_str_with_key(host_key, edit.content)
+                    db.update({'value': new_post.decode('utf8')}, edit.key)
+                    response.body = "Post Updated"
+                    return {response}
 
-        elif post.delete:
-            post_data = db.get(post.key)
-            if post_data['category'] == 'post':
-                db.delete(post.key)
-                response.body = "Post Deleted"
-                return {response}
+            elif edit.delete:
+                post_data = db.get(edit.key)
+                if post_data['category'] == 'post':
+                    db.delete(edit.key)
+                    response.body = "Post Deleted"
+                    return {response}
 
-    except:
-        response.body = "Post Not Found or Not a Post"
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {response}
+        except:
+            response.body = "Post Not Found or Not a Post"
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {response}
+        
+    elif edit.item == "bio":
+        if edit.delete:
+            db.put({'key': 'my_bio', 'value': ""})
+            response.body = "Bio Deleted"
+            return {response}
+        else:
+            db.put({'key': 'my_bio', 'value': edit.content})
+            response.body = "Bio Updated"
+            return {response}
+
+    elif edit.item == "username":
+        if edit.delete:
+            response.body = "Can't Delete Username Only Modify It"
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {response}
+        else:
+            db.put({'key': 'my_name', 'value': edit.content})
+            response.body = "Username Updated"
+            return {response}
 
 app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
