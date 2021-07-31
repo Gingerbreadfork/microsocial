@@ -346,7 +346,13 @@ def request_friend(addfriend: AddFriend, response: Response):
                 response.status_code = status.HTTP_400_BAD_REQUEST
         
         except:
-            pending_friend_json = {'key': addfriend.public_key, 'name': addfriend.name, 'category': 'pending_friend', 'bridge': addfriend.bridge}
+            pending_friend_json = {
+                'key': addfriend.public_key,
+                'name': addfriend.name,
+                'category': 'pending_friend',
+                'bridge': addfriend.bridge
+                }
+            
             pending_friend = db.put(pending_friend_json)
         
             if pending_friend == pending_friend_json:
