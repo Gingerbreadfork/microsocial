@@ -10,11 +10,17 @@ from operator import itemgetter
 import secrets
 import string
 import os
+
 from models import *
 from config import *
 from encryption import *
+from shared import *
+
+from routers import public
 
 app = FastAPI()
+app.include_router(public.router)
+
 origins = ["*"]
 
 app.add_middleware(
@@ -25,45 +31,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# For Local Dev Throw Deta Project Key in .detakey
-if os.path.isfile(".detakey"):
-    with open(".detakey") as projectkey_file:
-        projectkey = projectkey_file.read()
-        deta = Deta(projectkey)
-else:
-    deta = Deta()
-    
-db = deta.Base(dbname)
-
-def get_my_key():
-    try:
-        host_access_key_obj = db.get('host_key')
-        host_key = host_access_key_obj['value'].encode()
-    except TypeError:
-        host_key = Fernet.generate_key()
-        db.put({'key': 'host_key', 'value': host_key.decode('utf-8')})
-
-    return host_key
-
-def get_my_name():
-    try:
-        name_obj = db.get('my_name')
-        username = name_obj['value']
-    except:
-        username = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-        db.put({'key': 'my_name', 'value': username})
-        
-    return username
-
-# Grab Personal Info to Keep it Handy
-host_key = get_my_key()
-username = get_my_name()
-
 async def get_posts(name):
-    friend = next(db.fetch({'name': name,'category': 'friend'}))
-    key = friend[0]['key']
-    bridge = friend[0]['bridge']
-    posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
+    friend = db.fetch({'name': name,'category': 'friend'})
+    key = friend.items[0]['key']
+    bridge = friend.items[0]['bridge']
+    posts_endpoint = f"https://{bridge}/public/shared-posts"
     params = {'access_key': key}
     
     async with httpx.AsyncClient() as client:
@@ -76,7 +48,7 @@ def check_usernames(friends):
     for friend in friends:
         stored_username = friend['name']
         bridge = friend['bridge']
-        nameURL = f"https://{bridge}.deta.dev/profile"
+        nameURL = f"https://{bridge}/public/profile"
         latest_username = httpx.get(nameURL)
         new_name = latest_username.json()['username']
 
@@ -90,10 +62,11 @@ async def get_posts_from_friend(friend):
     name = friend['name']
     key = friend['key'].encode('utf8')
     bridge = friend['bridge']
-    posts_endpoint = f"https://{bridge}.deta.dev/shared-posts"
-
+    posts_endpoint = f"https://{bridge}/public/shared-posts"
+    params = {"key": key}
+    
     async with httpx.AsyncClient() as client:
-        friend_posts = await client.get(posts_endpoint)
+        friend_posts = await client.get(posts_endpoint, params=params)
 
     lists_of_posts = friend_posts.json()
 
@@ -104,34 +77,14 @@ async def get_posts_from_friend(friend):
     return lists_of_posts
 
 async def get_my_posts():
-    my_posts = next(db.fetch({'category': 'post'}))
+    my_posts = db.fetch({'category': 'post'})
     latest_username = get_my_name()
-    for post in my_posts:
+    for post in my_posts.items:
         post['name'] = latest_username
         post['value'] = decrypt_str_with_key(host_key, post['value'])
         del post['category']
     
-    return my_posts
-
-def sort_and_trim(posts, limit=None, offset=None):
-    try:
-        sorted_posts = sorted(posts, key=itemgetter('time'), reverse=True)
-        
-        if offset is not None and limit is not None:
-            trimmed_posts = sorted_posts[offset:offset+limit]
-            
-        elif limit is not None and offset is None:
-            trimmed_posts = sorted_posts[:limit]
-            
-        elif offset is not None and limit is None:
-            trimmed_posts = sorted_posts[offset:]
-        else:
-            return sorted_posts
-            
-        return trimmed_posts
-    
-    except Exception as e:
-        return None
+    return my_posts.items
 
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
@@ -169,24 +122,7 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
 
-@app.get("/shared-posts", status_code=200)
-def shared_posts(
-    response: Response,
-    key: Optional[str] = None,
-    limit: Optional[int] = None,
-    offset: Optional[int] = None
-    ):
-    # Returns Encrypted Posts
-    my_posts = db.fetch({'category': 'post'})
-    posts = [item for sublist in my_posts for item in sublist]
-    for post in posts:
-        del post['category']
-        if key:
-            if key.encode('utf8') == host_key:
-                post['value'] = decrypt_str_with_key(host_key, post['value'])
-    
-    sorted_posts = sort_and_trim(posts, limit, offset)
-    return sorted_posts
+
 
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
@@ -206,8 +142,8 @@ def create_post(newpost: NewPost, response: Response):
 
 @app.get("/friend-posts", status_code=200)
 async def read_friend_posts(name: str, response: Response):
-    friend_obj = next(db.fetch({'name': name, 'category': 'friend'}))
-    friend_key = friend_obj[0]['key']
+    friend_obj = db.fetch({'name': name, 'category': 'friend'})
+    friend_key = friend_obj.items[0]['key']
     friend_posts = await get_posts(name)
     
     for post in friend_posts:
@@ -219,22 +155,23 @@ async def read_friend_posts(name: str, response: Response):
 def friend_list(response: Response, pending: Optional[bool] = False):
     try:
         if pending == True:
-            friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
-            checked_friends = check_usernames(friends)
+            friends = db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}])
+            checked_friends = check_usernames(friends.items)
             if checked_friends == False:
-                return friends
+                return friends.items
             else:
-                updated_friends = next(db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}]))
-                return updated_friends
+                updated_friends = db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}])
+                return updated_friends.items
         else:
-            friends = next(db.fetch({'category': 'friend'}))
-            checked_friends = check_usernames(friends)
+            friends = db.fetch({'category': 'friend'})
+            checked_friends = check_usernames(friends.items)
             if checked_friends == False:
-                return friends
+                return friends.items
             else:
-                updated_friends = next(db.fetch({'category': 'friend'}))
-                return updated_friends
-    except:
+                updated_friends = db.fetch({'category': 'friend'})
+                return updated_friends.items
+    except Exception as e:
+        print(e)
         response.status_code = status.HTTP_404_NOT_FOUND
         return {response}
 
@@ -256,10 +193,10 @@ async def friend_feed(
             pass
         
     posts = []
-    friends = next(db.fetch({'category': 'friend'}))
+    friends = db.fetch({'category': 'friend'})
     my_posts = await get_my_posts()
 
-    for friend in friends:
+    for friend in friends.items:
         friend_posts = await get_posts_from_friend(friend)
         posts.append(friend_posts)  
     
@@ -276,16 +213,6 @@ async def friend_feed(
 def show_my_key():
     # This very much needs to be private/authed to only the owner
     return {'key': host_key}
-
-@app.get("/profile", status_code=200)
-def get_host_bio():
-    host_username = db.get('my_name')
-    try:
-        host_bio = db.get('my_bio')
-        return {'username': host_username['value'], 'bio': host_bio['value']}
-    except TypeError:
-        host_bio = "Nothing to see here..."
-        return {'username': host_username['value'], 'bio': host_bio}
 
 @app.post("/accept", status_code=200)
 def accept_friend(addfriend: AddFriend, response: Response):
@@ -326,46 +253,13 @@ def accept_friend(addfriend: AddFriend, response: Response):
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
 
-@app.post("/request", status_code=200)
-def request_friend(addfriend: AddFriend, response: Response):
-    # You can only lodge a friend request here, approval can only be done via /accept
-        try:
-            checkFriendExists = db.get(addfriend.public_key)
-            checkType = checkFriendExists['category']
-            
-            if checkType == "friend":
-                response.body = "Already a Friend"
-                return {response}
-            
-            elif checkType == "pending_friend":
-                response.body = "Already Pending"
-                return {response}
-            
-            else:
-                response.body = "Something is Wrong"
-                response.status_code = status.HTTP_400_BAD_REQUEST
-        
-        except:
-            pending_friend_json = {
-                'key': addfriend.public_key,
-                'name': addfriend.name,
-                'category': 'pending_friend',
-                'bridge': addfriend.bridge
-                }
-            
-            pending_friend = db.put(pending_friend_json)
-        
-            if pending_friend == pending_friend_json:
-                response.status_code = status.HTTP_201_CREATED
-                return pending_friend_json
-
 @app.get("/notifications", status_code=200)
 def check_notifications(clear: Optional[bool] = False):
     # This very much needs to be private/authed to only the owner
-    friends = next(db.fetch({'category': 'friend'}))
+    friends = db.fetch({'category': 'friend'})
     notified_friends = []
     
-    for friend in friends:
+    for friend in friends.items:
         try:
             if friend['value'] == 'notified':
                 notified_friends.append(friend)
@@ -381,33 +275,6 @@ def check_notifications(clear: Optional[bool] = False):
         for friend in notified_friends:
             db.update({'value': 'inactive'}, friend['key'])
         return {'notifications': 'Notifications Cleared'}
-
-@app.post("/notify", status_code=201)
-def receive_notification(notification: ReceivedNotif, response: Response):
-    friend_data = db.get(notification.key)
-    bridge = friend_data['bridge']
-    category = friend_data['category']
-    key = friend_data['key']
-
-    if category == 'friend' and bridge == notification.bridge and key == notification.key:
-        update_check = db.update({'value': 'notified'}, key)
-        
-        if not update_check:
-            response.body = "Notification Created"
-            again = db.get(notification.key)
-            return again
-
-    elif key == host_key:
-        response.body = "You Cannot Notify Yourself"
-        return {response}
-        
-    elif key != notification.key:
-        response.body = "Unknown or Incorrect Key"
-        return {response}
-
-    else:
-        response.body = "Unable to Trigger Notification"
-        response.status_code = status.HTTP_400_BAD_REQUEST
 
 @app.put("/edit", status_code=200)
 def edit_post(edit: EditingItem, response: Response):
@@ -454,4 +321,4 @@ def edit_post(edit: EditingItem, response: Response):
             response.body = "Username Updated"
             return {response}
 
-app.mount('', StaticFiles(directory="svelte/dist/", html=True), name="static")
+app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")

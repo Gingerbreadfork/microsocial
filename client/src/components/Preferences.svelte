@@ -15,7 +15,7 @@
     onDestroy(async () => {});
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch("profile");
+        var hostProfileReq = await fetch("public/profile");
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;

@@ -9,7 +9,7 @@
     let friendListLoaded = false;
     let myKeyLoaded = false;
     let notifications;
-    let hostBridge = window.location.hostname.split(".")[0];
+    let hostBridge = window.location.hostname;
 
     onMount(async () => {
         getMyKey();
@@ -78,8 +78,7 @@
                 key: hostAccessKey,
                 bridge: hostBridge,
             };
-            var friendNotifURL =
-                "https://" + friend.bridge + ".deta.dev/notify";
+            var friendNotifURL = "https://" + friend.bridge + "/public/notify";
             var notifyResp = await fetch(friendNotifURL, {
                 method: "POST",
                 headers: {

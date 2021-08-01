@@ -1,3 +1,3 @@
-cd svelte
+cd client
 npm run build
 cd ..

@@ -15,7 +15,7 @@
     let actualFriendCount = 0;
     let viewingFriendsPosts = false;
     let viewingPosts;
-    let hostBridge = window.location.hostname.split(".")[0];
+    let hostBridge = window.location.hostname;
 
     onMount(async () => {
         getMyKey();
@@ -35,14 +35,14 @@
     };
 
     const getMyName = async () => {
-        var myNameReq = await fetch("profile");
+        var myNameReq = await fetch("public/profile");
         var myNameResp = await myNameReq.json();
         hostUsername = myNameResp.username;
         myNameLoaded = true;
     };
 
     const getFriendName = async (bridge) => {
-        var friendURL = "https://" + bridge + ".deta.dev/profile";
+        var friendURL = "https://" + bridge + "/public/profile";
         var friendNameReq = await fetch(friendURL);
         var friendNameResp = await friendNameReq.json();
         return friendNameResp.username;
@@ -94,11 +94,11 @@
         var friendReqContent = {
             access_key: hostAccessKey,
             name: hostUsername,
-            bridge: window.location.hostname.split(".")[0],
+            bridge: hostBridge,
             public_key: hostAccessKey,
         };
 
-        var friendReqURL = "https://" + bridge + ".deta.dev/request";
+        var friendReqURL = "https://" + bridge + "/public/request";
         var friendReqResp = await fetch(friendReqURL, {
             method: "POST",
             headers: {
@@ -135,7 +135,7 @@
     };
 
     const getFriendProfile = async (bridge) => {
-        var friendURL = "https://" + bridge + ".deta.dev/profile";
+        var friendURL = "https://" + bridge + "/public/profile";
         var friendProfileReq = await fetch(friendURL);
         var friendProfileResp = await friendProfileReq.json();
         viewingProfile = friendProfileResp;
@@ -146,7 +146,7 @@
         var friendURL =
             "https://" +
             hostBridge +
-            ".deta.dev/friend-posts?access_key=" +
+            "/friend-posts?access_key=" +
             hostAccessKey +
             "&name=" +
             viewingName;

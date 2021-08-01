@@ -1,1 +1,1 @@
-dbname = "microsocial"
+dbname = "microsocial-ng"

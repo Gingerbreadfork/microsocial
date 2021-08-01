@@ -1,8 +1,8 @@
-svelte/node_modules
-svelte/scripts
-svelte/src
-svelte/package.json
-svelte/package-lock.json
-svelte/README.md
-svelte/rollup.config.js
-svelte/.gitignore
+client/node_modules
+client/scripts
+client/src
+client/package.json
+client/package-lock.json
+client/README.md
+client/rollup.config.js
+client/.gitignore

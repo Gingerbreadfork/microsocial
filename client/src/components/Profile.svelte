@@ -5,7 +5,7 @@
     let myKeyLoaded = false;
     let hostUsername = "";
     let hostProfileLoaded = false;
-    let hostBridge = window.location.hostname.split(".")[0];
+    let hostBridge = window.location.hostname;
     let hostBio = "";
     let hostPostsLoaded = false;
     let hostPosts;
@@ -26,7 +26,7 @@
     };
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch("profile");
+        var hostProfileReq = await fetch("public/profile");
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
@@ -34,7 +34,7 @@
     };
 
     const getHostPosts = async () => {
-        var postsURL = "/shared-posts?key=" + hostAccessKey;
+        var postsURL = "/public/shared-posts?key=" + hostAccessKey;
         var hostPostsReq = await fetch(postsURL);
         var hostPostsResp = await hostPostsReq.json();
         hostPosts = hostPostsResp;
