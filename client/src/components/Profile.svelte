@@ -1,5 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
+    import * as timeago from "timeago.js";
 
     let hostAccessKey = "";
     let myKeyLoaded = false;
@@ -59,27 +60,31 @@
         <h2 class="text-2xl pt-4 pb-2">{hostUsername}'s Profile</h2>
     {/if}
     {#if hostProfileLoaded}
-        <div
-            class="border border-gray-300 p-2 mb-4 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
-        >
-            <p class="break-words">{hostBio}</p>
+        <div class="p-1">
+            <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                <p class="text-gray-600 text-sm">{hostBio}</p>
+            </div>
         </div>
     {/if}
     {#if hostPostsLoaded}
         <h2 class="text-2xl pt-4 pb-2">Posts</h2>
         {#each hostPosts as { value, time }}
-            <div
-                class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
-            >
-                <div class="flex sm:flex-1 flex-col gap-2 p-1">
-                    <p class="text-gray-400">
-                        {convertTimestamp(time)}
-                    </p>
-                    <p
-                        class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
-                    >
-                        {value}
-                    </p>
+            <div class="p-1">
+                <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                    <div class="flex">
+                        <div class="flex items-center text-xs text-gray-400">
+                            <p>{convertTimestamp(time)}</p>
+                            <p class="px-1">•</p>
+                            <p>
+                                {timeago.format(convertTimestamp(time))}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="text-gray-600 text-sm">
+                            {value}
+                        </p>
+                    </div>
                 </div>
             </div>
         {/each}
