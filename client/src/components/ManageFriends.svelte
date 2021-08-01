@@ -17,6 +17,12 @@
     let viewingPosts;
     let hostBridge = window.location.hostname;
 
+    let devBridge = "";
+
+    if (hostBridge == "localhost") {
+        devBridge = "https://41034m.deta.dev/";
+    }
+
     onMount(async () => {
         getMyKey();
         getMyName();
@@ -27,7 +33,7 @@
     });
 
     const getMyKey = async () => {
-        var myKeyReq = await fetch("my-key");
+        var myKeyReq = await fetch(devBridge + "my-key");
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
@@ -35,7 +41,7 @@
     };
 
     const getMyName = async () => {
-        var myNameReq = await fetch("public/profile");
+        var myNameReq = await fetch(devBridge + "public/profile");
         var myNameResp = await myNameReq.json();
         hostUsername = myNameResp.username;
         myNameLoaded = true;
@@ -54,7 +60,7 @@
             access_key: hostAccessKey,
         };
 
-        var removeResp = await fetch("remove-friend", {
+        var removeResp = await fetch(devBridge + "remove-friend", {
             method: "DELETE",
             headers: {
                 Accept: "application/json",
@@ -69,7 +75,8 @@
 
     const getFriends = async () => {
         var listReq = await fetch(
-            "friend-list?" +
+            devBridge +
+                "friend-list?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
                     pending: "true",
@@ -119,7 +126,7 @@
             public_key: key,
         };
 
-        var friendReqURL = "accept";
+        var friendReqURL = devBridge + "accept";
         var friendReqResp = await fetch(friendReqURL, {
             method: "POST",
             headers: {
@@ -143,13 +150,21 @@
     };
 
     const getFriendPosts = async () => {
-        var friendURL =
-            "https://" +
-            hostBridge +
-            "/friend-posts?access_key=" +
-            hostAccessKey +
-            "&name=" +
-            viewingName;
+        if (hostBridge != "localhost") {
+            var friendURL =
+                "https://" +
+                hostBridge +
+                "/friend-posts?access_key=" +
+                hostAccessKey +
+                "&name=" +
+                viewingName;
+        } else {
+            devBridge +
+                "friend-posts?access_key=" +
+                hostAccessKey +
+                "&name=" +
+                viewingName;
+        }
         var friendPostsReq = await fetch(friendURL);
         var friendPostsResp = await friendPostsReq.json();
         viewingPosts = friendPostsResp.posts;

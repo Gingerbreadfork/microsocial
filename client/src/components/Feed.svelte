@@ -1,5 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
+    import * as timeago from "timeago.js";
 
     let hostAccessKey = "";
     let newPost;
@@ -10,31 +11,49 @@
     let myKeyLoaded = false;
     let notifications;
     let hostBridge = window.location.hostname;
+    let devBridge = "";
+    let notifyBridge;
+    let refreshingFeed = false;
+    let hostUsername;
+
+    if (hostBridge == "localhost") {
+        devBridge = "https://41034m.deta.dev/";
+    }
 
     onMount(async () => {
         getMyKey();
         quickFeed();
         getFriends();
+        getMyName();
     });
 
     onDestroy(async () => {
         clearInterval(getNotifications);
     });
 
+    const getMyName = async () => {
+        var myNameReq = await fetch(devBridge + "public/profile");
+        var myNameResp = await myNameReq.json();
+        hostUsername = myNameResp.username;
+    };
+
     const getMyKey = async () => {
-        var myKeyReq = await fetch("my-key?");
+        var myKeyReq = await fetch(devBridge + "my-key?");
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
     };
 
     const createPost = async () => {
+        var postedPost = newPost;
+        newPost = "";
+        refreshingFeed = true;
         var contentToPost = {
             access_key: hostAccessKey,
-            value: newPost,
+            value: postedPost,
         };
 
-        var postResp = await fetch("create-post", {
+        var postResp = await fetch(devBridge + "create-post", {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -42,15 +61,16 @@
             },
             body: JSON.stringify(contentToPost),
         });
-        var postResult = await postResp.json();
-        newPost = "";
-        notifyFriends();
-        getFeed();
+        //var postResult = await postResp.json();
+        await getFeed();
+        await notifyFriends();
     };
 
     const getFeed = async () => {
+        refreshingFeed = true;
         var FeedReq = await fetch(
-            "feed?" +
+            devBridge +
+                "feed?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
                     cache: "true",
@@ -58,11 +78,13 @@
         );
         friendFeedPosts = await FeedReq.json();
         friendFeedLoaded = true;
+        refreshingFeed = false;
     };
 
     const quickFeed = async () => {
         var FeedReq = await fetch(
-            "feed?" +
+            devBridge +
+                "feed?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
                     cached: "true",
@@ -74,9 +96,16 @@
 
     const notifyFriends = async () => {
         friendListResp.forEach(async (friend) => {
+            // Only required for Dev - TODO: Remove Jank
+            if (window.location.hostname == "localhost") {
+                notifyBridge = "41034m.deta.dev";
+            } else {
+                notifyBridge = hostBridge;
+            }
+
             var contentToPost = {
                 key: hostAccessKey,
-                bridge: hostBridge,
+                bridge: notifyBridge,
             };
             var friendNotifURL = "https://" + friend.bridge + "/public/notify";
             var notifyResp = await fetch(friendNotifURL, {
@@ -92,7 +121,8 @@
 
     const getFriends = async () => {
         var listReq = await fetch(
-            "friend-list?" +
+            devBridge +
+                "friend-list?" +
                 new URLSearchParams({
                     access_key: hostAccessKey,
                 })
@@ -109,7 +139,8 @@
 
     const clearNotifications = async () => {
         await fetch(
-            "notifications?" +
+            devBridge +
+                "notifications?" +
                 new URLSearchParams({
                     clear: "True",
                 })
@@ -118,7 +149,7 @@
 
     const checkNotifications = async () => {
         if (friendFeedLoaded && friendListLoaded) {
-            var notificationsReq = await fetch("notifications?");
+            var notificationsReq = await fetch(devBridge + "notifications?");
             notifications = await notificationsReq.json();
             if (notifications.notifications !== "No Notifications") {
                 getFeed();
@@ -132,15 +163,15 @@
 </script>
 
 <div class="container mx-auto sm:p-10">
-    <h2 class="text-2xl pt-4 pb-2">Create Post</h2>
-    <div class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg">
-        <div class="border border-gray-300 rounded-xl p-2 pb-0">
-            <textarea
-                bind:value={newPost}
-                class="w-full text-gray-700 border rounded-lg focus:outline-none"
-                rows="5"
-            />
-        </div>
+    <div
+        class="shadow-md border-2 border-gray-200 rounded p-2 mb-2 bg-gray-100"
+    >
+        <textarea
+            bind:value={newPost}
+            class="shadow rounded border p-1 focus:outline-none w-full"
+            rows="5"
+        />
+
         <div class="flex justify-end mb-2 mt-2">
             <button
                 on:click={createPost}
@@ -162,24 +193,56 @@
 
     <div class="pt-2">
         {#if friendFeedLoaded}
-            <h2 class="text-2xl pt-4 pb-2">Friend Feed</h2>
-
-            {#each friendFeedPosts as { name, value, time }}
+            {#if refreshingFeed}
                 <div
-                    class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
+                    class="text-center flex justify-center align-middle text-gray-600"
                 >
-                    <div class="flex sm:flex-1 flex-col gap-2 p-1">
-                        <div class="grid grid-cols-2">
-                            <h3 class="font-semibold  text-gray-600">{name}</h3>
-                            <p class="flex justify-end text-gray-400">
-                                {convertTimestamp(time)}
+                    <svg
+                        class="animate-bounce w-6 h-6 m-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
+                            clip-rule="evenodd"
+                        /></svg
+                    >
+                </div>
+            {/if}
+            {#each friendFeedPosts as { name, value, time }}
+                <div class="p-1">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                        <div class="flex">
+                            <div>
+                                {#if name == hostUsername}
+                                    <p class="text-purple-600 font-medium">
+                                        {name}
+                                    </p>
+                                {:else}
+                                    <p class="text-blue-600 font-medium">
+                                        {name}
+                                    </p>
+                                {/if}
+
+                                <div
+                                    class="flex items-center text-xs text-gray-400"
+                                >
+                                    <p>{convertTimestamp(time)}</p>
+                                    <p class="px-1">•</p>
+                                    <p>
+                                        {timeago.format(convertTimestamp(time))}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <p
+                                class="text-gray-600 text-sm sm:text-base line-clamp-3 break-words"
+                            >
+                                {value}
                             </p>
                         </div>
-                        <p
-                            class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
-                        >
-                            {value}
-                        </p>
                     </div>
                 </div>
             {/each}

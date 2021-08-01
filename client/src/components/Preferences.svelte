@@ -8,6 +8,12 @@
     let hostBio;
     let hostProfileLoaded;
 
+    let devBridge = "";
+
+    if (window.location.hostname == "localhost") {
+        devBridge = "https://41034m.deta.dev/";
+    }
+
     onMount(async () => {
         getMyProfile();
     });
@@ -15,7 +21,7 @@
     onDestroy(async () => {});
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch("public/profile");
+        var hostProfileReq = await fetch(devBridge + "public/profile");
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
@@ -40,7 +46,7 @@
     };
 
     const changeBio = async () => {
-        var changeBioResp = await fetch("edit", {
+        var changeBioResp = await fetch(devBridge + "edit", {
             method: "PUT",
             headers: {
                 Accept: "application/json",

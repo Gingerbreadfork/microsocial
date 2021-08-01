@@ -10,6 +10,12 @@
     let hostPostsLoaded = false;
     let hostPosts;
 
+    let devBridge = "";
+
+    if (hostBridge == "localhost") {
+        devBridge = "https://41034m.deta.dev/";
+    }
+
     onMount(async () => {
         getMyKey();
         getMyProfile();
@@ -18,7 +24,7 @@
     onDestroy(async () => {});
 
     const getMyKey = async () => {
-        var myKeyReq = await fetch("my-key?");
+        var myKeyReq = await fetch(devBridge + "my-key?");
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
@@ -26,7 +32,7 @@
     };
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch("public/profile");
+        var hostProfileReq = await fetch(devBridge + "public/profile");
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
@@ -34,7 +40,7 @@
     };
 
     const getHostPosts = async () => {
-        var postsURL = "/public/shared-posts?key=" + hostAccessKey;
+        var postsURL = devBridge + "public/shared-posts?key=" + hostAccessKey;
         var hostPostsReq = await fetch(postsURL);
         var hostPostsResp = await hostPostsReq.json();
         hostPosts = hostPostsResp;
