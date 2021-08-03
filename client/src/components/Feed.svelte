@@ -17,6 +17,8 @@
     let hostUsername;
     let postOptions = false;
     let postOptionSelector;
+    let reactToPost = false;
+    let reactingPost;
 
     if (hostBridge == "localhost") {
         devBridge = "https://41034m.deta.dev/";
@@ -63,7 +65,7 @@
             },
             body: JSON.stringify(contentToPost),
         });
-        //var postResult = await postResp.json();
+
         await getFeed();
         await notifyFriends();
     };
@@ -81,7 +83,6 @@
         friendFeedPosts = await FeedReq.json();
         friendFeedLoaded = true;
         refreshingFeed = false;
-        console.log(friendFeedPosts);
     };
 
     const quickFeed = async () => {
@@ -180,8 +181,8 @@
 
         getFeed();
     };
+
     const deletePost = async (key) => {
-        console.log(key);
         var contentToDelete = {
             item: "post",
             delete: true,
@@ -197,6 +198,23 @@
             body: JSON.stringify(contentToDelete),
         });
 
+        getFeed();
+    };
+
+    const reactPost = async (key, reacted) => {
+        var reactionToPost = {
+            postkey: key,
+            emoji: reacted,
+        };
+
+        var reactResp = await fetch(devBridge + "public/react", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(reactionToPost),
+        });
         getFeed();
     };
 
@@ -299,6 +317,13 @@
                                             postOptions = true;
                                         }
                                         postOptionSelector = key;
+
+                                        if (reactingPost == key) {
+                                            reactToPost = !reactToPost;
+                                        } else {
+                                            reactToPost = true;
+                                        }
+                                        reactingPost = key;
                                     }}
                                 >
                                     <svg
@@ -310,7 +335,30 @@
                                             d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
                                         /></svg
                                     >
-                                </button>{/if}
+                                </button>
+                            {:else}
+                                <button
+                                    class="ml-auto focus:outline-none"
+                                    on:click={() => {
+                                        if (reactingPost == key) {
+                                            reactToPost = !reactToPost;
+                                        } else {
+                                            reactToPost = true;
+                                        }
+                                        reactingPost = key;
+                                    }}
+                                >
+                                    <svg
+                                        class="w-6 h-6 text-gray-300"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        ><path
+                                            d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                                        /></svg
+                                    >
+                                </button>
+                            {/if}
                         </div>
                         <div class="mt-2">
                             <p
@@ -404,7 +452,58 @@
                                         </p>
                                     </button>
                                 {/if}
+                                <div class="flex ml-auto">
+                                    {#if reactToPost == true && reactingPost == key}
+                                        <div class="flex justify-end	">
+                                            <button
+                                                class="focus:outline-none"
+                                                on:click={async () => {
+                                                    var reacted = "😀";
+                                                    reactToPost = false;
+                                                    reactPost(key, reacted);
+                                                }}>😀</button
+                                            ><button
+                                                class="focus:outline-none"
+                                                on:click={() => {
+                                                    var reacted = "❤️";
+                                                    reactToPost = false;
+                                                    reactPost(key, reacted);
+                                                }}>❤️</button
+                                            ><button
+                                                class="focus:outline-none"
+                                                on:click={() => {
+                                                    var reacted = "🔥";
+                                                    reactToPost = false;
+                                                    reactPost(key, reacted);
+                                                }}>🔥</button
+                                            ><button
+                                                class="focus:outline-none"
+                                                on:click={() => {
+                                                    var reacted = "👍";
+                                                    reactToPost = false;
+                                                    reactPost(key, reacted);
+                                                }}>👍</button
+                                            ><button
+                                                class="focus:outline-none"
+                                                on:click={() => {
+                                                    var reacted = "🥰";
+                                                    reactToPost = false;
+                                                    reactPost(key, reacted);
+                                                }}>🥰</button
+                                            >
+                                        </div>
+                                    {/if}
+                                </div>
                             </div>
+                            {#if reactions}
+                                <div
+                                    class="flex justify-center m-auto -mb-3 rounded-2xl bg-gray-200 border border-gray-300 flex-shrink w-min pl-2 pr-2"
+                                >
+                                    {#each reactions as reaction}
+                                        <span class=""> {reaction}</span>
+                                    {/each}
+                                </div>
+                            {/if}
                         </div>
                     </div>
                 </div>

@@ -40,3 +40,7 @@ class EditingItem(BaseModel):
     key: Optional[str] = None
     content: Optional[str] = None
     delete: Optional[bool] = False
+    
+class ReactedPost(BaseModel):
+    postkey: str
+    emoji: str

@@ -15,6 +15,7 @@
     "vite": "^2.3.7"
   },
   "dependencies": {
+    "emoji-picker-element-data": "^1.2.0",
     "timeago.js": "^4.0.2"
   }
 }

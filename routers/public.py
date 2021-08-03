@@ -94,3 +94,16 @@ def receive_notification(notification: ReceivedNotif, response: Response):
     else:
         response.body = "Unable to Trigger Notification"
         response.status_code = status.HTTP_400_BAD_REQUEST
+        
+@router.post("/public/react", status_code=200)
+def post_reaction(reaction: ReactedPost, response: Response):
+    print(reaction.postkey)
+    post_obj = db.get(reaction.postkey)
+    
+    try:
+        reactions = post_obj['reactions']
+    except TypeError:
+        reactions = []
+        
+    reactions.append(reaction.emoji)
+    db.update({'reactions': reactions}, reaction.postkey)

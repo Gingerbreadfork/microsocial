@@ -313,4 +313,16 @@ def edit_post(edit: EditingItem, response: Response):
             response.body = "Username Updated"
             return {response}
 
+@app.post("/public/react", status_code=200)
+def post_reaction(reaction: ReactedPost, response: Response):
+    post = db.get(reaction.key)
+    
+    try:
+        reactions = post['reactions']
+    except TypeError:
+        reactions = []
+        
+    reactions.append(reaction.emoji)
+    db.update({'reactions': reactions}, reaction.postkey)
+
 app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")
