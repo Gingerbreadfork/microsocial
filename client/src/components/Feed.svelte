@@ -49,12 +49,20 @@
     };
 
     const createPost = async () => {
+        // Only required for Dev - TODO: Remove Jank
+        if (window.location.hostname == "localhost") {
+            var postBridge = "41034m.deta.dev";
+        } else {
+            var postBridge = hostBridge;
+        }
+
         var postedPost = newPost;
         newPost = "";
         refreshingFeed = true;
         var contentToPost = {
             access_key: hostAccessKey,
             value: postedPost,
+            bridge: postBridge,
         };
 
         var postResp = await fetch(devBridge + "create-post", {
@@ -201,13 +209,13 @@
         getFeed();
     };
 
-    const reactPost = async (key, reacted) => {
+    const reactPost = async (key, reacted, bridge) => {
         var reactionToPost = {
             postkey: key,
             emoji: reacted,
         };
 
-        var reactResp = await fetch(devBridge + "public/react", {
+        var reactResp = await fetch("https://" + bridge + "/public/react", {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -216,6 +224,7 @@
             body: JSON.stringify(reactionToPost),
         });
         getFeed();
+        notifyFriends();
     };
 
     // Intervals
@@ -270,7 +279,7 @@
                     >
                 </div>
             {/if}
-            {#each friendFeedPosts as { name, value, time, edited, key, reactions }}
+            {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge }}
                 <div class="p-1">
                     <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
                         <div class="flex">
@@ -460,35 +469,55 @@
                                                 on:click={async () => {
                                                     var reacted = "😀";
                                                     reactToPost = false;
-                                                    reactPost(key, reacted);
+                                                    reactPost(
+                                                        key,
+                                                        reacted,
+                                                        bridge
+                                                    );
                                                 }}>😀</button
                                             ><button
                                                 class="focus:outline-none"
                                                 on:click={() => {
                                                     var reacted = "❤️";
                                                     reactToPost = false;
-                                                    reactPost(key, reacted);
+                                                    reactPost(
+                                                        key,
+                                                        reacted,
+                                                        bridge
+                                                    );
                                                 }}>❤️</button
                                             ><button
                                                 class="focus:outline-none"
                                                 on:click={() => {
                                                     var reacted = "🔥";
                                                     reactToPost = false;
-                                                    reactPost(key, reacted);
+                                                    reactPost(
+                                                        key,
+                                                        reacted,
+                                                        bridge
+                                                    );
                                                 }}>🔥</button
                                             ><button
                                                 class="focus:outline-none"
                                                 on:click={() => {
                                                     var reacted = "👍";
                                                     reactToPost = false;
-                                                    reactPost(key, reacted);
+                                                    reactPost(
+                                                        key,
+                                                        reacted,
+                                                        bridge
+                                                    );
                                                 }}>👍</button
                                             ><button
                                                 class="focus:outline-none"
                                                 on:click={() => {
                                                     var reacted = "🥰";
                                                     reactToPost = false;
-                                                    reactPost(key, reacted);
+                                                    reactPost(
+                                                        key,
+                                                        reacted,
+                                                        bridge
+                                                    );
                                                 }}>🥰</button
                                             >
                                         </div>

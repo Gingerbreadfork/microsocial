@@ -117,14 +117,22 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
 
-
-
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
     post_id = uuid.uuid4().hex
     timestamp_now = time.time()
     encrypted_post = encrypt_str_with_key(host_key, newpost.value)
-    post_json = {"key": post_id, 'value': encrypted_post.decode('utf8'), 'category': 'post', 'time': timestamp_now, 'edited': False, 'reactions': []}
+    
+    post_json = {
+        "key": post_id,
+        'value': encrypted_post.decode('utf8'),
+        'category': 'post',
+        'time': timestamp_now,
+        'edited': False,
+        'reactions': [],
+        'bridge': newpost.bridge
+        }
+    
     create_post = db.put(post_json)
 
     if create_post == post_json:
@@ -312,17 +320,5 @@ def edit_post(edit: EditingItem, response: Response):
             db.put({'key': 'my_name', 'value': edit.content})
             response.body = "Username Updated"
             return {response}
-
-@app.post("/public/react", status_code=200)
-def post_reaction(reaction: ReactedPost, response: Response):
-    post = db.get(reaction.key)
-    
-    try:
-        reactions = post['reactions']
-    except TypeError:
-        reactions = []
-        
-    reactions.append(reaction.emoji)
-    db.update({'reactions': reactions}, reaction.postkey)
 
 app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")

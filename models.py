@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 class NewPost(BaseModel):
+    bridge: str
     access_key: str
     value: str
     
