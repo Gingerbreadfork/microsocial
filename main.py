@@ -2,14 +2,9 @@ from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from fastapi.staticfiles import StaticFiles
-from deta import Deta
 import uuid
 import time
 import httpx
-from operator import itemgetter
-import secrets
-import string
-import os
 
 from models import *
 from config import *
@@ -211,12 +206,10 @@ async def friend_feed(
 
 @app.get("/my-key", status_code=200)
 def show_my_key():
-    # This very much needs to be private/authed to only the owner
     return {'key': host_key}
 
 @app.post("/accept", status_code=200)
 def accept_friend(addfriend: AddFriend, response: Response):
-    # This very much needs to be private/authed to only the owner
         try:
             checkFriendExists = db.get(addfriend.public_key)
             checkType = checkFriendExists['category']
@@ -255,7 +248,6 @@ def accept_friend(addfriend: AddFriend, response: Response):
 
 @app.get("/notifications", status_code=200)
 def check_notifications(clear: Optional[bool] = False):
-    # This very much needs to be private/authed to only the owner
     friends = db.fetch({'category': 'friend'})
     notified_friends = []
     
@@ -278,7 +270,6 @@ def check_notifications(clear: Optional[bool] = False):
 
 @app.put("/edit", status_code=200)
 def edit_post(edit: EditingItem, response: Response):
-    # This very much needs to be private/authed to only the owner
     if edit.item == "post":
         try:
             if edit.content and edit.delete == False:
