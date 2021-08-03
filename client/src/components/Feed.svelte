@@ -15,6 +15,8 @@
     let notifyBridge;
     let refreshingFeed = false;
     let hostUsername;
+    let postOptions = false;
+    let postOptionSelector;
 
     if (hostBridge == "localhost") {
         devBridge = "https://41034m.deta.dev/";
@@ -79,6 +81,7 @@
         friendFeedPosts = await FeedReq.json();
         friendFeedLoaded = true;
         refreshingFeed = false;
+        console.log(friendFeedPosts);
     };
 
     const quickFeed = async () => {
@@ -158,6 +161,45 @@
         }
     };
 
+    const editPost = async (key, updatedContent) => {
+        var contentToEdit = {
+            item: "post",
+            delete: false,
+            key: key,
+            content: updatedContent,
+        };
+
+        var editResp = await fetch(devBridge + "edit", {
+            method: "PUT",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contentToEdit),
+        });
+
+        getFeed();
+    };
+    const deletePost = async (key) => {
+        console.log(key);
+        var contentToDelete = {
+            item: "post",
+            delete: true,
+            key: key,
+        };
+
+        var deleteResp = await fetch(devBridge + "edit", {
+            method: "PUT",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contentToDelete),
+        });
+
+        getFeed();
+    };
+
     // Intervals
     const getNotifications = setInterval(checkNotifications, 500);
 </script>
@@ -210,7 +252,7 @@
                     >
                 </div>
             {/if}
-            {#each friendFeedPosts as { name, value, time }}
+            {#each friendFeedPosts as { name, value, time, edited, key, reactions }}
                 <div class="p-1">
                     <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
                         <div class="flex">
@@ -247,6 +289,28 @@
                                     </p>
                                 </div>
                             </div>
+                            {#if name == hostUsername}
+                                <button
+                                    class="ml-auto focus:outline-none"
+                                    on:click={() => {
+                                        if (postOptionSelector == key) {
+                                            postOptions = !postOptions;
+                                        } else {
+                                            postOptions = true;
+                                        }
+                                        postOptionSelector = key;
+                                    }}
+                                >
+                                    <svg
+                                        class="w-6 h-6 text-gray-300"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        ><path
+                                            d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                                        /></svg
+                                    >
+                                </button>{/if}
                         </div>
                         <div class="mt-2">
                             <p
@@ -254,6 +318,93 @@
                             >
                                 {value}
                             </p>
+                            <div class="flex">
+                                {#if edited == true}
+                                    <div
+                                        class="flex items-center mr-4 focus:outline-none"
+                                    >
+                                        <i class="mr-2">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="text-blue-300 w-4 h-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                />
+                                            </svg>
+                                        </i>
+                                        <p class="mt-1 text-blue-300 text-sm">
+                                            Edited
+                                        </p>
+                                    </div>
+                                {/if}
+                                {#if name == hostUsername && postOptions == true && postOptionSelector == key}
+                                    <button
+                                        on:click={async () => {
+                                            var updatedContent = prompt(
+                                                "Edit Post",
+                                                value
+                                            );
+
+                                            editPost(key, updatedContent);
+                                        }}
+                                        class="flex items-center mr-4 focus:outline-none"
+                                    >
+                                        <i class="mr-2">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="text-yellow-400 w-4 h-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                                />
+                                            </svg>
+                                        </i>
+                                        <p class="mt-1 text-yellow-400 text-sm">
+                                            Edit
+                                        </p>
+                                    </button>
+
+                                    <button
+                                        on:click={async () => {
+                                            deletePost(key);
+                                        }}
+                                        class="flex items-center mr-4"
+                                    >
+                                        <i class="mr-2">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="text-red-300 w-4 h-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
+                                            </svg>
+                                        </i>
+                                        <p class="mt-1 text-red-300 text-sm">
+                                            Delete
+                                        </p>
+                                    </button>
+                                {/if}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -124,7 +124,7 @@ def create_post(newpost: NewPost, response: Response):
     post_id = uuid.uuid4().hex
     timestamp_now = time.time()
     encrypted_post = encrypt_str_with_key(host_key, newpost.value)
-    post_json = {"key": post_id, 'value': encrypted_post.decode('utf8'), 'category': 'post', 'time': timestamp_now}
+    post_json = {"key": post_id, 'value': encrypted_post.decode('utf8'), 'category': 'post', 'time': timestamp_now, 'edited': False, 'reactions': []}
     create_post = db.put(post_json)
 
     if create_post == post_json:
@@ -276,8 +276,9 @@ def edit_post(edit: EditingItem, response: Response):
                 post_data = db.get(edit.key)
                 if post_data['category'] == 'post':
                     new_post = encrypt_str_with_key(host_key, edit.content)
-                    db.update({'value': new_post.decode('utf8')}, edit.key)
+                    db.update({'value': new_post.decode('utf8'), 'edited': True}, edit.key)
                     response.body = "Post Updated"
+                    response.status_code = 200
                     return {response}
 
             elif edit.delete:
