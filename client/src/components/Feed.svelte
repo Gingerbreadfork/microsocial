@@ -408,8 +408,9 @@
                                                 "Edit Post",
                                                 value
                                             );
-
-                                            editPost(key, updatedContent);
+                                            if (updatedContent) {
+                                                editPost(key, updatedContent);
+                                            }
                                         }}
                                         class="flex items-center mr-4 focus:outline-none"
                                     >
@@ -524,7 +525,7 @@
                                     {/if}
                                 </div>
                             </div>
-                            {#if reactions}
+                            {#if reactions.length != 0}
                                 <div
                                     class="flex justify-center m-auto -mb-3 rounded-2xl bg-gray-200 border border-gray-300 flex-shrink w-min pl-2 pr-2"
                                 >

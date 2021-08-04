@@ -149,25 +149,20 @@
         viewingFriendProfile = true;
     };
 
-    const getFriendPosts = async () => {
+    const getFriendPosts = async (bridge) => {
         if (hostBridge != "localhost") {
             var friendURL =
-                "https://" +
-                hostBridge +
-                "/friend-posts?access_key=" +
-                hostAccessKey +
-                "&name=" +
-                viewingName;
+                "https://" + hostBridge + "/friend-posts?bridge=" + bridge;
         } else {
             devBridge +
                 "friend-posts?access_key=" +
                 hostAccessKey +
-                "&name=" +
-                viewingName;
+                "&bridge=" +
+                bridge;
         }
         var friendPostsReq = await fetch(friendURL);
         var friendPostsResp = await friendPostsReq.json();
-        viewingPosts = friendPostsResp.posts;
+        viewingPosts = friendPostsResp;
         viewingFriendsPosts = true;
     };
 
@@ -267,7 +262,7 @@
                                         on:click={() => {
                                             viewingName = name;
                                             getFriendProfile(bridge);
-                                            getFriendPosts();
+                                            getFriendPosts(bridge);
                                         }}
                                         ><svg
                                             class="w-6 h-6"

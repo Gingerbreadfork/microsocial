@@ -26,12 +26,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def get_posts(name):
-    friend = db.fetch({'name': name,'category': 'friend'})
-    key = friend.items[0]['key']
-    bridge = friend.items[0]['bridge']
+async def get_posts(bridge, key):
     posts_endpoint = f"https://{bridge}/public/shared-posts"
-    params = {'access_key': key}
+    params = {'key': key}
     
     async with httpx.AsyncClient() as client:
         friend_posts = await client.get(posts_endpoint, params=params)
@@ -144,15 +141,11 @@ def create_post(newpost: NewPost, response: Response):
         return {response}
 
 @app.get("/friend-posts", status_code=200)
-async def read_friend_posts(name: str, response: Response):
-    friend_obj = db.fetch({'name': name, 'category': 'friend'})
+async def read_friend_posts(bridge: str, response: Response):
+    friend_obj = db.fetch({'bridge': bridge, 'category': 'friend'})
     friend_key = friend_obj.items[0]['key']
-    friend_posts = await get_posts(name)
-    
-    for post in friend_posts:
-        post['value'] = decrypt_str_with_key(friend_key, post['value'])
-        
-    return {'posts': friend_posts}
+    friend_posts = await get_posts(bridge, friend_key)
+    return friend_posts
 
 @app.get("/friend-list")
 def friend_list(response: Response, pending: Optional[bool] = False):
