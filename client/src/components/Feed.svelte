@@ -227,6 +227,8 @@
         notifyFriends();
     };
 
+    const reactionList = ["❤️", "🔥", "😊", "😂", "👍"];
+
     // Intervals
     const getNotifications = setInterval(checkNotifications, 500);
 </script>
@@ -410,117 +412,88 @@
                                             );
                                             if (updatedContent) {
                                                 editPost(key, updatedContent);
+                                                postOptions = false;
+                                                reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 focus:outline-none"
+                                        class="flex items-center mr-4 focus:outline-none hover:text-yellow-500 text-yellow-400"
                                     >
-                                        <i class="mr-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                class="text-yellow-400 w-4 h-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                                />
-                                            </svg>
-                                        </i>
-                                        <p class="mt-1 text-yellow-400 text-sm">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-4 h-4 mr-2"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                            />
+                                        </svg>
+
+                                        <span class="mt-1  text-sm">
                                             Edit
-                                        </p>
+                                        </span>
                                     </button>
 
                                     <button
                                         on:click={async () => {
-                                            deletePost(key);
+                                            if (
+                                                confirm(
+                                                    "Are you sure you want to delete this post?"
+                                                )
+                                            ) {
+                                                deletePost(key);
+                                                postOptions = false;
+                                                reactToPost = false;
+                                            }
                                         }}
-                                        class="flex items-center mr-4"
+                                        class="flex items-center mr-4 focus:outline-none hover:text-red-400 text-red-300"
                                     >
-                                        <i class="mr-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                class="text-red-300 w-4 h-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                />
-                                            </svg>
-                                        </i>
-                                        <p class="mt-1 text-red-300 text-sm">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-4 h-4 mr-2"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+
+                                        <span
+                                            class="mt-1 text-sm focus:outline-none"
+                                        >
                                             Delete
-                                        </p>
+                                        </span>
                                     </button>
                                 {/if}
                                 <div class="flex ml-auto">
                                     {#if reactToPost == true && reactingPost == key}
-                                        <div class="flex justify-end	">
-                                            <button
-                                                class="focus:outline-none"
-                                                on:click={async () => {
-                                                    var reacted = "😀";
-                                                    reactToPost = false;
-                                                    reactPost(
-                                                        key,
-                                                        reacted,
-                                                        bridge
-                                                    );
-                                                }}>😀</button
-                                            ><button
-                                                class="focus:outline-none"
-                                                on:click={() => {
-                                                    var reacted = "❤️";
-                                                    reactToPost = false;
-                                                    reactPost(
-                                                        key,
-                                                        reacted,
-                                                        bridge
-                                                    );
-                                                }}>❤️</button
-                                            ><button
-                                                class="focus:outline-none"
-                                                on:click={() => {
-                                                    var reacted = "🔥";
-                                                    reactToPost = false;
-                                                    reactPost(
-                                                        key,
-                                                        reacted,
-                                                        bridge
-                                                    );
-                                                }}>🔥</button
-                                            ><button
-                                                class="focus:outline-none"
-                                                on:click={() => {
-                                                    var reacted = "👍";
-                                                    reactToPost = false;
-                                                    reactPost(
-                                                        key,
-                                                        reacted,
-                                                        bridge
-                                                    );
-                                                }}>👍</button
-                                            ><button
-                                                class="focus:outline-none"
-                                                on:click={() => {
-                                                    var reacted = "🥰";
-                                                    reactToPost = false;
-                                                    reactPost(
-                                                        key,
-                                                        reacted,
-                                                        bridge
-                                                    );
-                                                }}>🥰</button
-                                            >
+                                        <div class="flex justify-end">
+                                            {#each reactionList as displayedReaction}
+                                                <button
+                                                    class="focus:outline-none"
+                                                    on:click={async () => {
+                                                        postOptions = false;
+                                                        var reacted =
+                                                            displayedReaction;
+                                                        reactToPost = false;
+                                                        reactPost(
+                                                            key,
+                                                            reacted,
+                                                            bridge
+                                                        );
+                                                    }}
+                                                    >{displayedReaction}</button
+                                                >
+                                            {/each}
                                         </div>
                                     {/if}
                                 </div>
