@@ -1,5 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
+    import * as timeago from "timeago.js";
 
     let hostAccessKey = "";
     let addFriendBridge;
@@ -13,6 +14,7 @@
     let viewingProfile;
     let viewingName;
     let actualFriendCount = 0;
+    let pendingFriendCount = 0;
     let viewingFriendsPosts = false;
     let viewingPosts;
     let hostBridge = window.location.hostname;
@@ -86,6 +88,7 @@
         actualFriendCount = 0;
         friendListResp.forEach((friend) => {
             if (friend.category == "pending_friend") {
+                pendingFriendCount++;
                 anyPending = true;
             } else {
                 if (friend.category == "friend") {
@@ -154,12 +157,9 @@
             var friendURL =
                 "https://" + hostBridge + "/friend-posts?bridge=" + bridge;
         } else {
-            devBridge +
-                "friend-posts?access_key=" +
-                hostAccessKey +
-                "&bridge=" +
-                bridge;
+            devBridge + "?bridge=" + bridge;
         }
+
         var friendPostsReq = await fetch(friendURL);
         var friendPostsResp = await friendPostsReq.json();
         viewingPosts = friendPostsResp;
@@ -200,7 +200,7 @@
                     <input
                         bind:value={addFriendBridge}
                         type="text"
-                        placeholder="Bridge"
+                        placeholder="Microsocial Server URL"
                         class="bg-gray-300 w-full focus:outline-none text-gray-700"
                     />
                 </div>
@@ -226,26 +226,30 @@
         {#if friendListLoaded}
             {#if actualFriendCount > 0}
                 <h2 class="text-2xl pt-4 pb-2">Friends</h2>
-                <table
-                    class="rounded-t-lg rounded-b-lg w-full mx-auto bg-gray-200 text-gray-800"
-                >
-                    <tr class="text-left border-b-2 border-gray-300">
-                        <th class="px-4 py-3">Name</th>
-                        <th class="px-4 py-3">Bridge</th>
-                        <th class="px-4 py-3">Actions</th>
-                    </tr>
-                    {#each friendListResp as { bridge, name, key, category }}
-                        {#if category != "pending_friend"}
-                            <tr class="bg-gray-100 border-b border-gray-200">
-                                <td class="px-4 py-3">{name}</td>
-                                <td class="px-4 py-3">{bridge}</td>
-                                <td class="px-4 py-3">
+
+                {#each friendListResp as { bridge, name, key, category }}
+                    {#if category != "pending_friend"}
+                        <div
+                            class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100"
+                        >
+                            <div class="self-center p-2 w-full">
+                                <div class="flex">
+                                    <div>{name}</div>
+                                </div>
+
+                                <div class="title text-xs text-gray-400 -mt-1">
+                                    {bridge}
+                                </div>
+                            </div>
+                            <div class="sec self-center p-2 w-2/8">
+                                <div class="text-xs flex font-light">
                                     <button
-                                        class="focus:outline-none hover:text-red-500"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
                                         on:click={() => {
                                             removeFriend(key);
                                         }}
-                                        ><svg
+                                    >
+                                        <svg
                                             class="w-6 h-6"
                                             fill="currentColor"
                                             viewBox="0 0 20 20"
@@ -255,16 +259,17 @@
                                                 d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                 clip-rule="evenodd"
                                             /></svg
-                                        ></button
-                                    >
+                                        >
+                                    </button>
                                     <button
-                                        class="focus:outline-none hover:text-indigo-500"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-indigo-100 focus:outline-none"
                                         on:click={() => {
                                             viewingName = name;
                                             getFriendProfile(bridge);
                                             getFriendPosts(bridge);
                                         }}
-                                        ><svg
+                                    >
+                                        <svg
                                             class="w-6 h-6"
                                             fill="currentColor"
                                             viewBox="0 0 20 20"
@@ -276,42 +281,44 @@
                                                 d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                                 clip-rule="evenodd"
                                             /></svg
-                                        ></button
-                                    >
-                                </td>
-                            </tr>
-                        {/if}
-                    {/each}
-                    <tr class="bg-gray-400 border-b border-gray-200" />
-                    <br />
-                    <td />
-                </table>
+                                        >
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                {/each}
             {/if}
 
             {#if anyPending == true}
-                <h2 class="text-2xl pt-4 pb-2">Requests</h2>
-                <table
-                    class="rounded-t-lg rounded-b-lg w-full mx-auto bg-gray-200 text-gray-800"
-                >
-                    <tr class="text-left border-b-2 border-gray-300">
-                        <th class="px-4 py-3">Name</th>
-                        <th class="px-4 py-3">Bridge</th>
-                        <th class="px-4 py-3">Actions</th>
-                    </tr>
-                    {#each friendListResp as { bridge, name, key, category }}
-                        {#if category == "pending_friend"}
-                            <tr class="bg-gray-100 border-b border-gray-200">
-                                <td class="px-4 py-3">{name}</td>
-                                <td class="px-4 py-3">{bridge}</td>
-                                <td class="px-4 py-3">
+                {#if pendingFriendCount > 0}
+                    <h2 class="text-2xl pt-4 pb-2">Requests</h2>
+                {/if}
+                {#each friendListResp as { bridge, name, key, category }}
+                    {#if category == "pending_friend"}
+                        <div
+                            class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100"
+                        >
+                            <div class="self-center p-2 w-full">
+                                <div class="flex">
+                                    <div>{name}</div>
+                                </div>
+
+                                <div class="title text-xs text-gray-400 -mt-1">
+                                    {bridge}
+                                </div>
+                            </div>
+                            <div class="sec self-center p-2 w-2/8">
+                                <div class="text-xs flex font-light">
                                     <button
-                                        class="focus:outline-none hover:text-green-500"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-green-100 focus:outline-none"
                                         on:click={() => {
                                             acceptFriendRequest(
                                                 bridge,
                                                 key,
                                                 name
                                             );
+                                            --pendingFriendCount;
                                         }}
                                         ><svg
                                             class="w-6 h-6"
@@ -323,12 +330,13 @@
                                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                                 clip-rule="evenodd"
                                             /></svg
-                                        ></button
-                                    >
+                                        >
+                                    </button>
                                     <button
-                                        class="focus:outline-none hover:text-red-500"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
                                         on:click={() => {
                                             removeFriend(key);
+                                            --pendingFriendCount;
                                         }}
                                         ><svg
                                             class="w-6 h-6"
@@ -337,40 +345,16 @@
                                             xmlns="http://www.w3.org/2000/svg"
                                             ><path
                                                 fill-rule="evenodd"
-                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                 clip-rule="evenodd"
                                             /></svg
-                                        ></button
-                                    >
-                                    <button
-                                        class="focus:outline-none hover:text-indigo-500"
-                                        on:click={() => {
-                                            viewingName = name;
-                                            getFriendProfile(bridge);
-                                            getFriendPosts();
-                                        }}
-                                        ><svg
-                                            class="w-6 h-6"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            ><path
-                                                d="M10 12a2 2 0 100-4 2 2 0 000 4z"
-                                            /><path
-                                                fill-rule="evenodd"
-                                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                                clip-rule="evenodd"
-                                            /></svg
-                                        ></button
-                                    >
-                                </td>
-                            </tr>
-                        {/if}
-                    {/each}
-                    <tr class="bg-gray-400 border-b border-gray-200" />
-                    <br />
-                    <td />
-                </table>
+                                        >
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                {/each}
             {/if}
         {/if}
     {:else}
@@ -392,27 +376,32 @@
             ></button
         >
         <h2 class="text-2xl pb-2">{viewingProfile.username}'s Profile</h2>
-        <div
-            class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
-        >
-            <p class="break-words">{viewingProfile.bio}</p>
+        <div class="p-1">
+            <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                <p class="text-gray-600 text-sm">{viewingProfile.bio}</p>
+            </div>
         </div>
         {#if viewingFriendsPosts}
             <h2 class="text-2xl pt-4 pb-2">Posts</h2>
             {#each viewingPosts as { value, time }}
-                <div
-                    class="bg-gray-200 p-2 mb-4 h-auto rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 border border-gray-300"
-                >
-                    <div class="flex sm:flex-1 flex-col gap-2 p-1">
-                        <p class="text-gray-400">
-                            {convertTimestamp(time)}
-                        </p>
-
-                        <p
-                            class="text-gray-500 text-sm sm:text-base line-clamp-3 break-words"
-                        >
-                            {value}
-                        </p>
+                <div class="p-1">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                        <div class="flex">
+                            <div
+                                class="flex items-center text-xs text-gray-400"
+                            >
+                                <p>{convertTimestamp(time)}</p>
+                                <p class="px-1">•</p>
+                                <p>
+                                    {timeago.format(convertTimestamp(time))}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-gray-600 text-sm">
+                                {@html value}
+                            </p>
+                        </div>
                     </div>
                 </div>
             {/each}

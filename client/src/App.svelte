@@ -60,7 +60,7 @@
             </div>
             <div class="block sm:hidden">
                 <button
-                    class="navbar-burger flex items-center px-3 py-2 border rounded text-white border-white hover:text-white hover:border-white"
+                    class="navbar-burger flex items-center px-3 py-2 border rounded text-white border-white hover:text-white hover:border-white focus:outline-none"
                 >
                     <svg
                         class="fill-current h-3 w-3"
@@ -83,7 +83,7 @@
                             toggleBurger();
                             currentComponent = "Feed";
                         }}
-                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -101,7 +101,7 @@
                             toggleBurger();
                             currentComponent = "Feed";
                         }}
-                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -120,7 +120,7 @@
                             toggleBurger();
                             currentComponent = "Profile";
                         }}
-                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -140,7 +140,7 @@
                             toggleBurger();
                             currentComponent = "Profile";
                         }}
-                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -161,7 +161,7 @@
                             toggleBurger();
                             currentComponent = "Friends";
                         }}
-                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -178,7 +178,7 @@
                             toggleBurger();
                             currentComponent = "Friends";
                         }}
-                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -197,7 +197,7 @@
                             toggleBurger();
                             currentComponent = "Settings";
                         }}
-                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-gray-200 hover:text-white flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -218,7 +218,7 @@
                             toggleBurger();
                             currentComponent = "Settings";
                         }}
-                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto"
+                        class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto focus:outline-none"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"

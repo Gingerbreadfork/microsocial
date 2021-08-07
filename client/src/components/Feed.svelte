@@ -288,7 +288,7 @@
         <textarea
             bind:value={newPost}
             class="shadow rounded border p-1 focus:outline-none w-full"
-            rows="5"
+            rows="3"
         />
         <div class="flex">
             <div class="mb-2 mt-2">

@@ -82,7 +82,7 @@
                     </div>
                     <div class="mt-2">
                         <p class="text-gray-600 text-sm">
-                            {value}
+                            {@html value}
                         </p>
                     </div>
                 </div>
