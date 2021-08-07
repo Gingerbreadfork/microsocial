@@ -78,6 +78,54 @@
         await notifyFriends();
     };
 
+    const createLinkPost = async () => {
+        var metaFetch = await fetch(devBridge + "metatags?link=" + newPost);
+        var metaTags = await metaFetch.json();
+        var titleLink = metaTags.title.link(newPost);
+        var description;
+
+        if (metaTags.image != "None") {
+            var image = `<a href="${newPost}"><img src="${metaTags.image}"></a>`;
+        } else {
+            var image = "";
+        }
+
+        if (metaTags.description != "None") {
+            description = metaTags.description;
+        } else {
+            description = " ";
+        }
+
+        var postedPost = `<b>${titleLink}</b><br><br>${image}<br>${description}`;
+
+        // Only required for Dev - TODO: Remove Jank
+        if (window.location.hostname == "localhost") {
+            var postBridge = "41034m.deta.dev";
+        } else {
+            var postBridge = hostBridge;
+        }
+
+        newPost = "";
+        refreshingFeed = true;
+        var contentToPost = {
+            access_key: hostAccessKey,
+            value: postedPost,
+            bridge: postBridge,
+        };
+
+        var postResp = await fetch(devBridge + "create-post", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contentToPost),
+        });
+
+        await getFeed();
+        await notifyFriends();
+    };
+
     const getFeed = async () => {
         refreshingFeed = true;
         var FeedReq = await fetch(
@@ -233,7 +281,7 @@
     const getNotifications = setInterval(checkNotifications, 500);
 </script>
 
-<div class="container mx-auto sm:p-10">
+<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
     <div
         class="shadow-md border-2 border-gray-200 rounded p-2 mb-2 bg-gray-100"
     >
@@ -242,23 +290,42 @@
             class="shadow rounded border p-1 focus:outline-none w-full"
             rows="5"
         />
+        <div class="flex">
+            <div class="mb-2 mt-2">
+                <button
+                    on:click={createLinkPost}
+                    class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
+                    ><svg
+                        class="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            fill-rule="evenodd"
+                            d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
+                            clip-rule="evenodd"
+                        /></svg
+                    ></button
+                >
+            </div>
 
-        <div class="flex justify-end mb-2 mt-2">
-            <button
-                on:click={createPost}
-                class="p-3 border bg-blue-500 rounded-3xl text-white focus:outline-none"
-                ><svg
-                    class="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                        fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd"
-                    /></svg
-                ></button
-            >
+            <div class="ml-auto mb-2 mt-2">
+                <button
+                    on:click={createPost}
+                    class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
+                    ><svg
+                        class="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            fill-rule="evenodd"
+                            d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
+                            clip-rule="evenodd"
+                        /></svg
+                    ></button
+                >
+            </div>
         </div>
     </div>
 
@@ -375,7 +442,7 @@
                             <p
                                 class="text-gray-600 text-sm sm:text-base line-clamp-3 break-words"
                             >
-                                {value}
+                                {@html value}
                             </p>
                             <div class="flex">
                                 {#if edited == true}

@@ -3,4 +3,5 @@ aiofiles
 httpx
 starlette
 cryptography
+selectolax
 deta

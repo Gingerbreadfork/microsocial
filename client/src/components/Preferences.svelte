@@ -63,7 +63,7 @@
     };
 </script>
 
-<div class="container mx-auto sm:p-10">
+<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if hostProfileLoaded}
         <h2 class="text-2xl pb-2 pt-2">Modify Username</h2>
         <div
