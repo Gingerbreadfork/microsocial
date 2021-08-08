@@ -6,7 +6,7 @@
     import Settings from "./components/Preferences.svelte";
     import { onMount } from "svelte";
 
-    let currentComponent = "Profile";
+    let currentComponent = "Feed";
 
     onMount(async () => {
         // Navbar Toggle
