@@ -56,6 +56,13 @@
             var postBridge = hostBridge;
         }
 
+        if (newPost.length > 2500) {
+            alert(
+                `Post too long! ${newPost.length} characters, max accepted is 2500`
+            );
+            return;
+        }
+
         var postedPost = newPost;
         newPost = "";
         refreshingFeed = true;

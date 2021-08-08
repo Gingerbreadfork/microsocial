@@ -117,6 +117,11 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
 
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):
+    if len(newpost.value) > 2500:
+        response.body = "Post is too long"
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {response}
+    
     post_id = uuid.uuid4().hex
     timestamp_now = time.time()
     encrypted_post = encrypt_str_with_key(host_key, newpost.value)
