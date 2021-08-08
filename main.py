@@ -316,9 +316,14 @@ def edit_post(edit: EditingItem, response: Response):
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {response}
         else:
-            db.put({'key': 'my_name', 'value': edit.content})
-            response.body = "Username Updated"
-            return {response}
+            if len(edit.content) <= 20:
+                db.put({'key': 'my_name', 'value': edit.content})
+                response.body = "Username Updated"
+                return {response}
+            else:
+                response.body = "Username too Long"
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return {response}
 
 @app.get("/metatags", status_code=200)
 async def get_metatags(link: str):

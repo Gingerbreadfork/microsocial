@@ -32,6 +32,14 @@
 
     const changeName = async (name) => {
         updatedUsername = false;
+
+        if (name.length > 20) {
+            alert(
+                `Requested Username too Long. 20 characters max, current ${name.length}!`
+            );
+            return;
+        }
+
         var changeNameResp = await fetch(devBridge + "edit", {
             method: "PUT",
             headers: {
