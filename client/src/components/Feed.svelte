@@ -86,24 +86,32 @@
     };
 
     const createLinkPost = async () => {
-        var metaFetch = await fetch(devBridge + "metatags?link=" + newPost);
-        var metaTags = await metaFetch.json();
-        var titleLink = metaTags.title.link(newPost);
-        var description;
-
-        if (metaTags.image != "None") {
-            var image = `<a href="${newPost}"><img src="${metaTags.image}"></a>`;
+        if (
+            newPost.endsWith(".gif") ||
+            newPost.endsWith(".jpg") ||
+            newPost.endsWith(".png")
+        ) {
+            var postedPost = `<a href="${newPost}"><img src="${newPost}"></a>`;
         } else {
-            var image = "";
-        }
+            var metaFetch = await fetch(devBridge + "metatags?link=" + newPost);
+            var metaTags = await metaFetch.json();
+            var titleLink = metaTags.title.link(newPost);
+            var description;
 
-        if (metaTags.description != "None") {
-            description = metaTags.description;
-        } else {
-            description = " ";
-        }
+            if (metaTags.image != "None") {
+                var image = `<a href="${newPost}"><img src="${metaTags.image}"></a>`;
+            } else {
+                var image = "";
+            }
 
-        var postedPost = `<b>${titleLink}</b><br><br>${image}<br>${description}`;
+            if (metaTags.description != "None") {
+                description = metaTags.description;
+            } else {
+                description = " ";
+            }
+
+            var postedPost = `<b>${titleLink}</b><br><br>${image}<br>${description}`;
+        }
 
         // Only required for Dev - TODO: Remove Jank
         if (window.location.hostname == "localhost") {
