@@ -45,3 +45,5 @@ class EditingItem(BaseModel):
 class ReactedPost(BaseModel):
     postkey: str
     emoji: str
+    bridge: str
+    

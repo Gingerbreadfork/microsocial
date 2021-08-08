@@ -191,6 +191,22 @@
         friendListLoaded = true;
     };
 
+    function friendNameFromBridge(bridge) {
+        if (bridge == hostBridge) {
+            return hostUsername;
+        }
+
+        var filtered = friendListResp;
+
+        filtered.filter(function (friend) {
+            if (friend.bridge == bridge) {
+                return true;
+            }
+        });
+
+        return filtered[0].name;
+    }
+
     function convertTimestamp(timestamp) {
         var dateObject = new Date(timestamp * 1000);
         var readableDate = dateObject.toLocaleString();
@@ -236,6 +252,7 @@
         });
 
         getFeed();
+        notifyFriends();
     };
 
     const deletePost = async (key) => {
@@ -255,12 +272,14 @@
         });
 
         getFeed();
+        notifyFriends();
     };
 
     const reactPost = async (key, reacted, bridge) => {
         var reactionToPost = {
             postkey: key,
             emoji: reacted,
+            bridge: hostBridge,
         };
 
         var reactResp = await fetch("https://" + bridge + "/public/react", {
@@ -275,7 +294,7 @@
         notifyFriends();
     };
 
-    const reactionList = ["❤️", "🔥", "😊", "😂", "👍"];
+    const reactionList = ["❤️", "🔥", "🤬", "😂", "👎", "👍"];
 
     // Intervals
     const getNotifications = setInterval(checkNotifications, 500);
@@ -348,6 +367,7 @@
                     >
                 </div>
             {/if}
+
             {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge }}
                 <div class="p-1">
                     <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
@@ -368,10 +388,42 @@
                                                 clip-rule="evenodd"
                                             /></svg
                                         >
+                                        {#if edited == true}
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="text-blue-300 w-4 h-4 inline-block mb-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                />
+                                            </svg>
+                                        {/if}
                                     </p>
                                 {:else}
                                     <p class="text-indigo-600 font-medium">
                                         {name}
+                                        {#if edited == true}
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="text-blue-300 w-4 h-4 inline-block mb-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                />
+                                            </svg>
+                                        {/if}
                                     </p>
                                 {/if}
 
@@ -438,38 +490,14 @@
                                 </button>
                             {/if}
                         </div>
+
                         <div class="mt-2">
                             <p
-                                class="text-gray-600 text-sm sm:text-base line-clamp-3 break-words"
+                                class="text-gray-600 text-sm line-clamp-3 break-words"
                             >
                                 {@html value}
                             </p>
                             <div class="flex">
-                                {#if edited == true}
-                                    <div
-                                        class="flex items-center mr-4 focus:outline-none"
-                                    >
-                                        <i class="mr-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                class="text-blue-300 w-4 h-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                />
-                                            </svg>
-                                        </i>
-                                        <p class="mt-1 text-blue-300 text-sm">
-                                            Edited
-                                        </p>
-                                    </div>
-                                {/if}
                                 {#if name == hostUsername && postOptions == true && postOptionSelector == key}
                                     <button
                                         on:click={async () => {
@@ -487,7 +515,7 @@
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            class="w-4 h-4 mr-2"
+                                            class="w-4 h-4 mr-1"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -521,7 +549,7 @@
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            class="w-4 h-4 mr-2"
+                                            class="w-4 h-4 mr-1"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -565,12 +593,17 @@
                                     {/if}
                                 </div>
                             </div>
-                            {#if reactions.length != 0}
+                            {#if reactions.length != 0 && friendListResp}
                                 <div
-                                    class="flex justify-center m-auto -mb-3 rounded-2xl bg-gray-200 border border-gray-300 flex-shrink w-min pl-2 pr-2"
+                                    class="flex -mb-3 rounded-2xl bg-purple-900 border border-purple-800 flex-shrink w-min pl-2 pr-2 mt-2"
                                 >
-                                    {#each reactions as reaction}
-                                        <span class=""> {reaction}</span>
+                                    {#each reactions as { emoji, reacting }}
+                                        <span
+                                            title={friendNameFromBridge(
+                                                reacting
+                                            )}
+                                            class="ml-1 mr-1">{emoji}</span
+                                        >
                                     {/each}
                                 </div>
                             {/if}

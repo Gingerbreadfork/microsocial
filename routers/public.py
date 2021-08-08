@@ -96,14 +96,16 @@ def receive_notification(notification: ReceivedNotif, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         
 @router.post("/public/react", status_code=200)
-def post_reaction(reaction: ReactedPost, response: Response):
-    print(reaction.postkey)
+def post_reaction(reaction: ReactedPost):
     post_obj = db.get(reaction.postkey)
     
     try:
         reactions = post_obj['reactions']
     except TypeError:
         reactions = []
-        
-    reactions.append(reaction.emoji)
+    
+    if {"emoji": reaction.emoji, "reacting": reaction.bridge} not in reactions:
+        reactions.append({"emoji": reaction.emoji, "reacting": reaction.bridge})
+    
     db.update({'reactions': reactions}, reaction.postkey)
+    return reactions

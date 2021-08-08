@@ -72,7 +72,7 @@
             <div class="p-1">
                 <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
                     <div class="flex">
-                        <div class="flex items-center text-xs text-gray-400">
+                        <div class="flex items-center text-sm text-gray-400">
                             <p>{convertTimestamp(time)}</p>
                             <p class="px-1">•</p>
                             <p>
