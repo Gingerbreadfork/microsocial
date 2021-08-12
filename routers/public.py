@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 from fastapi import FastAPI, Response, status
+import time
 
 from models import *
 from shared import *
+from encryption import *
 
 router = APIRouter()
 
@@ -109,3 +111,42 @@ def post_reaction(reaction: ReactedPost):
     
     db.update({'reactions': reactions}, reaction.postkey)
     return reactions
+
+@router.post("/public/messages/receive", status_code=201)
+def receive_message(message: ReceivedMessage, response: Response):
+    friend_key = message.key
+    friend = db.get(friend_key)
+    
+    try:
+        messages = friend['messages']
+    except:
+        messages = []
+    
+    messages.append({"timestamp": time.time(), "message": message.content})
+    friend['messages'] = messages
+
+    try:
+        db.put(friend)
+        response.status_code = status.HTTP_200_OK
+        response.body = "Successfully Received Message"
+        return {response}
+    except:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        response.body = "Failed to Receive Message"
+        return {response}
+    
+@router.get("/public/messages/clear", status_code=201)
+def receive_message(key: str, response: Response):
+    friend = db.get(key)
+    
+    friend['messages'] = []
+
+    try:
+        db.put(friend)
+        response.status_code = status.HTTP_200_OK
+        response.body = "Successfully Cleared Messages"
+        return {response}
+    except:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        response.body = "Failed to Clear Messages"
+        return {response}

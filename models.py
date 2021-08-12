@@ -46,4 +46,7 @@ class ReactedPost(BaseModel):
     postkey: str
     emoji: str
     bridge: str
-    
+
+class ReceivedMessage(BaseModel):
+    content: str
+    key: str

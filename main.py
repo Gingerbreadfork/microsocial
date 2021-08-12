@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from fastapi.staticfiles import StaticFiles
@@ -333,7 +333,6 @@ async def get_metatags(link: str):
         link_html = client.get(link, headers=headers)
     
     tree = HTMLParser(link_html.content)
-        
 
     attrs = {}
 
@@ -365,5 +364,15 @@ async def get_metatags(link: str):
         
     return {'title': title, 'description': description, 'image': image}
 
+@app.get('/messages', status_code=200)
+def direct_messages(key: str):
+    try:
+        friend = db.get(key)
+        if friend['category'] != "friend":
+            raise Exception
+    except:
+        raise HTTPException(status_code = 404, detail = "Friend Not Found")
+
+    return friend['messages']
 
 app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")
