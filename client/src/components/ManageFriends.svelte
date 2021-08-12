@@ -49,13 +49,6 @@
         myNameLoaded = true;
     };
 
-    const getFriendName = async (bridge) => {
-        var friendURL = "https://" + bridge + "/public/profile";
-        var friendNameReq = await fetch(friendURL);
-        var friendNameResp = await friendNameReq.json();
-        return friendNameResp.username;
-    };
-
     const removeFriend = async (key) => {
         var friendToDelete = {
             key: key,

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import FastAPI, Response, status
 import time
+import uuid
 
 from models import *
 from shared import *
@@ -112,7 +113,7 @@ def post_reaction(reaction: ReactedPost):
     db.update({'reactions': reactions}, reaction.postkey)
     return reactions
 
-@router.post("/public/messages/receive", status_code=201)
+@router.post("/public/messages/receive", status_code=200)
 def receive_message(message: ReceivedMessage, response: Response):
     friend_key = message.key
     friend = db.get(friend_key)
@@ -122,11 +123,17 @@ def receive_message(message: ReceivedMessage, response: Response):
     except:
         messages = []
     
-    messages.append({"timestamp": time.time(), "message": message.content})
-    friend['messages'] = messages
+    messages.append(
+        {
+            "timestamp": time.time(),
+            "message": message.content,
+            "uuid": uuid.uuid4().hex,
+            "response": False
+            }
+        )
 
     try:
-        db.put(friend)
+        db.update({"messages": messages}, friend_key)
         response.status_code = status.HTTP_200_OK
         response.body = "Successfully Received Message"
         return {response}

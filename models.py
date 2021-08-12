@@ -50,3 +50,7 @@ class ReactedPost(BaseModel):
 class ReceivedMessage(BaseModel):
     content: str
     key: str
+
+class RespondMessage(BaseModel):
+    content: str
+    key: str
