@@ -25,12 +25,15 @@
     };
 
     onMount(async () => {
+        friendListLoaded = false;
+        viewingMessages == "";
         getMyProfile();
-        getFriends();
     });
 
     onDestroy(async () => {
         clearInterval(lazyCheck);
+        friendListLoaded = false;
+        friends = [];
     });
 
     function convertTimestamp(timestamp) {
@@ -60,17 +63,9 @@
 
         friends = friends;
         friendListLoaded = true;
-        console.log(friends);
     };
 
     const createPost = async () => {
-        // Only required for Dev - TODO: Remove Jank
-        if (window.location.hostname == "localhost") {
-            var postBridge = "41034m.deta.dev";
-        } else {
-            var postBridge = hostBridge;
-        }
-
         if (newMessage.length > 2500) {
             alert(
                 `Message too long! ${newMessage.length} characters, max accepted is 2500`
@@ -96,28 +91,44 @@
         });
     };
 
-    // TODO: Be More Effecient
     const lazyCheck = setInterval(getFriends, 1000);
 </script>
 
 <div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
-    {#each friends as { name, bridge, key }}
-        <button
-            on:click={() => {
-                viewingMessages = bridge;
-                currentKey = key;
-            }}
-            class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100 hover:bg-purple-100"
+    {#if !friendListLoaded}
+        <svg
+            class="m-auto animate-spin text-purple-800 w-20 h-20"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+                fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd"
+            /></svg
         >
-            <div class="self-center p-2 w-1/2">
-                {name}
-            </div>
+    {/if}
 
-            <div class="title text-xs text-gray-400 self-center p-2">
-                {bridge}
-            </div>
-        </button>
-    {/each}
+    {#if viewingMessages == ""}
+        {#each friends as { name, bridge, key }}
+            <button
+                on:click={() => {
+                    viewingMessages = bridge;
+                    currentKey = key;
+                }}
+                class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100 hover:bg-purple-100"
+            >
+                <div class="self-center p-2 w-1/2">
+                    {name}
+                </div>
+
+                <div class="title text-xs text-gray-400 self-center p-2">
+                    {bridge}
+                </div>
+            </button>
+        {/each}
+    {/if}
+
     {#if viewingMessages != ""}
         <div
             class="shadow-md border-2 border-gray-200 rounded p-2 mb-2 bg-gray-100"
@@ -129,6 +140,25 @@
             />
             <div class="flex">
                 <div class="mb-2 mt-2">
+                    <button
+                        class="p-2 border bg-pink-700 hover:bg-pink-600 rounded-3xl text-white focus:outline-none"
+                        on:click={() => {
+                            viewingMessages = "";
+                        }}
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >
+                </div>
+                <div class="mb-2 mt-2 ml-auto">
                     <button
                         on:click={() => {
                             console.log("TODO: createLinkPost");

@@ -281,7 +281,7 @@
     </div>
 </div>
 
-<div class="p-2">
+<div class="p-2 bg-gray-300 min-h-screen">
     {#if currentComponent == "Friends"}
         <ManageFriends />
     {:else if currentComponent == "Settings"}
