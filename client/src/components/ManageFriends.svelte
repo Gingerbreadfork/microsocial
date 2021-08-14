@@ -171,7 +171,7 @@
 <div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
         <div
-            class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg lg:w-1/2 w-full flex m-auto"
+            class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg md:w-3/4 w-full flex m-auto"
         >
             <div class="border border-gray-300 p-2 rounded w-full">
                 <div class="flex border rounded bg-gray-300 items-center p-2 ">

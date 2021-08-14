@@ -219,7 +219,11 @@
             }
         });
 
-        return filtered[0].name;
+        try {
+            return filtered[0].name;
+        } catch (e) {
+            return "";
+        }
     }
 
     function convertTimestamp(timestamp) {
