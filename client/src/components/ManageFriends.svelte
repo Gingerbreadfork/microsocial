@@ -168,7 +168,7 @@
     const checkFriends = setInterval(getFriends, 5000);
 </script>
 
-<div class="container mx-auto sm:p-10">
+<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
         <div
             class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg lg:w-1/2 w-full flex m-auto"
@@ -237,6 +237,7 @@
                             <div class="sec self-center p-2 w-2/8">
                                 <div class="text-xs flex font-light">
                                     <button
+                                        title="Remove Friend"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
                                         on:click={() => {
                                             removeFriend(key);
@@ -255,6 +256,7 @@
                                         >
                                     </button>
                                     <button
+                                        title="View Profile"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-indigo-100 focus:outline-none"
                                         on:click={() => {
                                             viewingName = name;
@@ -304,6 +306,7 @@
                             <div class="sec self-center p-2 w-2/8">
                                 <div class="text-xs flex font-light">
                                     <button
+                                        title="Accept Friend Request"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-green-100 focus:outline-none"
                                         on:click={() => {
                                             acceptFriendRequest(
@@ -326,6 +329,7 @@
                                         >
                                     </button>
                                     <button
+                                        title="Decline Friend Request"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
                                         on:click={() => {
                                             removeFriend(key);
@@ -352,6 +356,7 @@
         {/if}
     {:else}
         <button
+            title="Go back"
             class="focus:outline-none text-xl text-indigo-500 hover:text-indigo-400"
             on:click={() => {
                 viewingFriendProfile = false;

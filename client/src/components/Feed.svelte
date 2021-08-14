@@ -391,33 +391,36 @@
                                 {#if name == hostUsername}
                                     <p class="text-purple-600 font-medium">
                                         {name}
-
-                                        <svg
-                                            class="w-4 h-4 inline-block mb-1 text-green-400 opacity-25"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            ><path
-                                                fill-rule="evenodd"
-                                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                clip-rule="evenodd"
-                                            /></svg
-                                        >
-                                        {#if edited == true}
+                                        <span title="Host">
                                             <svg
+                                                class="w-4 h-4 inline-block mb-1 text-green-400 opacity-25"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                class="text-blue-300 w-4 h-4 inline-block mb-1"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
+                                                ><path
+                                                    fill-rule="evenodd"
+                                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd"
+                                                /></svg
                                             >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                />
-                                            </svg>
+                                        </span>
+                                        {#if edited == true}
+                                            <span title="Edited">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="text-blue-300 w-4 h-4 inline-block mb-1"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                    />
+                                                </svg>
+                                            </span>
                                         {/if}
                                     </p>
                                 {:else}
@@ -610,7 +613,7 @@
                             </div>
                             {#if reactions.length != 0 && friendListResp}
                                 <div
-                                    class="flex -mb-3 rounded-2xl bg-purple-900 border border-purple-800 flex-shrink w-min pl-2 pr-2 mt-2"
+                                    class="flex -mb-3 rounded-2xl bg-purple-900 border border-purple-800 flex-shrink w-min pl-2 pr-2 mt-2 cursor-default"
                                 >
                                     {#each reactions as { emoji, reacting }}
                                         <span

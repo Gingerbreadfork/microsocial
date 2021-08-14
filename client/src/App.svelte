@@ -40,7 +40,7 @@
     }
 </script>
 
-<div class="border-b border-gray-900 bg-black py-2 px-2">
+<div class="border-b border-gray-900 bg-black py-2 px-2 cursor-default">
     <div class="container mx-auto">
         <nav class="flex items-center justify-between flex-wrap">
             <div class="flex items-center flex-no-shrink text-white mr-6">
@@ -80,6 +80,7 @@
                 <div class="text-sm sm:flex-grow text-white" />
                 {#if currentComponent != "Feed"}
                     <button
+                        title="Live Feed"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Feed";
@@ -98,6 +99,7 @@
                     >
                 {:else}
                     <button
+                        title="Live Feed"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Feed";
@@ -117,6 +119,7 @@
                 {/if}
                 {#if currentComponent != "Messages"}
                     <button
+                        title="Direct Messages"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Messages";
@@ -137,12 +140,14 @@
                     >
                 {:else}
                     <button
+                        title="Direct Messages"
                         on:click={() => {
                             toggleBurger();
-                            currentComponent = "Feed";
+                            currentComponent = "Messages";
                         }}
                         class="font-medium text-indigo-500 hover:text-indigo-400 flex pt-2 sm:pt-0 m-auto focus:outline-none"
-                        ><svg
+                    >
+                        <svg
                             class="w-6 h-6"
                             fill="currentColor"
                             viewBox="0 0 20 20"
@@ -158,6 +163,7 @@
                 {/if}
                 {#if currentComponent != "Profile"}
                     <button
+                        title="Profile"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Profile";
@@ -178,6 +184,7 @@
                     >
                 {:else}
                     <button
+                        title="Profile"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Profile";
@@ -199,6 +206,7 @@
                 {/if}
                 {#if currentComponent != "Friends"}
                     <button
+                        title="Manage Friends"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Friends";
@@ -216,6 +224,7 @@
                         ></button
                     >{:else}
                     <button
+                        title="Manage Friends"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Friends";
@@ -235,6 +244,7 @@
                 {/if}
                 {#if currentComponent != "Settings"}
                     <button
+                        title="Settings"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Settings";
@@ -256,6 +266,7 @@
                     >
                 {:else}
                     <button
+                        title="Settings"
                         on:click={() => {
                             toggleBurger();
                             currentComponent = "Settings";

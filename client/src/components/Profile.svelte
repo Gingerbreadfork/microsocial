@@ -70,7 +70,9 @@
         <h2 class="text-2xl pt-4 pb-2">Posts</h2>
         {#each hostPosts as { value, time }}
             <div class="p-1">
-                <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                <div
+                    class="border-gray-300 p-2 bg-gray-200 rounded-lg shadow-lg border-2"
+                >
                     <div class="flex">
                         <div class="flex items-center text-sm text-gray-400">
                             <p>{convertTimestamp(time)}</p>
