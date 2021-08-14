@@ -11,11 +11,9 @@
     "postcss": "^8.2.8",
     "svelte": "^3.37.0",
     "tailwindcss": "^2.0.4",
-    "tinro": "^0.6.4",
     "vite": "^2.3.7"
   },
   "dependencies": {
-    "emoji-picker-element-data": "^1.2.0",
     "timeago.js": "^4.0.2"
   }
 }
