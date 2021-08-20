@@ -109,6 +109,8 @@ def post_reaction(reaction: ReactedPost):
     
     if {"emoji": reaction.emoji, "reacting": reaction.bridge} not in reactions:
         reactions.append({"emoji": reaction.emoji, "reacting": reaction.bridge})
+    else:
+        reactions.remove({"emoji": reaction.emoji, "reacting": reaction.bridge})
     
     db.update({'reactions': reactions}, reaction.postkey)
     return reactions
