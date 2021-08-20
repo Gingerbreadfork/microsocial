@@ -307,9 +307,14 @@ def edit_post(edit: EditingItem, response: Response):
             response.body = "Bio Deleted"
             return {response}
         else:
-            db.put({'key': 'my_bio', 'value': edit.content})
-            response.body = "Bio Updated"
-            return {response}
+            if len(edit.content) > 5000:
+                response.body = "Bio is too long"
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return {response}
+            else:
+                db.put({'key': 'my_bio', 'value': edit.content})
+                response.body = "Bio Updated"
+                return {response}
 
     elif edit.item == "username":
         if edit.delete:

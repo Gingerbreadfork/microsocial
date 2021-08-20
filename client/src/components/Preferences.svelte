@@ -59,6 +59,14 @@
 
     const changeBio = async () => {
         updatedBio = false;
+
+        if (hostBio.length > 5000) {
+            alert(
+                `Updated bio too Long. 5000 characters max, current ${hostBio.length}!`
+            );
+            return;
+        }
+
         var changeBioResp = await fetch(devBridge + "edit", {
             method: "PUT",
             headers: {
@@ -77,14 +85,14 @@
     };
 </script>
 
-<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if hostProfileLoaded}
         <div
-            class="border border-gray-300 p-2 grid grid-cols-1 gap-2 bg-gray-200 shadow-lg rounded-lg"
+            class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg"
         >
             <div class="flex">
                 <svg
-                    class="w-6 h-6 mb-1 ml-2 mr-2 inline-block text-gray-700"
+                    class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -95,18 +103,18 @@
                     /></svg
                 > <span> Change Username </span>
             </div>
-            <div class="grid border border-gray-300 p-2 rounded">
-                <div class="flex border rounded bg-gray-300 items-center p-2 ">
+            <div class="grid p-2 border border-gray-300 rounded">
+                <div class="flex items-center p-2 bg-gray-300 border rounded ">
                     <input
                         bind:value={newUsername}
                         type="text"
                         placeholder={hostUsername}
-                        class="bg-gray-300 w-full focus:outline-none text-gray-700"
+                        class="w-full text-gray-700 bg-gray-300 focus:outline-none"
                     />
                 </div>
             </div>
 
-            <div class="flex mb-2 mt-2">
+            <div class="flex mt-2 mb-2">
                 {#if updatedUsername}
                     <div class="flex flex-row mt-3">
                         <div class="px-2">
@@ -131,7 +139,7 @@
                         changeName(newUsername);
                         newUsername = "";
                     }}
-                    class="ml-auto p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
+                    class="p-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
                     ><svg
                         class="w-6 h-6"
                         fill="currentColor"
@@ -148,10 +156,10 @@
         </div>
 
         <div
-            class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg mt-2"
+            class="p-2 mt-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg"
         >
             <svg
-                class="w-6 h-6 inline-block mb-1 ml-2 mr-2 text-gray-700"
+                class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -162,14 +170,14 @@
                 /></svg
             >
             <span> Edit Bio </span>
-            <div class="border border-gray-300 rounded-xl p-2 pb-0">
+            <div class="p-2 pb-0 border border-gray-300 rounded-xl">
                 <textarea
                     bind:value={hostBio}
-                    class="w-full text-gray-700 border rounded-lg focus:outline-none p-1"
+                    class="w-full p-1 text-gray-700 border rounded-lg focus:outline-none"
                     rows="5"
                 />
             </div>
-            <div class="flex mb-2 mt-2">
+            <div class="flex mt-2 mb-2">
                 {#if updatedBio}
                     <div class="flex flex-row mt-3">
                         <div class="px-2">
@@ -191,7 +199,7 @@
                 {/if}
                 <button
                     on:click={changeBio}
-                    class="ml-auto p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
+                    class="p-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
                     ><svg
                         class="w-6 h-6"
                         fill="currentColor"
