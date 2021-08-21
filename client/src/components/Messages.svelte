@@ -1,6 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
+    import anchorme from "anchorme";
 
     let hostAccessKey = "";
     let friendListResp;
@@ -73,6 +74,74 @@
             return;
         }
 
+        if (anchorme.validate.url(newMessage)) {
+            createLinkPost();
+            return;
+        }
+
+        var postedPost = newMessage;
+        newMessage = "";
+
+        var contentToPost = {
+            key: currentKey,
+            content: postedPost,
+        };
+
+        var postResp = await fetch(devBridge + "messages/respond", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contentToPost),
+        });
+    };
+
+    const createLinkPost = async () => {
+        if (
+            newMessage.startsWith("http://") ||
+            newMessage.startsWith("https://")
+        ) {
+        } else {
+            newMessage = "https://" + newMessage;
+        }
+
+        if (
+            newMessage.endsWith(".gif") ||
+            newMessage.endsWith(".jpg") ||
+            newMessage.endsWith(".png")
+        ) {
+            var postedPost = `<a href="${newMessage}"><img src="${newMessage}"></a>`;
+        } else {
+            var metaFetch = await fetch(
+                devBridge + "metatags?link=" + newMessage
+            );
+            var metaTags = await metaFetch.json();
+            var titleLink = metaTags.title.link(newMessage);
+            var description;
+
+            if (metaTags.image != "None") {
+                var image = `<a href="${newMessage}"><img src="${metaTags.image}"></a>`;
+            } else {
+                var image = "";
+            }
+
+            if (metaTags.description != "None") {
+                description = metaTags.description;
+            } else {
+                description = " ";
+            }
+
+            var postedPost = `<b>${titleLink}</b><br><br>${image}<br>${description}`;
+        }
+
+        // Only required for Dev - TODO: Remove Jank
+        if (window.location.hostname == "localhost") {
+            var postBridge = "41034m.deta.dev";
+        } else {
+            var postBridge = hostBridge;
+        }
+
         var postedPost = newMessage;
         newMessage = "";
 
@@ -94,14 +163,14 @@
     const lazyCheck = setInterval(getFriends, 1000);
 </script>
 
-<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if !friendListLoaded}
-        <div class="bg-gray-200 p-10 rounded-full w-auto mt-10 ml-10 mr-10">
-            <p class="animate-pulse text-center font-semibold text-gray-600">
+        <div class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-full">
+            <p class="font-semibold text-center text-gray-600 animate-pulse">
                 Loading Direct Messages & Friends...
             </p>
             <svg
-                class="w-20 h-20 animate-bounce mx-auto mt-10 text-gray-600"
+                class="w-20 h-20 mx-auto mt-10 text-gray-600 animate-bounce"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +185,7 @@
 
     {#if friendListLoaded && friends.length == 0}
         <div
-            class="flex items-center justify-center p-8 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl mt-10"
+            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl"
         >
             <div class="flex items-center">
                 <svg
@@ -135,7 +204,7 @@
                 <div class="font-medium leading-none">
                     You Don't Have Any Friends Just Yet!
                 </div>
-                <p class="text-sm text-gray-600 leading-none mt-1">
+                <p class="mt-1 text-sm leading-none text-gray-600">
                     Head to the "Manage Friends" tab to add a friend.
                 </p>
             </div>
@@ -148,13 +217,13 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100 hover:bg-purple-100"
+                class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow hover:bg-purple-100"
             >
-                <div class="self-center p-2 w-1/2">
+                <div class="self-center w-1/2 p-2">
                     {name}
                 </div>
 
-                <div class="title text-xs text-gray-400 self-center p-2">
+                <div class="self-center p-2 text-xs text-gray-400 title">
                     {bridge}
                 </div>
             </button>
@@ -163,17 +232,17 @@
 
     {#if viewingMessages != ""}
         <div
-            class="shadow-md border-2 border-gray-200 rounded p-2 mb-2 bg-gray-100"
+            class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md"
         >
             <textarea
                 bind:value={newMessage}
-                class="shadow rounded border p-1 focus:outline-none w-full"
+                class="w-full p-1 border rounded shadow focus:outline-none"
                 rows="3"
             />
             <div class="flex">
-                <div class="mb-2 mt-2">
+                <div class="mt-2 mb-2">
                     <button
-                        class="p-2 border bg-pink-700 hover:bg-pink-600 rounded-3xl text-white focus:outline-none"
+                        class="p-2 text-white bg-pink-700 border hover:bg-pink-600 rounded-3xl focus:outline-none"
                         on:click={() => {
                             viewingMessages = "";
                         }}
@@ -190,44 +259,44 @@
                         ></button
                     >
                 </div>
-                <div class="mb-2 mt-2 ml-auto">
-                    <button
-                        on:click={() => {
-                            console.log("TODO: createLinkPost");
-                        }}
-                        class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
-                        ><svg
-                            class="w-6 h-6"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                            ><path
-                                fill-rule="evenodd"
-                                d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
-                                clip-rule="evenodd"
-                            /></svg
-                        ></button
-                    >
-                </div>
 
-                <div class="ml-auto mb-2 mt-2">
-                    <button
-                        on:click={() => {
-                            createPost();
-                        }}
-                        class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
-                        ><svg
-                            class="w-6 h-6"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                            ><path
-                                fill-rule="evenodd"
-                                d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
-                                clip-rule="evenodd"
-                            /></svg
-                        ></button
-                    >
+                <div class="mt-2 mb-2 ml-auto">
+                    {#if newMessage}
+                        <button
+                            on:click={() => {
+                                createPost();
+                            }}
+                            class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                            ><svg
+                                class="w-6 h-6"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                                ><path
+                                    fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                                /></svg
+                            ></button
+                        >{:else}
+                        <button
+                            on:click={() => {
+                                alert("Nothing to send...");
+                            }}
+                            class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none"
+                            ><svg
+                                class="w-6 h-6"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                                ><path
+                                    fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                                /></svg
+                            ></button
+                        >
+                    {/if}
                 </div>
             </div>
         </div>
@@ -239,14 +308,14 @@
                 {#if messages.length > 0}
                     {#each messages as { timestamp, message, response }}
                         <div
-                            class="bg-gray-100 p-4 rounded-lg shadow-lg border-2 mb-2"
+                            class="p-4 mb-2 bg-gray-100 border-2 rounded-lg shadow-lg"
                         >
                             {#if response == false}
-                                <p class="text-indigo-600 font-medium">
+                                <p class="font-medium text-indigo-600">
                                     {name}
                                 </p>
                             {:else}
-                                <p class="text-purple-600 font-medium">
+                                <p class="font-medium text-purple-600">
                                     {hostUsername}
                                 </p>
                             {/if}
@@ -264,8 +333,8 @@
                                 </div>
                             </div>
                             <div class="mt-2">
-                                <p class="text-gray-600 text-sm">
-                                    {@html message}
+                                <p class="text-sm text-gray-600">
+                                    {@html anchorme(message)}
                                 </p>
                             </div>
                         </div>

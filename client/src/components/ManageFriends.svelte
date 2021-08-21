@@ -1,6 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
+    import anchorme from "anchorme";
 
     let hostAccessKey = "";
     let addFriendBridge;
@@ -172,13 +173,13 @@
     const checkFriends = setInterval(getFriends, 5000);
 </script>
 
-<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
         <div
-            class="border border-gray-300 p-2 bg-gray-200 shadow-lg rounded-lg md:w-3/4 w-full flex m-auto"
+            class="flex w-full p-2 m-auto bg-gray-200 border border-gray-300 rounded-lg shadow-lg md:w-3/4"
         >
-            <div class="border border-gray-300 p-2 rounded w-full">
-                <div class="flex border rounded bg-gray-300 items-center p-2 ">
+            <div class="w-full p-2 border border-gray-300 rounded">
+                <div class="flex items-center p-2 bg-gray-300 border rounded ">
                     <svg
                         class="mr-2"
                         width="24"
@@ -198,7 +199,7 @@
                         bind:value={addFriendBridge}
                         type="text"
                         placeholder="Microsocial Server URL"
-                        class="bg-gray-300 w-full focus:outline-none text-gray-700"
+                        class="w-full text-gray-700 bg-gray-300 focus:outline-none"
                     />
                 </div>
             </div>
@@ -207,7 +208,7 @@
                 on:click={async () => {
                     sendFriendRequest(addFriendBridge);
                 }}
-                class="m-2 p-2 border bg-green-500 hover:bg-green-400 text-white rounded-3xl focus:outline-none"
+                class="p-2 m-2 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
                 ><svg
                     class="w-6 h-6"
                     fill="currentColor"
@@ -222,24 +223,24 @@
 
         {#if friendListLoaded}
             {#if actualFriendCount > 0}
-                <h2 class="text-2xl pt-4 pb-2">Friends</h2>
+                <h2 class="pt-4 pb-2 text-2xl">Friends</h2>
 
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category != "pending_friend"}
                         <div
-                            class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow"
                         >
-                            <div class="self-center p-2 w-full">
+                            <div class="self-center w-full p-2">
                                 <div class="flex">
                                     <div>{name}</div>
                                 </div>
 
-                                <div class="title text-xs text-gray-400 -mt-1">
+                                <div class="-mt-1 text-xs text-gray-400 title">
                                     {bridge}
                                 </div>
                             </div>
-                            <div class="sec self-center p-2 w-2/8">
-                                <div class="text-xs flex font-light">
+                            <div class="self-center p-2 sec w-2/8">
+                                <div class="flex text-xs font-light">
                                     <button
                                         title="Remove Friend"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
@@ -291,24 +292,24 @@
 
             {#if anyPending == true}
                 {#if pendingFriendCount > 0}
-                    <h2 class="text-2xl pt-4 pb-2">Requests</h2>
+                    <h2 class="pt-4 pb-2 text-2xl">Requests</h2>
                 {/if}
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category == "pending_friend"}
                         <div
-                            class="flex rounded shadow w-full text-gray-600 mb-2 bg-gray-100"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow"
                         >
-                            <div class="self-center p-2 w-full">
+                            <div class="self-center w-full p-2">
                                 <div class="flex">
                                     <div>{name}</div>
                                 </div>
 
-                                <div class="title text-xs text-gray-400 -mt-1">
+                                <div class="-mt-1 text-xs text-gray-400 title">
                                     {bridge}
                                 </div>
                             </div>
-                            <div class="sec self-center p-2 w-2/8">
-                                <div class="text-xs flex font-light">
+                            <div class="self-center p-2 sec w-2/8">
+                                <div class="flex text-xs font-light">
                                     <button
                                         title="Accept Friend Request"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-green-100 focus:outline-none"
@@ -361,7 +362,7 @@
     {:else}
         <button
             title="Go back"
-            class="focus:outline-none text-xl text-indigo-500 hover:text-indigo-400"
+            class="text-xl text-indigo-500 focus:outline-none hover:text-indigo-400"
             on:click={() => {
                 viewingFriendProfile = false;
             }}
@@ -377,17 +378,17 @@
                 /></svg
             ></button
         >
-        <h2 class="text-2xl pb-2">{viewingProfile.username}'s Profile</h2>
+        <h2 class="pb-2 text-2xl">{viewingProfile.username}'s Profile</h2>
         <div class="p-1">
-            <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
-                <p class="text-gray-600 text-sm">{viewingProfile.bio}</p>
+            <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
+                <p class="text-sm text-gray-600">{viewingProfile.bio}</p>
             </div>
         </div>
         {#if viewingFriendsPosts}
-            <h2 class="text-2xl pt-4 pb-2">Posts</h2>
+            <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
             {#each viewingPosts as { value, time }}
                 <div class="p-1">
-                    <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                    <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
                         <div class="flex">
                             <div
                                 class="flex items-center text-xs text-gray-400"
@@ -400,8 +401,8 @@
                             </div>
                         </div>
                         <div class="mt-2">
-                            <p class="text-gray-600 text-sm">
-                                {@html value}
+                            <p class="text-sm text-gray-600">
+                                {@html anchorme(value)}
                             </p>
                         </div>
                     </div>
@@ -412,7 +413,7 @@
 
     {#if friendListLoaded && actualFriendCount == 0 && pendingFriendCount == 0}
         <div
-            class="flex items-center justify-center p-8 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl mt-10"
+            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl"
         >
             <div class="flex items-center">
                 <svg
@@ -431,7 +432,7 @@
                 <div class="font-medium leading-none">
                     Want to add a Friend?
                 </div>
-                <p class="text-sm text-gray-600 leading-none mt-1">
+                <p class="mt-1 text-sm leading-none text-gray-600">
                     Use the form above to send your friend a request using their
                     Microsocial URL. If they accept your request you'll get one
                     back just to confirm the connection request. For example,

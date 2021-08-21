@@ -1,6 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
+    import anchorme from "anchorme";
 
     let hostAccessKey = "";
     let newPost;
@@ -56,6 +57,11 @@
             var postBridge = hostBridge;
         }
 
+        if (anchorme.validate.url(newPost)) {
+            createLinkPost();
+            return;
+        }
+
         if (newPost.length > 2500) {
             alert(
                 `Post too long! ${newPost.length} characters, max accepted is 2500`
@@ -86,6 +92,11 @@
     };
 
     const createLinkPost = async () => {
+        if (newPost.startsWith("http://") || newPost.startsWith("https://")) {
+        } else {
+            newPost = "https://" + newPost;
+        }
+
         if (
             newPost.endsWith(".gif") ||
             newPost.endsWith(".jpg") ||
@@ -319,50 +330,52 @@
     const getNotifications = setInterval(checkNotifications, 500);
 </script>
 
-<div class="container mx-auto sm:p-10 w-full md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     <div
-        class="shadow-md border-2 border-gray-200 rounded p-2 mb-2 bg-gray-100"
+        class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md"
     >
         <textarea
+            placeholder="Post something?..."
             bind:value={newPost}
-            class="shadow rounded border p-1 focus:outline-none w-full"
+            class="w-full p-1 border rounded shadow focus:outline-none"
             rows="3"
         />
         <div class="flex">
-            <div class="mb-2 mt-2">
-                <button
-                    on:click={createLinkPost}
-                    class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
-                    ><svg
-                        class="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        ><path
-                            fill-rule="evenodd"
-                            d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
-                            clip-rule="evenodd"
-                        /></svg
-                    ></button
-                >
-            </div>
-
-            <div class="ml-auto mb-2 mt-2">
-                <button
-                    on:click={createPost}
-                    class="p-2 border bg-blue-500 hover:bg-blue-400 rounded-3xl text-white focus:outline-none"
-                    ><svg
-                        class="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        ><path
-                            fill-rule="evenodd"
-                            d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
-                            clip-rule="evenodd"
-                        /></svg
-                    ></button
-                >
+            <div class="mt-2 mb-2 ml-auto">
+                {#if newPost}
+                    <button
+                        on:click={createPost}
+                        class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >{:else}
+                    <button
+                        on:click={() => {
+                            alert("Nothing to post...");
+                        }}
+                        class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none"
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >
+                {/if}
             </div>
         </div>
     </div>
@@ -371,10 +384,10 @@
         {#if friendFeedLoaded}
             {#if refreshingFeed}
                 <div
-                    class="text-center flex justify-center align-middle text-gray-600"
+                    class="flex justify-center text-center text-gray-600 align-middle"
                 >
                     <svg
-                        class="animate-bounce w-6 h-6 m-2"
+                        class="w-6 h-6 m-2 animate-bounce"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         xmlns="http://www.w3.org/2000/svg"
@@ -389,15 +402,15 @@
 
             {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge }}
                 <div class="p-1">
-                    <div class="bg-gray-100 p-4 rounded-lg shadow-lg border-2">
+                    <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
                         <div class="flex">
                             <div>
                                 {#if name == hostUsername}
-                                    <p class="text-purple-600 font-medium">
+                                    <p class="font-medium text-purple-600">
                                         {name}
                                         <span title="Host">
                                             <svg
-                                                class="w-4 h-4 inline-block mb-1 text-green-400 opacity-25"
+                                                class="inline-block w-4 h-4 mb-1 text-green-400 opacity-25"
                                                 fill="currentColor"
                                                 viewBox="0 0 20 20"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -412,7 +425,7 @@
                                             <span title="Edited">
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
-                                                    class="text-blue-300 w-4 h-4 inline-block mb-1"
+                                                    class="inline-block w-4 h-4 mb-1 text-blue-300"
                                                     fill="none"
                                                     viewBox="0 0 24 24"
                                                     stroke="currentColor"
@@ -428,12 +441,12 @@
                                         {/if}
                                     </p>
                                 {:else}
-                                    <p class="text-indigo-600 font-medium">
+                                    <p class="font-medium text-indigo-600">
                                         {name}
                                         {#if edited == true}
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                class="text-blue-300 w-4 h-4 inline-block mb-1"
+                                                class="inline-block w-4 h-4 mb-1 text-blue-300"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -515,9 +528,9 @@
 
                         <div class="mt-2">
                             <p
-                                class="text-gray-600 text-sm line-clamp-3 break-words"
+                                class="text-sm text-gray-600 break-words line-clamp-3"
                             >
-                                {@html value}
+                                {@html anchorme(value)}
                             </p>
                             <div class="flex">
                                 {#if name == hostUsername && postOptions == true && postOptionSelector == key}
@@ -533,7 +546,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 focus:outline-none hover:text-yellow-500 text-yellow-400"
+                                        class="flex items-center mr-4 text-yellow-400 focus:outline-none hover:text-yellow-500"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -550,9 +563,7 @@
                                             />
                                         </svg>
 
-                                        <span class="mt-1  text-sm">
-                                            Edit
-                                        </span>
+                                        <span class="mt-1 text-sm"> Edit </span>
                                     </button>
 
                                     <button
@@ -567,7 +578,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 focus:outline-none hover:text-red-400 text-red-300"
+                                        class="flex items-center mr-4 text-red-300 focus:outline-none hover:text-red-400"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -617,7 +628,7 @@
                             </div>
                             {#if reactions.length != 0 && friendListResp}
                                 <div
-                                    class="flex -mb-3 rounded-2xl bg-purple-900 border border-purple-800 flex-shrink w-min pl-2 pr-2 mt-2 cursor-default"
+                                    class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
                                 >
                                     {#each reactions as { emoji, reacting }}
                                         <span
