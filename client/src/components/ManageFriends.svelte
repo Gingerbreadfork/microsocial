@@ -228,7 +228,7 @@
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category != "pending_friend"}
                         <div
-                            class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow"
                         >
                             <div class="self-center w-full p-2">
                                 <div class="flex">
@@ -297,7 +297,7 @@
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category == "pending_friend"}
                         <div
-                            class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow"
                         >
                             <div class="self-center w-full p-2">
                                 <div class="flex">
@@ -380,15 +380,17 @@
         >
         <h2 class="pb-2 text-2xl">{viewingProfile.username}'s Profile</h2>
         <div class="p-1">
-            <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
-                <p class="text-sm text-gray-600">{viewingProfile.bio}</p>
+            <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
+                <p class="text-sm text-gray-600">
+                    {viewingProfile.bio}
+                </p>
             </div>
         </div>
         {#if viewingFriendsPosts}
             <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
             {#each viewingPosts as { value, time }}
                 <div class="p-1">
-                    <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
+                    <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
                         <div class="flex">
                             <div
                                 class="flex items-center text-xs text-gray-400"

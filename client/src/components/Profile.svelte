@@ -62,7 +62,7 @@
     {/if}
     {#if hostProfileLoaded}
         <div class="p-1">
-            <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
+            <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
                 <p class="text-sm text-gray-600">{hostBio}</p>
             </div>
         </div>
