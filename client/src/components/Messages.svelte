@@ -165,8 +165,10 @@
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if !friendListLoaded}
-        <div class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-full">
-            <p class="font-semibold text-center text-gray-600 animate-pulse">
+        <div class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-2xl">
+            <p
+                class="text-sm font-semibold text-center text-gray-600 animate-pulse"
+            >
                 Loading Direct Messages & Friends...
             </p>
             <svg
@@ -210,6 +212,11 @@
             </div>
         </div>
     {/if}
+
+    {#if friendListLoaded && friends.length > 0 && viewingMessages == ""}
+        <h2 class="p-2">Select a Friend to Direct Message:</h2>
+    {/if}
+
     {#if viewingMessages == ""}
         {#each friends as { name, bridge, key }}
             <button
@@ -217,7 +224,7 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex w-full mb-2 text-gray-600 bg-gray-100 rounded shadow hover:bg-purple-100"
+                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none"
             >
                 <div class="self-center w-1/2 p-2">
                     {name}
