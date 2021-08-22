@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi import FastAPI, Response, status
 import time
 import uuid
+import httpx
 
 from models import *
 from shared import *
@@ -146,10 +147,15 @@ def receive_message(message: ReceivedMessage, response: Response):
         return {response}
     
 @router.get("/public/messages/clear", status_code=201)
-def receive_message(key: str, response: Response):
+def receive_message(response: Response, key: str, reciprocal: Optional[bool] = False):
     friend = db.get(key)
     
     friend['messages'] = []
+  
+    if not reciprocal:
+        decoded_key = host_key.decode("utf-8")
+        httpx.get(
+            f"https://{friend['bridge']}/public/messages/clear?key={decoded_key}&reciprocal=True")
 
     try:
         db.put(friend)

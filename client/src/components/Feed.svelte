@@ -339,7 +339,7 @@
     const reactionList = ["❤️", "🔥", "🤬", "😂", "👎", "👍"];
 
     // Intervals
-    const getNotifications = setInterval(checkNotifications, 500);
+    const getNotifications = setInterval(checkNotifications, 1000);
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -356,6 +356,7 @@
             <div class="mt-2 mb-2 ml-auto">
                 {#if newPost}
                     <button
+                        title="Create Post"
                         on:click={createPost}
                         class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
                         ><svg
@@ -371,6 +372,7 @@
                         ></button
                     >{:else}
                     <button
+                        title="Create Post"
                         on:click={() => {
                             alert("Nothing to post...");
                         }}

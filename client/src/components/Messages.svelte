@@ -163,6 +163,15 @@
         });
     };
 
+    const destroyChat = async () => {
+        if (confirm("Are you sure you want to destroy the chat?")) {
+            var clearProfileReq = await fetch(
+                `${devBridge}public/messages/clear?key=${currentKey}`
+            );
+            var clearProfileResp = await clearProfileReq.json();
+        }
+    };
+
     const lazyCheck = setInterval(getFriends, 1000);
 </script>
 
@@ -254,6 +263,7 @@
                 <div class="mt-2 mb-2">
                     <button
                         class="p-2 text-white bg-pink-700 border hover:bg-pink-600 rounded-3xl focus:outline-none"
+                        title="Go Back"
                         on:click={() => {
                             viewingMessages = "";
                         }}
@@ -270,10 +280,30 @@
                         ></button
                     >
                 </div>
-
+                <div class="mt-2 mb-2 ml-auto">
+                    <button
+                        title="Delete Chat"
+                        on:click={() => {
+                            destroyChat();
+                        }}
+                        class="p-2 text-white bg-yellow-500 border hover:bg-yellow-400 rounded-3xl focus:outline-none"
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >
+                </div>
                 <div class="mt-2 mb-2 ml-auto">
                     {#if newMessage}
                         <button
+                            title="Send Message"
                             on:click={() => {
                                 createPost();
                             }}
@@ -291,6 +321,7 @@
                             ></button
                         >{:else}
                         <button
+                            title="Send Message"
                             on:click={() => {
                                 alert("Nothing to send...");
                             }}
