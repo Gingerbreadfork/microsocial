@@ -79,6 +79,24 @@ async def get_my_posts():
     
     return my_posts.items
 
+async def replace_posts(friend):
+    cached_feed = db.get("cached_feed")['value']
+    for post in cached_feed:
+        try:
+            if post['bridge'] == friend['bridge']:
+                cached_feed.remove(post)
+                any_posts = True
+        except:
+            pass
+
+    if any_posts:
+        friend_posts = await get_posts_from_friend(friend)
+        cached_feed.append(friend_posts)
+        sort_and_trim(cached_feed)
+        timestamp = time.time()
+        db.put({'value': cached_feed, 'key': "cached_feed"})
+        db.put({'value': timestamp, "key":'last_updated'})
+
 @app.post("/add-friend", status_code=200)
 def add_friend(newfriend: NewFriend, response: Response):
     friend_json = {
@@ -140,6 +158,7 @@ def create_post(newpost: NewPost, response: Response):
 
     if create_post == post_json:
         response.body = "Post Created"
+        db.put(time.time(), 'last_updated')
         return {response}
     else:
         response.body = "Error Creating Post"
@@ -173,7 +192,6 @@ def friend_list(response: Response, pending: Optional[bool] = False):
                 updated_friends = db.fetch({'category': 'friend'})
                 return updated_friends.items
     except Exception as e:
-        print(e)
         response.status_code = status.HTTP_404_NOT_FOUND
         return {response}
 
@@ -235,6 +253,7 @@ def accept_friend(addfriend: AddFriend, response: Response):
                     }, addfriend.public_key
                         )
                 
+                db.put(time.time(), 'last_updated')
                 response.body = "Connection Request Accepted"
             
             return {response}
@@ -255,26 +274,50 @@ def accept_friend(addfriend: AddFriend, response: Response):
                 return pending_friend_json
 
 @app.get("/notifications", status_code=200)
-def check_notifications(clear: Optional[bool] = False):
-    friends = db.fetch({'category': 'friend'})
-    notified_friends = []
+async def check_notifications(clear: Optional[bool] = False):
+    try:
+        trigger = db.get("notif_trigger")['value']
+    except:
+        trigger = db.put({'value': time.time()}, "notif_trigger")['value']
+    try:
+        last_updated = db.get("last_updated")['value']
+    except:
+        last_updated = db.put({'value': time.time()}, "last_updated")['value']
     
-    for friend in friends.items:
-        try:
-            if friend['value'] == 'notified':
-                notified_friends.append(friend)
-        except:
-            return {'notifications': 'Fetching Notifications Failed'}
+    if trigger > last_updated:
+        friends = db.fetch({'category': 'friend'})
+        notified_friends = []
         
-    if clear == False:
-        if len(notified_friends) > 0:
-            return {'notifications': notified_friends}
-        else:
-            return {'notifications': 'No Notifications'}
-    else:
+        for friend in friends.items:
+            try:
+                if friend['value'] == 'notified':
+                    notified_friends.append(friend)
+            except:
+                return {'notifications': 'Fetching Notifications Failed'}
+            
         for friend in notified_friends:
-            db.update({'value': 'inactive'}, friend['key'])
-        return {'notifications': 'Notifications Cleared'}
+            await replace_posts(friend)    
+        
+        if clear == False:
+            if len(notified_friends) > 0:
+                return {'notifications': notified_friends, 'updated': last_updated}
+            else:
+                return {'notifications': 'No Notifications', 'updated': last_updated}
+        else:
+            for friend in notified_friends:    
+                db.update({'value': 'inactive'}, friend['key'])
+            return {'notifications': 'Notifications Cleared', 'updated': last_updated}
+    else:
+        return {'notifications': 'No Notifications', 'updated': last_updated}
+
+@app.get("/last-updated", status_code=200)
+def return_last_update_timestamp():
+    try:
+        last_updated = db.get("last_updated")['value']
+        return {'last_updated': last_updated}
+    except:
+        updated = db.put(time.time(), 'last_updated')
+        return {'last_updated': updated['value']}
 
 @app.put("/edit", status_code=200)
 def edit_post(edit: EditingItem, response: Response):
@@ -285,6 +328,7 @@ def edit_post(edit: EditingItem, response: Response):
                 if post_data['category'] == 'post':
                     new_post = encrypt_str_with_key(host_key, edit.content)
                     db.update({'value': new_post.decode('utf8'), 'edited': True}, edit.key)
+                    db.put(time.time(), 'last_updated')
                     response.body = "Post Updated"
                     response.status_code = 200
                     return {response}
@@ -293,6 +337,7 @@ def edit_post(edit: EditingItem, response: Response):
                 post_data = db.get(edit.key)
                 if post_data['category'] == 'post':
                     db.delete(edit.key)
+                    db.put(time.time(), 'last_updated')
                     response.body = "Post Deleted"
                     return {response}
 
@@ -324,6 +369,7 @@ def edit_post(edit: EditingItem, response: Response):
         else:
             if len(edit.content) <= 20:
                 db.put({'key': 'my_name', 'value': edit.content})
+                db.put(time.time(), 'last_updated')
                 response.body = "Username Updated"
                 return {response}
             else:

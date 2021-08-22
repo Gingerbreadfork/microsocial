@@ -84,6 +84,7 @@ def receive_notification(notification: ReceivedNotif, response: Response):
         if not update_check:
             response.body = "Notification Created"
             again = db.get(notification.key)
+            db.put({'value': time.time()}, "notif_trigger")
             return again
 
     elif key == host_key:

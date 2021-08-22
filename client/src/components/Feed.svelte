@@ -20,6 +20,7 @@
     let postOptionSelector;
     let reactToPost = false;
     let reactingPost;
+    let lastUpdate;
 
     if (hostBridge == "localhost") {
         devBridge = "https://41034m.deta.dev/";
@@ -246,7 +247,7 @@
     const clearNotifications = async () => {
         await fetch(
             devBridge +
-                "notifications?" +
+                "notifications" +
                 new URLSearchParams({
                     clear: "True",
                 })
@@ -255,11 +256,24 @@
 
     const checkNotifications = async () => {
         if (friendFeedLoaded && friendListLoaded) {
-            var notificationsReq = await fetch(devBridge + "notifications?");
+            var notificationsReq = await fetch(devBridge + "notifications");
             notifications = await notificationsReq.json();
+
             if (notifications.notifications !== "No Notifications") {
                 getFeed();
                 clearNotifications();
+                lastUpdate = notifications.updated;
+            }
+
+            if (lastUpdate == null) {
+                console.log("Updating Var");
+                lastUpdate = notifications.updated;
+            }
+
+            if (lastUpdate < notifications.updated) {
+                getFeed();
+                lastUpdate = notifications.updated;
+                console.log("Updating Feed");
             }
         }
     };
