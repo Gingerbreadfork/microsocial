@@ -266,14 +266,12 @@
             }
 
             if (lastUpdate == null) {
-                console.log("Updating Var");
                 lastUpdate = notifications.updated;
             }
 
             if (lastUpdate < notifications.updated) {
                 getFeed();
                 lastUpdate = notifications.updated;
-                console.log("Updating Feed");
             }
         }
     };

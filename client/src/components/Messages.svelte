@@ -123,7 +123,7 @@
             if (metaTags.image != "None") {
                 var image = `<a href="${newMessage}"><img src="${metaTags.image}"></a>`;
             } else {
-                var image = "";
+                var image = " ";
             }
 
             if (metaTags.description != "None") {
@@ -142,7 +142,10 @@
             var postBridge = hostBridge;
         }
 
-        var postedPost = newMessage;
+        if (!postedPost) {
+            var postedPost = newMessage;
+        }
+
         newMessage = "";
 
         var contentToPost = {
@@ -242,6 +245,7 @@
             class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md"
         >
             <textarea
+                placeholder="Something to say?..."
                 bind:value={newMessage}
                 class="w-full p-1 border rounded shadow focus:outline-none"
                 rows="3"
