@@ -7,6 +7,7 @@
     import Messages from "./components/Messages.svelte";
     import { onMount } from "svelte";
 
+    let darkMode;
     let currentComponent = "Feed";
 
     onMount(async () => {
@@ -38,9 +39,31 @@
         var $target = document.getElementById("main-nav");
         $target.classList.toggle("hidden");
     }
+
+    if (localStorage.getItem("theme") === "theme-dark") {
+        window.document.body.classList.toggle("dark");
+        darkMode = true;
+    } else {
+        window.document.body.classList.toggle("light");
+        darkMode = false;
+    }
+    function setTheme(themeName) {
+        localStorage.setItem("theme", themeName);
+        document.documentElement.className = themeName;
+    }
+    function toggleTheme() {
+        window.document.body.classList.toggle("dark");
+        if (localStorage.getItem("theme") === "theme-dark") {
+            setTheme("theme-light");
+            darkMode = false;
+        } else {
+            setTheme("theme-dark");
+            darkMode = true;
+        }
+    }
 </script>
 
-<div class="px-2 py-2 bg-black border-b border-gray-900 cursor-default">
+<div class="px-2 py-2 border-b border-gray-900 cursor-default bg-truegray-900">
     <div class="container mx-auto">
         <nav class="flex flex-wrap items-center justify-between">
             <div class="flex items-center mr-6 text-white flex-no-shrink">
@@ -287,12 +310,55 @@
                         ></button
                     >
                 {/if}
+                {#if darkMode}
+                    <button
+                        id="darkButton"
+                        title="Light Mode"
+                        on:click={toggleTheme}
+                        class="p-2"
+                        ><svg
+                            class="w-6 h-6 text-yellow-200"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                            /></svg
+                        ></button
+                    >
+                {:else}
+                    <button
+                        id="darkButton"
+                        title="Dark Mode"
+                        on:click={toggleTheme}
+                        class="p-2"
+                        ><svg
+                            class="w-6 h-6 text-blue-200"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                            /></svg
+                        ></button
+                    >
+                {/if}
             </div>
         </nav>
     </div>
 </div>
 
-<div class="min-h-screen p-2 break-words bg-gray-300">
+<div
+    class="min-h-screen p-2 break-words bg-gray-300 dark:bg-truegray-900 dark:text-white"
+>
     {#if currentComponent == "Friends"}
         <ManageFriends />
     {:else if currentComponent == "Settings"}

@@ -344,12 +344,12 @@
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     <div
-        class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md"
+        class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md dark:bg-truegray-800 dark:border-truegray-900"
     >
         <textarea
             placeholder="Post something?..."
             bind:value={newPost}
-            class="w-full p-1 border rounded shadow focus:outline-none"
+            class="w-full p-1 border rounded shadow focus:outline-none dark:text-gray-400 dark:bg-truegray-900 dark:border-gray-900"
             rows="3"
         />
         <div class="flex">
@@ -416,7 +416,9 @@
 
             {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge }}
                 <div class="p-1">
-                    <div class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg">
+                    <div
+                        class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                    >
                         <div class="flex">
                             <div>
                                 {#if name == hostUsername}
@@ -424,7 +426,7 @@
                                         {name}
                                         <span title="Host">
                                             <svg
-                                                class="inline-block w-4 h-4 mb-1 text-green-400 opacity-25"
+                                                class="inline-block w-4 h-4 mb-1 text-green-300 dark:text-green-500"
                                                 fill="currentColor"
                                                 viewBox="0 0 20 20"
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -506,7 +508,7 @@
                                     }}
                                 >
                                     <svg
-                                        class="w-6 h-6 text-gray-300"
+                                        class="w-6 h-6 text-gray-300 dark:text-truegray-700"
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -528,7 +530,7 @@
                                     }}
                                 >
                                     <svg
-                                        class="w-6 h-6 text-gray-300"
+                                        class="w-6 h-6 text-gray-300 dark:text-truegray-700"
                                         fill="currentColor"
                                         viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -542,7 +544,7 @@
 
                         <div class="mt-2">
                             <p
-                                class="text-sm text-gray-600 break-words line-clamp-3"
+                                class="text-sm text-gray-600 break-words line-clamp-3 dark:text-truegray-300"
                             >
                                 {@html anchorme(value)}
                             </p>
@@ -592,7 +594,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 text-red-300 focus:outline-none hover:text-red-400"
+                                        class="flex items-center mr-4 text-red-300 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

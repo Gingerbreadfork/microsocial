@@ -88,11 +88,11 @@
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if hostProfileLoaded}
         <div
-            class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg"
+            class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
         >
             <div class="flex">
                 <svg
-                    class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700"
+                    class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700 dark:text-truegray-300"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -103,13 +103,17 @@
                     /></svg
                 > <span> Change Username </span>
             </div>
-            <div class="grid p-2 border border-gray-300 rounded">
-                <div class="flex items-center p-2 bg-gray-300 border rounded ">
+            <div
+                class="grid p-2 border border-gray-300 rounded dark:border-truegray-700 dark:bg-truegray-800"
+            >
+                <div
+                    class="flex items-center p-2 bg-gray-300 border rounded dark:border-truegray-700 dark:bg-truegray-900"
+                >
                     <input
                         bind:value={newUsername}
                         type="text"
                         placeholder={hostUsername}
-                        class="w-full text-gray-700 bg-gray-300 focus:outline-none"
+                        class="w-full text-gray-700 bg-gray-300 focus:outline-none dark:bg-truegray-900"
                     />
                 </div>
             </div>
@@ -156,10 +160,10 @@
         </div>
 
         <div
-            class="p-2 mt-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg"
+            class="p-2 mt-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:border-truegray-700 dark:bg-truegray-800"
         >
             <svg
-                class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700"
+                class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700 dark:text-truegray-300"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -170,10 +174,12 @@
                 /></svg
             >
             <span> Edit Bio </span>
-            <div class="p-2 pb-0 border border-gray-300 rounded-xl">
+            <div
+                class="p-2 pb-0 border border-gray-300 rounded-xl dark:border-truegray-700"
+            >
                 <textarea
                     bind:value={hostBio}
-                    class="w-full p-1 text-gray-700 border rounded-lg focus:outline-none"
+                    class="w-full p-2 text-gray-700 border rounded-lg focus:outline-none dark:bg-truegray-900 dark:text-truegray-300 dark:border-truegray-700"
                     rows="5"
                 />
             </div>

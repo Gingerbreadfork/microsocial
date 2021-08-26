@@ -177,9 +177,11 @@
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if !friendListLoaded}
-        <div class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-2xl">
+        <div
+            class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-2xl dark:bg-truegray-800"
+        >
             <p
-                class="text-sm font-semibold text-center text-gray-600 animate-pulse"
+                class="text-sm font-semibold text-center text-gray-600 animate-pulse dark:text-truegray-300"
             >
                 Loading Direct Messages & Friends...
             </p>
@@ -236,7 +238,7 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none"
+                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800"
             >
                 <div class="self-center w-1/2 p-2">
                     {name}
@@ -251,12 +253,12 @@
 
     {#if viewingMessages != ""}
         <div
-            class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md"
+            class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md dark:bg-truegray-800 dark:border-truegray-900"
         >
             <textarea
                 placeholder="Something to say?..."
                 bind:value={newMessage}
-                class="w-full p-1 border rounded shadow focus:outline-none"
+                class="w-full p-1 border rounded shadow focus:outline-none dark:bg-truegray-900 dark:border-truegray-800"
                 rows="3"
             />
             <div class="flex">
@@ -350,7 +352,7 @@
                 {#if messages.length > 0}
                     {#each messages as { timestamp, message, response }}
                         <div
-                            class="p-4 mb-2 bg-gray-100 border-2 rounded-lg shadow-lg"
+                            class="p-4 mb-2 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
                         >
                             {#if response == false}
                                 <p class="font-medium text-indigo-600">
@@ -375,7 +377,9 @@
                                 </div>
                             </div>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-600">
+                                <p
+                                    class="text-sm text-gray-600 dark:text-truegray-300"
+                                >
                                     {@html anchorme(message)}
                                 </p>
                             </div>

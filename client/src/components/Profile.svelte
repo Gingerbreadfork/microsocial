@@ -62,8 +62,12 @@
     {/if}
     {#if hostProfileLoaded}
         <div class="p-1">
-            <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
-                <p class="text-sm text-gray-600">{hostBio}</p>
+            <div
+                class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+            >
+                <p class="text-sm text-gray-600 dark:text-truegray-300">
+                    {hostBio}
+                </p>
             </div>
         </div>
     {/if}
@@ -72,7 +76,7 @@
         {#each hostPosts as { value, time }}
             <div class="p-1">
                 <div
-                    class="p-2 bg-gray-200 border-2 border-gray-300 rounded-lg shadow-lg"
+                    class="p-4 bg-gray-200 border-2 border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
                 >
                     <div class="flex">
                         <div class="flex items-center text-sm text-gray-400">
@@ -84,7 +88,7 @@
                         </div>
                     </div>
                     <div class="mt-2">
-                        <p class="text-sm text-gray-600">
+                        <p class="text-sm text-gray-600 dark:text-truegray-300">
                             {@html anchorme(value)}
                         </p>
                     </div>

@@ -176,12 +176,16 @@
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
         <div
-            class="flex w-full p-2 m-auto bg-gray-200 border border-gray-300 rounded-lg shadow-lg md:w-3/4"
+            class="flex w-full p-2 m-auto bg-gray-200 border border-gray-300 rounded-lg shadow-lg md:w-3/4 dark:bg-truegray-800 dark:border-truegray-900"
         >
-            <div class="w-full p-2 border border-gray-300 rounded">
-                <div class="flex items-center p-2 bg-gray-300 border rounded ">
+            <div
+                class="w-full p-2 border border-gray-300 rounded dark:border-truegray-600"
+            >
+                <div
+                    class="flex items-center p-2 bg-gray-300 border rounded dark:bg-truegray-900 dark:border-truegray-800"
+                >
                     <svg
-                        class="mr-2"
+                        class="mr-2 dark:text-truegray-200"
                         width="24"
                         height="24"
                         fill="none"
@@ -199,7 +203,7 @@
                         bind:value={addFriendBridge}
                         type="text"
                         placeholder="Microsocial Server URL"
-                        class="w-full text-gray-700 bg-gray-300 focus:outline-none"
+                        class="w-full text-gray-700 bg-gray-300 focus:outline-none dark:bg-truegray-900 dark:text-truegray-300"
                     />
                 </div>
             </div>
@@ -228,7 +232,7 @@
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category != "pending_friend"}
                         <div
-                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow dark:bg-truegray-800 dark:text-gray-300"
                         >
                             <div class="self-center w-full p-2">
                                 <div class="flex">
@@ -243,7 +247,7 @@
                                 <div class="flex text-xs font-light">
                                     <button
                                         title="Remove Friend"
-                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 dark:hover:bg-red-500 focus:outline-none"
                                         on:click={() => {
                                             removeFriend(key);
                                         }}
@@ -262,7 +266,7 @@
                                     </button>
                                     <button
                                         title="View Profile"
-                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-indigo-100 focus:outline-none"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-500 focus:outline-none"
                                         on:click={() => {
                                             viewingName = name;
                                             getFriendProfile(bridge);
@@ -380,8 +384,10 @@
         >
         <h2 class="pb-2 text-2xl">{viewingProfile.username}'s Profile</h2>
         <div class="p-1">
-            <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
-                <p class="text-sm text-gray-600">
+            <div
+                class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+            >
+                <p class="text-sm text-gray-600 dark:text-truegray-300">
                     {viewingProfile.bio}
                 </p>
             </div>
@@ -390,7 +396,9 @@
             <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
             {#each viewingPosts as { value, time }}
                 <div class="p-1">
-                    <div class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg">
+                    <div
+                        class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                    >
                         <div class="flex">
                             <div
                                 class="flex items-center text-xs text-gray-400"
@@ -403,7 +411,9 @@
                             </div>
                         </div>
                         <div class="mt-2">
-                            <p class="text-sm text-gray-600">
+                            <p
+                                class="text-sm text-gray-600 dark:text-truegray-300"
+                            >
                                 {@html anchorme(value)}
                             </p>
                         </div>
