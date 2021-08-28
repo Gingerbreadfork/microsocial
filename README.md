@@ -41,7 +41,7 @@ Q: Is it encrypted?
 A: There is some early stages of experimenting with this, it's nowhere near where it could be and the implimentation where it has been added is incredibly basic.
 
 Q: Why Python and Svelte?  
-A: Python is amazingly intuitive and it makes the backend portion of the platform much more approachable, there's minimal classing and the code should be fairly easy to dig around in. On the other side of things, Svelte apps compile to be incredibly light weight and are fantastic for a "micro stack" like this and is fantasticly friendly to use, something that is important to make this project more approachable.
+A: Python is amazingly intuitive and it makes the backend portion of the platform much more approachable, there's minimal use of classes and the code should be fairly easy to dig around in. On the other side of things, Svelte apps compile to be incredibly light weight and are fantastic for a "micro stack" like this. Svelte is also very friendly to use, something that is important to make this project more approachable by anyone wanting to contribute.
 
 Q: How is the frontend styled?  
 A: Tailwind CSS, because manually writing CSS is something that feels a lot like unnecessary suffering and for fast prototyping like this project, it's great!
