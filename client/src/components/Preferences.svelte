@@ -23,7 +23,7 @@
     onDestroy(async () => {});
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch(devBridge + "public/profile");
+        var hostProfileReq = await fetch(`${devBridge}public/profile`);
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
@@ -40,7 +40,7 @@
             return;
         }
 
-        var changeNameResp = await fetch(devBridge + "edit", {
+        var changeNameResp = await fetch(`${devBridge}edit`, {
             method: "PUT",
             headers: {
                 Accept: "application/json",
@@ -67,7 +67,7 @@
             return;
         }
 
-        var changeBioResp = await fetch(devBridge + "edit", {
+        var changeBioResp = await fetch(`${devBridge}edit`, {
             method: "PUT",
             headers: {
                 Accept: "application/json",
@@ -139,6 +139,7 @@
                     </div>
                 {/if}
                 <button
+                    title="Save Updated Username"
                     on:click={() => {
                         changeName(newUsername);
                         newUsername = "";
@@ -160,7 +161,7 @@
         </div>
 
         <div
-            class="p-2 mt-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:border-truegray-700 dark:bg-truegray-800"
+            class="p-2 mt-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:border-truegray-900 dark:bg-truegray-800"
         >
             <svg
                 class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700 dark:text-truegray-300"
@@ -204,8 +205,9 @@
                     </div>
                 {/if}
                 <button
+                    title="Save Updated Bio"
                     on:click={changeBio}
-                    class="p-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                    class="p-2 mt-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
                     ><svg
                         class="w-6 h-6"
                         fill="currentColor"

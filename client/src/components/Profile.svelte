@@ -26,7 +26,7 @@
     onDestroy(async () => {});
 
     const getMyKey = async () => {
-        var myKeyReq = await fetch(devBridge + "my-key?");
+        var myKeyReq = await fetch(`${devBridge}my-key`);
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
@@ -34,7 +34,7 @@
     };
 
     const getMyProfile = async () => {
-        var hostProfileReq = await fetch(devBridge + "public/profile");
+        var hostProfileReq = await fetch(`${devBridge}public/profile`);
         var hostProfileResp = await hostProfileReq.json();
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
@@ -42,7 +42,7 @@
     };
 
     const getHostPosts = async () => {
-        var postsURL = devBridge + "public/shared-posts?key=" + hostAccessKey;
+        var postsURL = `${devBridge}public/shared-posts?key=${hostAccessKey}`;
         var hostPostsReq = await fetch(postsURL);
         var hostPostsResp = await hostPostsReq.json();
         hostPosts = hostPostsResp;
@@ -73,7 +73,7 @@
     {/if}
     {#if hostPostsLoaded}
         <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
-        {#each hostPosts as { value, time }}
+        {#each hostPosts as { value, time, reactions }}
             <div class="p-1">
                 <div
                     class="p-4 bg-gray-200 border-2 border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
@@ -92,6 +92,17 @@
                             {@html anchorme(value)}
                         </p>
                     </div>
+                    {#if reactions.length != 0 && hostProfileLoaded}
+                        <div
+                            class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
+                        >
+                            {#each reactions as { emoji, reacting }}
+                                <span title={reacting} class="ml-1 mr-1"
+                                    >{emoji}</span
+                                >
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
             </div>
         {/each}

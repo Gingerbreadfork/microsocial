@@ -36,7 +36,7 @@
     });
 
     const getMyKey = async () => {
-        var myKeyReq = await fetch(devBridge + "my-key");
+        var myKeyReq = await fetch(`${devBridge}my-key`);
         var myKeyResp = await myKeyReq.json();
         hostAccessKey = myKeyResp.key;
         myKeyLoaded = true;
@@ -44,7 +44,7 @@
     };
 
     const getMyName = async () => {
-        var myNameReq = await fetch(devBridge + "public/profile");
+        var myNameReq = await fetch(`${devBridge}public/profile`);
         var myNameResp = await myNameReq.json();
         hostUsername = myNameResp.username;
         myNameLoaded = true;
@@ -56,7 +56,7 @@
             access_key: hostAccessKey,
         };
 
-        var removeResp = await fetch(devBridge + "remove-friend", {
+        var removeResp = await fetch(`${devBridge}remove-friend`, {
             method: "DELETE",
             headers: {
                 Accept: "application/json",
@@ -127,7 +127,7 @@
             public_key: key,
         };
 
-        var friendReqURL = devBridge + "accept";
+        var friendReqURL = `${devBridge}accept`;
         var friendReqResp = await fetch(friendReqURL, {
             method: "POST",
             headers: {
@@ -143,7 +143,7 @@
     };
 
     const getFriendProfile = async (bridge) => {
-        var friendURL = "https://" + bridge + "/public/profile";
+        var friendURL = `https://${bridge}/public/profile`;
         var friendProfileReq = await fetch(friendURL);
         var friendProfileResp = await friendProfileReq.json();
         viewingProfile = friendProfileResp;
@@ -152,8 +152,7 @@
 
     const getFriendPosts = async (bridge) => {
         if (hostBridge != "localhost") {
-            var friendURL =
-                "https://" + hostBridge + "/friend-posts?bridge=" + bridge;
+            var friendURL = `https://${hostBridge}/friend-posts?bridge=${bridge}`;
         } else {
             devBridge + "?bridge=" + bridge;
         }
@@ -170,6 +169,7 @@
         return readableDate;
     }
 
+    // Intervals
     const checkFriends = setInterval(getFriends, 5000);
 </script>
 

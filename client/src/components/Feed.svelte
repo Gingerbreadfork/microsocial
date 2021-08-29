@@ -194,7 +194,7 @@
                 key: hostAccessKey,
                 bridge: notifyBridge,
             };
-            var friendNotifURL = "https://" + friend.bridge + "/public/notify";
+            var friendNotifURL = `https://${friend.bridge}/public/notify`;
             var notifyResp = await fetch(friendNotifURL, {
                 method: "POST",
                 headers: {
@@ -324,7 +324,7 @@
             bridge: hostBridge,
         };
 
-        var reactResp = await fetch("https://" + bridge + "/public/react", {
+        var reactResp = await fetch(`https://${bridge}/public/react`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
