@@ -18,6 +18,7 @@
     let pendingFriendCount = 0;
     let viewingFriendsPosts = false;
     let viewingPosts;
+    let howDoYouConnect = false;
     let hostBridge = window.location.hostname;
 
     let devBridge = "";
@@ -154,7 +155,7 @@
         if (hostBridge != "localhost") {
             var friendURL = `https://${hostBridge}/friend-posts?bridge=${bridge}`;
         } else {
-            devBridge + "?bridge=" + bridge;
+            var friendURL = devBridge + "friend-posts?bridge=" + bridge;
         }
 
         var friendPostsReq = await fetch(friendURL);
@@ -212,7 +213,7 @@
                 on:click={async () => {
                     sendFriendRequest(addFriendBridge);
                 }}
-                class="p-2 m-2 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
+                class="p-2 m-2 ml-4 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
                 ><svg
                     class="w-6 h-6"
                     fill="currentColor"
@@ -224,6 +225,34 @@
                 ></button
             >
         </div>
+        <div class="flex ">
+            <div class="m-auto">
+                <button
+                    on:click={() => {
+                        howDoYouConnect = !howDoYouConnect;
+                    }}
+                    class="text-xs underline text-sky-700 focus:outline-none"
+                    >How does this work?</button
+                >
+            </div>
+        </div>
+        {#if howDoYouConnect == true}
+            <div
+                class="p-4 mb-4 mt-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+            >
+                <p class="text-sm p-2 md:p-0">
+                    To connect with friends simply enter the URL that points to
+                    their Microsocial deployment in the form above, if they
+                    accept your request you'll get one back so don't forget to
+                    come back and accept it! Your Microsocial server URL is <span
+                        class="text-green-800 dark:text-amber-400"
+                        >{hostBridge}</span
+                    > share it with your friends so they can connect with you. Friends
+                    and any pending requests will be displayed below where you can
+                    manage them and do things like view their profiles.
+                </p>
+            </div>
+        {/if}
 
         {#if friendListLoaded}
             {#if actualFriendCount > 0}

@@ -172,7 +172,7 @@
         }
     };
 
-    const lazyCheck = setInterval(getFriends, 1000);
+    const lazyCheck = setInterval(getFriends, 5000);
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -201,7 +201,7 @@
 
     {#if friendListLoaded && friends.length == 0}
         <div
-            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl"
+            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl dark:bg-truegray-800"
         >
             <div class="flex items-center">
                 <svg
@@ -220,8 +220,12 @@
                 <div class="font-medium leading-none">
                     You Don't Have Any Friends Just Yet!
                 </div>
-                <p class="mt-1 text-sm leading-none text-gray-600">
-                    Head to the "Manage Friends" tab to add a friend.
+                <p
+                    class="mt-1 text-sm leading-none text-gray-600 dark:text-truegray-300"
+                >
+                    Head to the "Manage Friends" tab to add a friend. You may
+                    also be seeing this message if you have encountered a
+                    network issue.
                 </p>
             </div>
         </div>
@@ -264,7 +268,7 @@
             <div class="flex">
                 <div class="mt-2 mb-2">
                     <button
-                        class="p-2 text-white bg-pink-700 border hover:bg-pink-600 rounded-3xl focus:outline-none"
+                        class="p-2 text-white bg-pink-700 hover:bg-pink-600 border rounded-3xl focus:outline-none dark:border-pink-600 dark:bg-pink-900 dark:hover:bg-pink-800"
                         title="Go Back"
                         on:click={() => {
                             viewingMessages = "";
@@ -288,7 +292,7 @@
                         on:click={() => {
                             destroyChat();
                         }}
-                        class="p-2 text-white bg-yellow-500 border hover:bg-yellow-400 rounded-3xl focus:outline-none"
+                        class="p-2 text-white bg-yellow-500 border hover:bg-yellow-400 rounded-3xl focus:outline-none dark:border-yellow-600 dark:bg-yellow-700 dark:hover:bg-yellow-600"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -309,7 +313,7 @@
                             on:click={() => {
                                 createPost();
                             }}
-                            class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                            class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none dark:bg-truegray-700 dark:hover:bg-truegray-600 dark:border-truegray-600"
                             ><svg
                                 class="w-6 h-6"
                                 fill="currentColor"
@@ -327,9 +331,9 @@
                             on:click={() => {
                                 alert("Nothing to send...");
                             }}
-                            class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none"
+                            class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none dark:bg-truegray-900 dark:border-truegray-700"
                             ><svg
-                                class="w-6 h-6"
+                                class="w-6 h-6 dark:text-truegray-600"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg"

@@ -9,6 +9,7 @@
     let hostProfileLoaded;
     let updatedUsername = false;
     let updatedBio = false;
+    let initialBio;
 
     let devBridge = "";
 
@@ -28,6 +29,8 @@
         hostUsername = hostProfileResp.username;
         hostBio = hostProfileResp.bio;
         hostProfileLoaded = true;
+        newUsername = hostUsername;
+        initialBio = hostBio;
     };
 
     const changeName = async (name) => {
@@ -107,13 +110,12 @@
                 class="grid p-2 border border-gray-300 rounded dark:border-truegray-700 dark:bg-truegray-800"
             >
                 <div
-                    class="flex items-center p-2 bg-gray-300 border rounded dark:border-truegray-700 dark:bg-truegray-900"
+                    class="flex items-center p-2 bg-white border rounded dark:border-truegray-700 dark:bg-truegray-900"
                 >
                     <input
                         bind:value={newUsername}
                         type="text"
-                        placeholder={hostUsername}
-                        class="w-full text-gray-700 bg-gray-300 focus:outline-none dark:bg-truegray-900"
+                        class="w-full text-gray-700 focus:outline-none dark:bg-truegray-900 dark:text-truegray-300"
                     />
                 </div>
             </div>
@@ -135,28 +137,30 @@
                             </svg>
                         </div>
 
-                        <span class="font-semibold">Username Updated!</span>
+                        <span>Username Updated!</span>
                     </div>
                 {/if}
-                <button
-                    title="Save Updated Username"
-                    on:click={() => {
-                        changeName(newUsername);
-                        newUsername = "";
-                    }}
-                    class="p-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
-                    ><svg
-                        class="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        ><path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                        /></svg
-                    ></button
-                >
+                {#if hostUsername !== newUsername}
+                    <button
+                        title="Save Updated Username"
+                        on:click={() => {
+                            changeName(newUsername);
+                            newUsername = "";
+                        }}
+                        class="p-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >
+                {/if}
             </div>
         </div>
 
@@ -201,25 +205,26 @@
                             </svg>
                         </div>
 
-                        <span class="font-semibold">Bio Updated</span>
+                        <span>Bio Updated</span>
                     </div>
                 {/if}
-                <button
-                    title="Save Updated Bio"
-                    on:click={changeBio}
-                    class="p-2 mt-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
-                    ><svg
-                        class="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        ><path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                        /></svg
-                    ></button
-                >
+                {#if hostBio !== initialBio}
+                    <button
+                        title="Save Updated Bio"
+                        on:click={changeBio}
+                        class="p-2 mt-2 ml-auto text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                        ><svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"
+                            /></svg
+                        ></button
+                    >{/if}
             </div>
         </div>
     {/if}

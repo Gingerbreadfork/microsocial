@@ -358,7 +358,7 @@
                     <button
                         title="Create Post"
                         on:click={createPost}
-                        class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none"
+                        class="p-2 text-white bg-blue-500 border hover:bg-blue-400 rounded-3xl focus:outline-none dark:bg-truegray-700 dark:hover:bg-truegray-600 dark:border-truegray-600"
                         ><svg
                             class="w-6 h-6"
                             fill="currentColor"
@@ -376,9 +376,9 @@
                         on:click={() => {
                             alert("Nothing to post...");
                         }}
-                        class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none"
+                        class="p-2 text-white bg-gray-300 border rounded-3xl focus:outline-none dark:bg-truegray-900 dark:border-truegray-700"
                         ><svg
-                            class="w-6 h-6"
+                            class="w-6 h-6 dark:text-truegray-600"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg"
@@ -548,7 +548,7 @@
                             >
                                 {@html anchorme(value)}
                             </p>
-                            <div class="flex">
+                            <div class="flex mt-2">
                                 {#if name == hostUsername && postOptions == true && postOptionSelector == key}
                                     <button
                                         on:click={async () => {
@@ -562,7 +562,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 text-yellow-400 focus:outline-none hover:text-yellow-500"
+                                        class="flex items-center mr-2 md:mr-4 text-yellow-400 focus:outline-none hover:text-yellow-500"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -594,7 +594,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-4 text-red-300 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
+                                        class="flex items-center mr-2 md:mr-4 text-red-300 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -623,7 +623,7 @@
                                         <div class="flex justify-end">
                                             {#each reactionList as displayedReaction}
                                                 <button
-                                                    class="focus:outline-none"
+                                                    class="focus:outline-none ml-1 mr-1"
                                                     on:click={async () => {
                                                         postOptions = false;
                                                         var reacted =
