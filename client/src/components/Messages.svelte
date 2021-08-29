@@ -268,7 +268,7 @@
             <div class="flex">
                 <div class="mt-2 mb-2">
                     <button
-                        class="p-2 text-white bg-pink-700 hover:bg-pink-600 border rounded-3xl focus:outline-none dark:border-pink-600 dark:bg-pink-900 dark:hover:bg-pink-800"
+                        class="p-2 text-white bg-pink-700 hover:bg-pink-600 border rounded-3xl focus:outline-none dark:border-pink-600 dark:bg-pink-900 dark:hover:bg-pink-600"
                         title="Go Back"
                         on:click={() => {
                             viewingMessages = "";

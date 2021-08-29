@@ -91,6 +91,11 @@
         var purgePostsReq = await fetch(`${devBridge}purge/posts`);
         var purgePostsResp = await purgePostsReq.json();
     };
+
+    const purgeCache = async () => {
+        var purgeCacheReq = await fetch(`${devBridge}purge/cache`);
+        var purgeCacheResp = await purgeCacheReq.json();
+    };
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -232,20 +237,55 @@
                     >{/if}
             </div>
         </div>
+        <div
+            class="mb-4 mt-4 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:border-truegray-900 dark:bg-truegray-800"
+        >
+            <div class="pb-2">
+                <svg
+                    class="w-6 h-6 inline-block ml-1 text-gray-700 dark:text-truegray-300"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                    ><path
+                        fill-rule="evenodd"
+                        d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                        clip-rule="evenodd"
+                    /></svg
+                >
+                <span>Advanced</span><br />
+            </div>
+            <div
+                class="p-2 pb-2 border border-gray-300 rounded-xl dark:border-truegray-700"
+            >
+                <button
+                    on:click={() => {
+                        if (
+                            confirm(
+                                "Are you sure? Deleting your posts can't be undone & this will delete ALL your posts!"
+                            )
+                        ) {
+                            purgePosts();
+                        }
+                    }}
+                    class="m-2 border-2 focus:outline-none border-red-600 rounded-lg px-3 py-2 bg-red-500 text-white cursor-pointer hover:bg-red-600 hover:text-red-200"
+                >
+                    Delete All Posts
+                </button>
+                <button
+                    on:click={() => {
+                        if (
+                            confirm(
+                                "The cache we be rebuilt the next time the feed is refreshed, are you sure you want to clear the cache?"
+                            )
+                        ) {
+                            purgeCache();
+                        }
+                    }}
+                    class="m-2 border-2 focus:outline-none border-amber-600 rounded-lg px-3 py-2 bg-amber-500 text-white cursor-pointer hover:bg-amber-600 hover:text-amber-200"
+                >
+                    Purge Feed Cache
+                </button>
+            </div>
+        </div>
     {/if}
-
-    <button
-        on:click={() => {
-            if (
-                confirm(
-                    "Are you sure? Deleting your posts can't be undone & this will delete ALL your posts!"
-                )
-            ) {
-                purgePosts();
-            }
-        }}
-        class=" mt-4 border-2 focus:outline-none border-red-600 rounded-lg px-3 py-2 bg-red-500 text-red-200 cursor-pointer hover:bg-red-600 hover:text-red-200"
-    >
-        Delete All Posts
-    </button>
 </div>

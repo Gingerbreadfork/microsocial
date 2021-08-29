@@ -80,7 +80,11 @@ async def get_my_posts():
     return my_posts.items
 
 async def replace_posts(friend):
-    cached_feed = db.get("cached_feed")['value']
+    try:
+        cached_feed = db.get("cached_feed")['value']
+    except:
+        friend_feed()
+
     for post in cached_feed:
         try:
             if post['bridge'] == friend['bridge']:
@@ -486,7 +490,9 @@ def purge_posts(response: Response):
         response.body = "Failed to Purge Posts"
         response.status_code = status.HTTP_400_BAD_REQUEST
         return response
+
+@app.get("/purge/cache", status_code=200)
+def purch_feed_cache(response: Response):
+    db.delete("cached_feed")
     
-
-
 app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")
