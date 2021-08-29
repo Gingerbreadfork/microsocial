@@ -466,4 +466,27 @@ def respond_message(message: RespondMessage, response: Response):
     else:
         raise HTTPException(status_code = resp.status_code, detail = "Failed to Respond to Message")
 
+@app.get("/purge/posts", status_code=200)
+def purge_posts(response: Response):
+    try:
+        posts = db.fetch({"category": "post"})
+        keys = []
+    
+        for post in posts.items:
+            keys.append(post['key'])
+    
+        for key in keys:
+            db.delete(key)
+
+        db.put({'value': time.time()}, "notif_trigger")['value']
+        response.body = "All Posts Purged"
+        
+        return response
+    except:
+        response.body = "Failed to Purge Posts"
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response
+    
+
+
 app.mount('', StaticFiles(directory="client/dist/", html=True), name="static")

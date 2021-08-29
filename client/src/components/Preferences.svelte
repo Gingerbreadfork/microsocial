@@ -86,6 +86,11 @@
         getMyProfile();
         updatedBio = true;
     };
+
+    const purgePosts = async () => {
+        var purgePostsReq = await fetch(`${devBridge}purge/posts`);
+        var purgePostsResp = await purgePostsReq.json();
+    };
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -228,4 +233,19 @@
             </div>
         </div>
     {/if}
+
+    <button
+        on:click={() => {
+            if (
+                confirm(
+                    "Are you sure? Deleting your posts can't be undone & this will delete ALL your posts!"
+                )
+            ) {
+                purgePosts();
+            }
+        }}
+        class=" mt-4 border-2 focus:outline-none border-red-600 rounded-lg px-3 py-2 bg-red-500 text-red-200 cursor-pointer hover:bg-red-600 hover:text-red-200"
+    >
+        Delete All Posts
+    </button>
 </div>
