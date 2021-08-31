@@ -118,6 +118,7 @@
         });
 
         var friendResult = await friendReqResp.json();
+        addFriendBridge = "";
         getFriends();
     };
 
@@ -140,6 +141,9 @@
 
         var friendResult = await friendReqResp.json();
         sendFriendRequest(bridge);
+        addFriendBridge = "";
+        friendListLoaded = false;
+        anyPending = false;
         getFriends();
     };
 
@@ -208,23 +212,44 @@
                     />
                 </div>
             </div>
-
-            <button
-                title="Add Friend"
-                on:click={async () => {
-                    sendFriendRequest(addFriendBridge);
-                }}
-                class="p-2 m-2 ml-4 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
-                ><svg
-                    class="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                        d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
-                    /></svg
-                ></button
-            >
+            {#if addFriendBridge}
+                <button
+                    title="Add Friend"
+                    on:click={async () => {
+                        sendFriendRequest(addFriendBridge);
+                        alert("Friend Request Sent! (If Valid)");
+                    }}
+                    class="p-2 m-2 ml-4 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
+                    ><svg
+                        class="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
+                        /></svg
+                    ></button
+                >
+            {:else}
+                <button
+                    title="Add Friend"
+                    on:click={async () => {
+                        alert(
+                            "You need to enter a valid Microsocial server URL"
+                        );
+                    }}
+                    class="p-2 m-2 ml-4 text-white bg-truegray-500 border hover:bg-truegray-400 rounded-3xl focus:outline-none"
+                    ><svg
+                        class="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
+                        /></svg
+                    ></button
+                >
+            {/if}
         </div>
         <div class="flex ">
             <div class="m-auto">
@@ -279,7 +304,13 @@
                                         title="Remove Friend"
                                         class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 dark:hover:bg-red-500 focus:outline-none"
                                         on:click={() => {
-                                            removeFriend(key);
+                                            if (
+                                                confirm(
+                                                    `Are you sure you want to remove ${name} as a friend?`
+                                                )
+                                            ) {
+                                                removeFriend(key);
+                                            }
                                         }}
                                     >
                                         <svg
@@ -331,7 +362,7 @@
                 {#each friendListResp as { bridge, name, key, category }}
                     {#if category == "pending_friend"}
                         <div
-                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow"
+                            class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow dark:bg-truegray-800 dark:text-gray-300"
                         >
                             <div class="self-center w-full p-2">
                                 <div class="flex">
@@ -346,7 +377,7 @@
                                 <div class="flex text-xs font-light">
                                     <button
                                         title="Accept Friend Request"
-                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-green-100 focus:outline-none"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-green-100 focus:outline-none dark:hover:bg-green-500"
                                         on:click={() => {
                                             acceptFriendRequest(
                                                 bridge,
@@ -369,7 +400,7 @@
                                     </button>
                                     <button
                                         title="Decline Friend Request"
-                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none"
+                                        class="p-2 mr-1 rounded shadow cursor-pointer hover:bg-red-100 focus:outline-none dark:hover:bg-red-500"
                                         on:click={() => {
                                             removeFriend(key);
                                             --pendingFriendCount;
