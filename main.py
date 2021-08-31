@@ -12,10 +12,11 @@ from config import *
 from encryption import *
 from shared import *
 
-from routers import public
+from routers import public, messaging
 
 app = FastAPI()
 app.include_router(public.router)
+app.include_router(messaging.router)
 
 origins = ["*"]
 
@@ -442,55 +443,6 @@ async def get_metatags(link: str):
         
     return {'title': title, 'description': description, 'image': image}
 
-@app.get('/messages', status_code=200)
-def direct_messages(key: str):
-    try:
-        friend = db.get(key)
-        if friend['category'] != "friend":
-            raise Exception
-    except:
-        raise HTTPException(status_code = 404, detail = "Friend Not Found")
-
-    return friend['messages']
-
-@app.post("/messages/respond", status_code=200)
-def respond_message(message: RespondMessage, response: Response):
-    friend_key = message.key
-    friend = db.get(friend_key)
-    
-    resp = httpx.post(
-    f"https://{friend['bridge']}/public/messages/receive",
-    json = {'content': message.content, 'key': host_key.decode("utf-8")}
-    )
-    
-    if resp.status_code == 200:
-        try:
-            messages = friend['messages']
-        except:
-            messages = []
-
-        messages.append(
-            {
-                "timestamp": time.time(),
-                "message": message.content,
-                "uuid": uuid.uuid4().hex,
-                "response": True
-                }
-            )
-        
-        friend['messages'] = messages
-
-        try:
-            db.put(friend)
-            response.status_code = status.HTTP_200_OK
-            response.body = "Successfully Received Message"
-            return {response}
-        except:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            response.body = "Failed to Receive Message"
-            return {response}
-    else:
-        raise HTTPException(status_code = resp.status_code, detail = "Failed to Respond to Message")
 
 @app.get("/purge/posts", status_code=200)
 def purge_posts(response: Response):
