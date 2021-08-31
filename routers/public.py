@@ -71,6 +71,22 @@ def request_friend(addfriend: AddFriend, response: Response):
                 response.status_code = status.HTTP_201_CREATED
                 return pending_friend_json
 
+@router.post("/public/friend/remove", status_code=200)
+def request_friend_removal(removeFriend: RemoveFriend, response: Response):
+    friend_to_remove = db.get(removeFriend.key)
+    try:
+        if friend_to_remove['category'] == 'friend' or friend_to_remove['category'] == 'pending_friend':
+            db.delete(removeFriend.key)
+            response.body = "Removed as Friend"
+            return {response}
+        else:
+            response.body = "Not a Friend"
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {response}
+    except:
+        response.body = "Unable to Remove as Friend"
+        response.status_code = status.HTTP_400_BAD_REQUEST
+
 @router.post("/public/notify", status_code=201)
 def receive_notification(notification: ReceivedNotif, response: Response):
     friend_data = db.get(notification.key)

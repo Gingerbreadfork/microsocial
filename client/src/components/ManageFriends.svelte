@@ -210,6 +210,7 @@
             </div>
 
             <button
+                title="Add Friend"
                 on:click={async () => {
                     sendFriendRequest(addFriendBridge);
                 }}
@@ -454,7 +455,7 @@
 
     {#if friendListLoaded && actualFriendCount == 0 && pendingFriendCount == 0}
         <div
-            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl"
+            class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl dark:bg-truegray-800 dark:border-truegray-900"
         >
             <div class="flex items-center">
                 <svg
@@ -473,7 +474,9 @@
                 <div class="font-medium leading-none">
                     Want to add a Friend?
                 </div>
-                <p class="mt-1 text-sm leading-none text-gray-600">
+                <p
+                    class="mt-1 text-sm leading-none text-gray-600 dark:text-truegray-300"
+                >
                     Use the form above to send your friend a request using their
                     Microsocial URL. If they accept your request you'll get one
                     back just to confirm the connection request. For example,

@@ -127,12 +127,12 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
     
     elif unfriend['category'] == 'friend' or unfriend['category'] == 'pending_friend':
+        httpx.post(f"https://{unfriend['bridge']}/public/friend/remove", json = {'key': host_key.decode("utf-8")})
         unfriend_key = unfriend['key']
         db.delete(unfriend_key)
         response.body = "Unfriended Successfully"
         response.status_code = status.HTTP_200_OK
         return {response}
-    
     else:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}

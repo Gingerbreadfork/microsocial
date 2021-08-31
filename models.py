@@ -54,3 +54,6 @@ class ReceivedMessage(BaseModel):
 class RespondMessage(BaseModel):
     content: str
     key: str
+    
+class RemoveFriend(BaseModel):
+    key: str
