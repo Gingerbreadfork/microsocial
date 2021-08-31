@@ -68,6 +68,7 @@
 
         var removeResult = await removeResp.json();
         getFriends();
+        purgeCache();
     };
 
     const getFriends = async () => {
@@ -173,6 +174,11 @@
         var readableDate = dateObject.toLocaleString();
         return readableDate;
     }
+
+    const purgeCache = async () => {
+        var purgeCacheReq = await fetch(`${devBridge}purge/cache`);
+        var purgeCacheResp = await purgeCacheReq.json();
+    };
 
     // Intervals
     const checkFriends = setInterval(getFriends, 5000);
