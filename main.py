@@ -136,6 +136,28 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
     else:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {response}
+    
+@app.get("/remove-friend/all", status_code=200)
+def remove_all_friends(response: Response, pending: Optional[bool] = True):
+    try:
+        friends = db.fetch({'category': 'friend'})
+        pending = db.fetch({"category": "pending_friend"})
+        
+        for friend in friends.items:
+            httpx.post(f"https://{friend['bridge']}/public/friend/remove", json = {'key': host_key.decode("utf-8")})
+            db.delete(friend['key'])
+            
+        if pending:
+            for almost_friend in pending.items:
+                httpx.post(f"https://{almost_friend['bridge']}/public/friend/remove", json = {'key': host_key.decode("utf-8")})
+                db.delete(almost_friend['key'])
+        
+        response.body = "All Friends Sucessfully Deleted"
+        return {response}
+    except:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        response.body = "Failed to Delete Friends"
+        return {response}
 
 @app.post("/create-post", status_code=200)
 def create_post(newpost: NewPost, response: Response):

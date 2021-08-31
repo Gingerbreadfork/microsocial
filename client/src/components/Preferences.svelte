@@ -96,6 +96,11 @@
         var purgeCacheReq = await fetch(`${devBridge}purge/cache`);
         var purgeCacheResp = await purgeCacheReq.json();
     };
+
+    const removeFriends = async () => {
+        var removeFriendsReq = await fetch(`${devBridge}remove-friend/all`);
+        var removeFriendsResp = await removeFriendsReq.json();
+    };
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -270,6 +275,20 @@
                     class="m-2 border-2 focus:outline-none border-red-600 rounded-lg px-3 py-2 bg-red-500 text-white cursor-pointer hover:bg-red-600 hover:text-red-200"
                 >
                     Delete All Posts
+                </button>
+                <button
+                    on:click={() => {
+                        if (
+                            confirm(
+                                "Are you sure you want to delete all your friends?"
+                            )
+                        ) {
+                            removeFriends();
+                        }
+                    }}
+                    class="m-2 border-2 focus:outline-none border-red-600 rounded-lg px-3 py-2 bg-red-500 text-white cursor-pointer hover:bg-red-600 hover:text-red-200"
+                >
+                    Remove All Friends
                 </button>
                 <button
                     on:click={() => {
