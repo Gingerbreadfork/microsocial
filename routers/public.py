@@ -77,6 +77,7 @@ def request_friend_removal(removeFriend: RemoveFriend, response: Response):
     try:
         if friend_to_remove['category'] == 'friend' or friend_to_remove['category'] == 'pending_friend':
             db.delete(removeFriend.key)
+            db.delete("cached_feed")
             response.body = "Removed as Friend"
             return {response}
         else:
