@@ -146,6 +146,7 @@
         friendListLoaded = false;
         anyPending = false;
         getFriends();
+        purgeCache();
     };
 
     const getFriendProfile = async (bridge) => {

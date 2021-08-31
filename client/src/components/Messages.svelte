@@ -262,7 +262,7 @@
             <textarea
                 placeholder="Something to say?..."
                 bind:value={newMessage}
-                class="w-full p-1 border rounded shadow focus:outline-none dark:bg-truegray-900 dark:border-truegray-800"
+                class="w-full p-1 border rounded shadow focus:outline-none dark:bg-truegray-900 dark:border-truegray-800 dark:text-gray-300"
                 rows="3"
             />
             <div class="flex">

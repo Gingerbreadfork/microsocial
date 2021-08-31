@@ -349,7 +349,7 @@
         <textarea
             placeholder="Post something?..."
             bind:value={newPost}
-            class="w-full p-1 border rounded shadow focus:outline-none dark:text-gray-400 dark:bg-truegray-900 dark:border-gray-900"
+            class="w-full p-1 border rounded shadow focus:outline-none dark:text-gray-300 dark:bg-truegray-900 dark:border-gray-900"
             rows="3"
         />
         <div class="flex">
