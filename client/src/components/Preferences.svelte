@@ -100,6 +100,7 @@
     const removeFriends = async () => {
         var removeFriendsReq = await fetch(`${devBridge}remove-friend/all`);
         var removeFriendsResp = await removeFriendsReq.json();
+        purgeCache();
     };
 </script>
 
