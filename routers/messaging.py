@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi import Response, status, HTTPException
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import httpx
 import uuid
 import time
@@ -8,20 +9,35 @@ from models import *
 from shared import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 @router.get('/messages', status_code=200)
-def direct_messages(key: str):
+def direct_messages(
+    key: str,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     try:
         friend = db.get(key)
         if friend['category'] != "friend":
             raise Exception
     except:
-        raise HTTPException(status_code = 404, detail = "Friend Not Found")
+        raise HTTPException(
+            status_code = 404,
+            detail = "Friend Not Found"
+            )
 
     return friend['messages']
 
 @router.post("/messages/respond", status_code=200)
-def respond_message(message: RespondMessage, response: Response):
+def respond_message(
+    message: RespondMessage,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     friend_key = message.key
     friend = db.get(friend_key)
     
@@ -57,4 +73,7 @@ def respond_message(message: RespondMessage, response: Response):
             response.body = "Failed to Receive Message"
             return {response}
     else:
-        raise HTTPException(status_code = resp.status_code, detail = "Failed to Respond to Message")
+        raise HTTPException(
+            status_code = resp.status_code,
+            detail = "Failed to Respond to Message"
+            )

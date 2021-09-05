@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Response, status
 import time
 
@@ -6,9 +7,16 @@ from shared import *
 from models import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 @router.put("/edit", status_code=200)
-def edit_post(edit: EditingItem, response: Response):
+def edit_post(
+    edit: EditingItem,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     if edit.item == "post":
         try:
             if edit.content and edit.delete == False:
