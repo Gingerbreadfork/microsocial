@@ -15,16 +15,12 @@ Microsocial is an experimental approach for taking social media in a new directi
 * Deploy Microsocial for free on a Deta Micro or Deta Space
 
 ## ✨ Deta Micro Installation
-To deploy Microsocial to a Deta Micro from a Linux command line:
+To deploy Microsocial manually to a Deta Micro from a Linux command line:
 ```
 git clone https://github.com/Gingerbreadfork/microsocial
-cd microsocial/client
-npm i
-npm run build
-cd ..
+cd microsocial
 deta new
 ```
-
 * If you modify the frontend or the API, give `deploy.sh` a run; it will rebuild the frontend and redeploy both in seconds.
 * Multiple test micros can be deployed; use different folders and be sure to change the variable `dbname` in the file `config.py`
 * The frontend client is a Svelte app and the backend is a Python FastAPI app that also serves the frontend.
