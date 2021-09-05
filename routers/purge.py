@@ -1,13 +1,19 @@
-from fastapi import APIRouter
-from fastapi import Response, status
+from fastapi import APIRouter, Depends, Response, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import time
 
 from shared import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 @router.get("/purge/posts", status_code=200)
-def purge_posts(response: Response):
+def purge_posts(
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     try:
         posts = db.fetch({"category": "post"})
         keys = []
@@ -28,5 +34,10 @@ def purge_posts(response: Response):
         return response
 
 @router.get("/purge/cache", status_code=200)
-def purch_feed_cache(response: Response):
+def purch_feed_cache(
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     db.delete("cached_feed")

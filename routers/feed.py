@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Response
 from typing import Optional
 import httpx
@@ -7,6 +8,7 @@ import time
 from shared import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 async def get_posts_from_friend(friend):
     name = friend['name']
@@ -64,8 +66,11 @@ async def friend_feed(
     limit: Optional[int] = None,
     offset: Optional[int] = None,
     cached: Optional[bool] = False,
-    cache: Optional[bool] = False
+    cache: Optional[bool] = False,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
     ):
+    
+    check_auth(credentials)
     
     if cached:
         try:
@@ -93,7 +98,12 @@ async def friend_feed(
     return sorted_posts
 
 @router.get("/notifications", status_code=200)
-async def check_notifications(clear: Optional[bool] = False):
+async def check_notifications(
+    clear: Optional[bool] = False,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     try:
         trigger = db.get("notif_trigger")['value']
     except:
@@ -130,7 +140,8 @@ async def check_notifications(clear: Optional[bool] = False):
         return {'notifications': 'No Notifications', 'updated': last_updated}
 
 @router.get("/last-updated", status_code=200)
-def return_last_update_timestamp():
+def return_last_update_timestamp(credentials: HTTPBasicCredentials = Depends(micro_check)):
+    check_auth(credentials)
     try:
         last_updated = db.get("last_updated")['value']
         return {'last_updated': last_updated}

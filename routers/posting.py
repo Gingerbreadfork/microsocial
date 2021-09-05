@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Response, status
 import uuid
 import time
@@ -7,9 +8,16 @@ from shared import *
 from models import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 @router.post("/create-post", status_code=200)
-def create_post(newpost: NewPost, response: Response):
+def create_post(
+    newpost: NewPost,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     if len(newpost.value) > 2500:
         response.body = "Post is too long"
         response.status_code = status.HTTP_400_BAD_REQUEST

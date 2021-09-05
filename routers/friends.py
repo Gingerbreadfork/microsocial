@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, Response, status, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Response
 from typing import Optional
 import httpx
@@ -7,7 +8,7 @@ from shared import *
 from models import *
 
 router = APIRouter()
-
+security = HTTPBasic()
 
 async def get_posts(bridge, key):
     posts_endpoint = f"https://{bridge}/public/shared-posts"
@@ -33,16 +34,29 @@ def check_usernames(friends):
 
     return detected_change
 
-
 @router.get("/friend-posts", status_code=200)
-async def read_friend_posts(bridge: str, response: Response):
+async def read_friend_posts(
+    bridge: str,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     friend_obj = db.fetch({'bridge': bridge, 'category': 'friend'})
     friend_key = friend_obj.items[0]['key']
     friend_posts = await get_posts(bridge, friend_key)
     return friend_posts
 
 @router.get("/friend-list")
-def friend_list(response: Response, pending: Optional[bool] = False):
+def friend_list(
+    response: Response,
+    pending: Optional[bool] = False,
+    credentials: Optional[HTTPBasicCredentials] = Depends(micro_check)
+    ):
+    
+    
+    check_auth(credentials)
+
     try:
         if pending == True:
             friends = db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}])

@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from routers import public, messaging, purge, unfriend
 from routers import meta, posting, editing, friending
-from routers import feed, friends, keys
+from routers import feed, friends, keys, credentials
 
 app = FastAPI()
 
@@ -20,6 +20,7 @@ app.include_router(friending.router)
 app.include_router(feed.router)
 app.include_router(friends.router)
 app.include_router(keys.router)
+app.include_router(credentials.router)
 
 origins = ["*"]
 

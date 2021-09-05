@@ -57,3 +57,7 @@ class RespondMessage(BaseModel):
     
 class RemoveFriend(BaseModel):
     key: str
+    
+class UpdatedCredentials(BaseModel):
+    login: str
+    password: str

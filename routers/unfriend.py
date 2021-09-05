@@ -1,14 +1,21 @@
-from fastapi import APIRouter
-from fastapi import Response, status
+from fastapi import APIRouter, Depends, Response, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import httpx
 
 from models import *
 from shared import *
 
 router = APIRouter()
+security = HTTPBasic()
 
 @router.delete("/remove-friend", status_code=200)
-def remove_friend(deletedfriend: DeletedFriend, response: Response):
+def remove_friend(
+    deletedfriend: DeletedFriend,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     unfriend = db.get(deletedfriend.key)
     if unfriend == []:
         response.status_code = status.HTTP_400_BAD_REQUEST
@@ -26,7 +33,13 @@ def remove_friend(deletedfriend: DeletedFriend, response: Response):
         return {response}
     
 @router.get("/remove-friend/all", status_code=200)
-def remove_all_friends(response: Response, pending: Optional[bool] = True):
+def remove_all_friends(
+    response: Response,
+    pending: Optional[bool] = True,
+    credentials: HTTPBasicCredentials = Depends(micro_check)
+    ):
+    
+    check_auth(credentials)
     try:
         friends = db.fetch({'category': 'friend'})
         pending = db.fetch({"category": "pending_friend"})
