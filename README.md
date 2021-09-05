@@ -15,12 +15,7 @@ Microsocial is an experimental approach for taking social media in a new directi
 * Deploy Microsocial for free on a Deta Micro or Deta Space
 
 ## ✨ Deta Micro Installation
-Installing to a Deta Micro is only recommended for directly experimenting with the code or if you are planning to contribute to the project. For now, there is no way to secure your deployment when using a micro so it will be publicly accessible; this is simply something that has yet to be addressed and is a planned addition in the future.
-
-* If you modify the frontend or the API, give ```deploy.sh``` a run; it will rebuild the frontend and redeploy both in seconds.
-* Multiple test micros can be deployed; use different folders and be sure to change the variable ```dbname``` in the file ```config.py```
-* The frontend client is a Svelte app, and the backend is a FastAPI app that also serves the frontend.
-
+To deploy Microsocial to a Deta Micro from a Linux command line:
 ```
 git clone https://github.com/Gingerbreadfork/microsocial
 cd microsocial/client
@@ -29,6 +24,16 @@ npm run build
 cd ..
 deta new
 ```
+
+* If you modify the frontend or the API, give `deploy.sh` a run; it will rebuild the frontend and redeploy both in seconds.
+* Multiple test micros can be deployed; use different folders and be sure to change the variable `dbname` in the file `config.py`
+* The frontend client is a Svelte app and the backend is a Python FastAPI app that also serves the frontend.
+* To disable basic auth for local dev or other testing change the variable `localdev`  in `config.py` to `True`
+
+Deployments to Deta Micros rely on HTTP Basic Authentication to provide a simple way to secure them for now, by default the login details are below. You can change these default credentials on the settings tab once you have your deployment up and running. A better onboarding flow is coming soon!
+
+**Username:** admin  
+**Password:** password  
 
 ## 🤔 FAQ
 **Why does it not have *insert random feature*?**  
@@ -63,6 +68,7 @@ Microsocial is a project that attempts to explore things in new ways, so it has 
 * Standardize a base protocol so alternatives APIs could be created and mingle easily with existing deployments
 * Lockdown some core functionality in the API to help with backward compatibility over time
 * Encrypt all messages and posts to a decent standard
+* Replace all use of browser dialogs with custom modals
 
 ## 🙏 Thanks
 Thanks to the [Deta](https://deta.sh) team for supporting this obscure vision and encouraging me to build out this concept, and for always offering their help and support along the way. If you want to turn an idea into something more, check out their various offerings (Deta Micros/Drive/Base/Space with more likely on the way) and support them as they continue to offer completely free services for those of us wanting to try things our own way, without having to worry about the resources we may need to get started on a new journey. If you haven't yet, go check them out!
