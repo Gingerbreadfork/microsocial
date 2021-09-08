@@ -12,7 +12,7 @@ if [ -d "node_modules" ]
 then
     echo -e "👍 Dependencies Already Installed - Skipping...\n";
 else
-    echo -e "🔩 Installing Dependencies\n";
+    echo -e "🤗 Installing Dependencies\n";
     npm install;
 fi
 
@@ -22,5 +22,10 @@ npm run build
 cd ..
 
 echo -e "\n🔥 Deploying Microsocial\n";
-deta deploy
-
+if [ -d ".deta" ]
+then
+    deta deploy
+else
+    deta new
+    deta visor disable
+fi
