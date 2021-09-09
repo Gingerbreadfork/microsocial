@@ -46,11 +46,7 @@
 
     const getFriends = async () => {
         var listReq = await fetch(
-            devBridge +
-                "friend-list?" +
-                new URLSearchParams({
-                    pending: "false",
-                })
+            `${devBridge}friend-list?check_name=False&pending=False`
         );
         friendListResp = await listReq.json();
 
@@ -172,33 +168,10 @@
         }
     };
 
-    const lazyCheck = setInterval(getFriends, 5000);
+    const lazyCheck = setInterval(getFriends, 2000);
 </script>
 
 <div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
-    {#if !friendListLoaded}
-        <div
-            class="w-auto p-10 mt-10 ml-10 mr-10 bg-gray-200 rounded-2xl dark:bg-truegray-800"
-        >
-            <p
-                class="text-sm font-semibold text-center text-gray-600 animate-pulse dark:text-truegray-300"
-            >
-                Loading Direct Messages & Friends...
-            </p>
-            <svg
-                class="w-20 h-20 mx-auto mt-10 text-gray-600 animate-bounce"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                ><path
-                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-                /><path
-                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                /></svg
-            >
-        </div>
-    {/if}
-
     {#if friendListLoaded && friends.length == 0}
         <div
             class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl dark:bg-truegray-800"

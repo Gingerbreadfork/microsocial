@@ -51,16 +51,20 @@ async def read_friend_posts(
 def friend_list(
     response: Response,
     pending: Optional[bool] = False,
+    check_name: Optional[bool] = True,
     credentials: Optional[HTTPBasicCredentials] = Depends(micro_check)
     ):
-    
     
     check_auth(credentials)
 
     try:
         if pending == True:
             friends = db.fetch([{'category': 'pending_friend'}, {'category': 'friend'}])
-            checked_friends = check_usernames(friends.items)
+            if check_name == True:
+                checked_friends = check_usernames(friends.items)
+            else:
+                checked_friends = friends.items
+                
             if checked_friends == False:
                 return friends.items
             else:
@@ -68,7 +72,11 @@ def friend_list(
                 return updated_friends.items
         else:
             friends = db.fetch({'category': 'friend'})
-            checked_friends = check_usernames(friends.items)
+            if check_name == True:
+                checked_friends = check_usernames(friends.items)
+            else:
+                checked_friends = friends.items
+                
             if checked_friends == False:
                 return friends.items
             else:

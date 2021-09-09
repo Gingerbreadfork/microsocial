@@ -331,97 +331,100 @@
                 </div>
             </div>
         </div>
-    {/if}
-
-    <div
-        class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
-    >
-        <div class="flex">
-            <svg
-                class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700 dark:text-truegray-300"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                ><path
-                    fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
-                    clip-rule="evenodd"
-                /></svg
-            > <span> Change Login Credentials</span>
-        </div>
 
         <div
-            class="flex flex-col items-center justify-center p-10 m-1 bg-gray-200 border border-gray-300 rounded-xl dark:bg-truegray-800 dark:border-truegray-900"
+            class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
         >
-            {#if !dangerZone}
-                <h2 class="pb-2 text-2xl text-amber-600">WARNINGS</h2>
-                <p class="mb-5 text-sm text-gray-600 dark:text-truegray-300">
-                    1. Changing your login details without keeping track of them
-                    can lock you out of Microsocial unless you check/change them
-                    manually in your Deta Base.<br /><br />2. You're only seeing
-                    this option as you are deployed on a Deta Micro and basic
-                    authentication is enabled to provide the ability to protect
-                    your Microsocial.<br /><br />3. Your login username is not
-                    connected to your username on Microsocial it is purely for
-                    logging in. Changing your normal username will have no
-                    effect on your login username or password combo.
-                </p>
-                <button
-                    on:click={() => {
-                        dangerZone = !dangerZone;
-                    }}
-                    class="px-3 py-2 m-2 text-white border-2 rounded-lg cursor-pointer focus:outline-none border-amber-600 bg-amber-500 hover:bg-amber-600 hover:text-amber-200"
-                >
-                    Show Me Anyway!
-                </button>
-            {/if}
+            <div class="flex">
+                <svg
+                    class="inline-block w-6 h-6 mb-1 ml-2 mr-2 text-gray-700 dark:text-truegray-300"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                    ><path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                        clip-rule="evenodd"
+                    /></svg
+                > <span> Change Login Credentials</span>
+            </div>
 
-            {#if dangerZone}
-                <input
-                    bind:value={newLogin}
-                    name="login"
-                    class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
-                    autocomplete="off"
-                    placeholder="Username"
-                />
-                <input
-                    bind:value={newPassword}
-                    type="password"
-                    name="password"
-                    class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
-                    autocomplete="off"
-                    placeholder="Password"
-                    required
-                />
-                <input
-                    bind:value={newPasswordVerify}
-                    type="password"
-                    name="verify-password"
-                    class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
-                    autocomplete="off"
-                    placeholder="Verify Password"
-                    required
-                />
-                <button
-                    on:click={() => {
-                        if (newPassword !== newPasswordVerify) {
-                            alert("Passwords don't match!");
-                            return;
-                        }
+            <div
+                class="flex flex-col items-center justify-center p-10 m-1 bg-gray-200 border border-gray-300 rounded-xl dark:bg-truegray-800 dark:border-truegray-900"
+            >
+                {#if !dangerZone}
+                    <h2 class="pb-2 text-2xl text-amber-600">WARNINGS</h2>
+                    <p
+                        class="mb-5 text-sm text-gray-600 dark:text-truegray-300"
+                    >
+                        1. Changing your login details without keeping track of
+                        them can lock you out of Microsocial unless you
+                        check/change them manually in your Deta Base.<br /><br
+                        />2. You're only seeing this option as you are deployed
+                        on a Deta Micro and basic authentication is enabled to
+                        provide the ability to protect your Microsocial.<br
+                        /><br />3. Your login username is not connected to your
+                        username on Microsocial it is purely for logging in.
+                        Changing your normal username will have no effect on
+                        your login username or password combo.
+                    </p>
+                    <button
+                        on:click={() => {
+                            dangerZone = !dangerZone;
+                        }}
+                        class="px-3 py-2 m-2 text-white border-2 rounded-lg cursor-pointer focus:outline-none border-amber-600 bg-amber-500 hover:bg-amber-600 hover:text-amber-200"
+                    >
+                        Show Me Anyway!
+                    </button>
+                {/if}
 
-                        if (
-                            confirm(
-                                "DANGER: Are you sure you want to overwrite your login details?"
-                            )
-                        ) {
-                            updateLogin();
-                        }
-                    }}
-                    class="px-3 py-2 m-2 text-white bg-red-500 border-2 border-red-600 rounded-lg cursor-pointer focus:outline-none hover:bg-red-600 hover:text-red-200"
-                >
-                    Save New Credentials
-                </button>
-            {/if}
+                {#if dangerZone}
+                    <input
+                        bind:value={newLogin}
+                        name="login"
+                        class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
+                        autocomplete="off"
+                        placeholder="Username"
+                    />
+                    <input
+                        bind:value={newPassword}
+                        type="password"
+                        name="password"
+                        class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
+                        autocomplete="off"
+                        placeholder="Password"
+                        required
+                    />
+                    <input
+                        bind:value={newPasswordVerify}
+                        type="password"
+                        name="verify-password"
+                        class="p-3 mb-5 border-2 rounded-lg outline-none w-80 focus:border-truegray-500 dark:border-truegray-700 dark:bg-truegray-900"
+                        autocomplete="off"
+                        placeholder="Verify Password"
+                        required
+                    />
+                    <button
+                        on:click={() => {
+                            if (newPassword !== newPasswordVerify) {
+                                alert("Passwords don't match!");
+                                return;
+                            }
+
+                            if (
+                                confirm(
+                                    "DANGER: Are you sure you want to overwrite your login details?"
+                                )
+                            ) {
+                                updateLogin();
+                            }
+                        }}
+                        class="px-3 py-2 m-2 text-white bg-red-500 border-2 border-red-600 rounded-lg cursor-pointer focus:outline-none hover:bg-red-600 hover:text-red-200"
+                    >
+                        Save New Credentials
+                    </button>
+                {/if}
+            </div>
         </div>
-    </div>
+    {/if}
 </div>
