@@ -185,7 +185,7 @@
     const checkFriends = setInterval(getFriends, 5000);
 </script>
 
-<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
         <div
             class="flex w-full p-2 m-auto bg-gray-200 border border-gray-300 rounded-lg shadow-lg md:w-3/4 dark:bg-truegray-800 dark:border-truegray-900"
@@ -245,7 +245,7 @@
                             "You need to enter a valid Microsocial server URL"
                         );
                     }}
-                    class="p-2 m-2 ml-4 text-white bg-truegray-500 border hover:bg-truegray-400 rounded-3xl focus:outline-none"
+                    class="p-2 m-2 ml-4 text-white border bg-truegray-500 hover:bg-truegray-400 rounded-3xl focus:outline-none"
                     ><svg
                         class="w-6 h-6"
                         fill="currentColor"
@@ -271,9 +271,9 @@
         </div>
         {#if howDoYouConnect == true}
             <div
-                class="p-4 mb-4 mt-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                class="p-4 mt-4 mb-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
             >
-                <p class="text-sm p-2 md:p-0">
+                <p class="p-2 text-sm md:p-0">
                     To connect with friends simply enter the URL that points to
                     their Microsocial deployment in the form above, if they
                     accept your request you'll get one back so don't forget to

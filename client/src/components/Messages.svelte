@@ -171,7 +171,7 @@
     const lazyCheck = setInterval(getFriends, 2000);
 </script>
 
-<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if friendListLoaded && friends.length == 0}
         <div
             class="flex items-center justify-center p-8 mt-10 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl dark:bg-truegray-800"
@@ -215,7 +215,7 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800"
+                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
             >
                 <div class="self-center w-1/2 p-2">
                     {name}

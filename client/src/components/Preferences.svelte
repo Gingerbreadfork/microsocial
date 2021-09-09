@@ -126,7 +126,7 @@
     };
 </script>
 
-<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if hostProfileLoaded}
         <div
             class="grid grid-cols-1 gap-2 p-2 bg-gray-200 border border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"

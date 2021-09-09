@@ -56,7 +56,7 @@
     }
 </script>
 
-<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if hostUsername != ""}
         <h2 class="pt-4 pb-2 text-2xl">{hostUsername}'s Profile</h2>
     {/if}

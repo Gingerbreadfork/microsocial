@@ -342,7 +342,7 @@
     const getNotifications = setInterval(checkNotifications, 1000);
 </script>
 
-<div class="container w-full mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
+<div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     <div
         class="p-2 mb-2 bg-gray-100 border-2 border-gray-200 rounded shadow-md dark:bg-truegray-800 dark:border-truegray-900"
     >
@@ -562,7 +562,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-2 md:mr-4 text-yellow-400 focus:outline-none hover:text-yellow-500"
+                                        class="flex items-center mr-2 text-yellow-400 md:mr-4 focus:outline-none hover:text-yellow-500"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -594,7 +594,7 @@
                                                 reactToPost = false;
                                             }
                                         }}
-                                        class="flex items-center mr-2 md:mr-4 text-red-300 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
+                                        class="flex items-center mr-2 text-red-300 md:mr-4 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -623,7 +623,7 @@
                                         <div class="flex justify-end">
                                             {#each reactionList as displayedReaction}
                                                 <button
-                                                    class="focus:outline-none ml-1 mr-1"
+                                                    class="ml-1 mr-1 focus:outline-none"
                                                     on:click={async () => {
                                                         postOptions = false;
                                                         var reacted =
