@@ -187,6 +187,18 @@
 
 <div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
     {#if viewingFriendProfile == false}
+        <h2 class="pb-6 text-2xl text-center">
+            <svg
+                class="inline-block mb-2 w-7 h-7"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                ><path
+                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                /></svg
+            >
+            Manage Friends
+        </h2>
         <div
             class="flex w-full p-2 m-auto bg-gray-200 border border-gray-300 rounded-lg shadow-lg md:w-3/4 dark:bg-truegray-800 dark:border-truegray-900"
         >
@@ -226,9 +238,9 @@
                         sendFriendRequest(addFriendBridge);
                         alert("Friend Request Sent! (If Valid)");
                     }}
-                    class="p-2 m-2 ml-4 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none"
+                    class="p-2 m-2 ml-4 text-white bg-green-500 border hover:bg-green-400 rounded-3xl focus:outline-none dark:bg-truegray-700 dark:hover:bg-truegray-600 dark:border-truegray-600"
                     ><svg
-                        class="w-6 h-6"
+                        class="w-6 h-6 dark:text-truegray-400"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         xmlns="http://www.w3.org/2000/svg"
@@ -245,9 +257,9 @@
                             "You need to enter a valid Microsocial server URL"
                         );
                     }}
-                    class="p-2 m-2 ml-4 text-white border bg-truegray-500 hover:bg-truegray-400 rounded-3xl focus:outline-none"
+                    class="p-2 m-2 ml-4 text-white border border-truegray-300 bg-truegray-300 dark:bg-truegray-900 dark:border-truegray-700 rounded-3xl focus:outline-none"
                     ><svg
-                        class="w-6 h-6"
+                        class="w-6 h-6 dark:text-truegray-600"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         xmlns="http://www.w3.org/2000/svg"
@@ -271,14 +283,14 @@
         </div>
         {#if howDoYouConnect == true}
             <div
-                class="p-4 mt-4 mb-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                class="p-4 mt-4 mb-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
             >
                 <p class="p-2 text-sm md:p-0">
                     To connect with friends simply enter the URL that points to
                     their Microsocial deployment in the form above, if they
                     accept your request you'll get one back so don't forget to
                     come back and accept it! Your Microsocial server URL is <span
-                        class="text-green-800 dark:text-amber-400"
+                        class="text-blue-800 dark:text-amber-400"
                         >{hostBridge}</span
                     > share it with your friends so they can connect with you. Friends
                     and any pending requests will be displayed below where you can

@@ -205,11 +205,24 @@
     {/if}
 
     {#if friendListLoaded && friends.length > 0 && viewingMessages == ""}
-        <h2 class="p-2">Select a Friend to Direct Message:</h2>
+        <h2 class="pb-6 text-2xl text-center">
+            <svg
+                class="inline w-8 h-8"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                ><path
+                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                /><path
+                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                /></svg
+            >
+            Direct Messages
+        </h2>
     {/if}
 
     {#if viewingMessages == ""}
-        {#each friends as { name, bridge, key }}
+        {#each friends as { name, bridge, key, messages }}
             <button
                 on:click={() => {
                     viewingMessages = bridge;
@@ -217,12 +230,37 @@
                 }}
                 class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
             >
-                <div class="self-center w-1/2 p-2">
+                <div class="w-1/3 p-2 dark:text-indigo-500">
                     {name}
                 </div>
 
-                <div class="self-center p-2 text-xs text-gray-400 title">
+                <div class="self-center p-2 text-gray-500 title">
+                    <svg
+                        class="inline w-6 h-6 mb-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            fill-rule="evenodd"
+                            d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
+                            clip-rule="evenodd"
+                        /></svg
+                    >
                     {bridge}
+                </div>
+                <div class="self-center p-2 ml-auto mr-2 text-gray-500 title">
+                    <svg
+                        class="inline w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            fill-rule="evenodd"
+                            d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                            clip-rule="evenodd"
+                        /></svg
+                    >
+                    {messages.length}
                 </div>
             </button>
         {/each}

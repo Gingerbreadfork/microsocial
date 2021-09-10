@@ -367,7 +367,7 @@
 >
     {#if currentComponent == "Landing"}
         <div
-            class="min-h-screen overflow-auto bg-gradient-to-br from-indigo-900 to-purple-900 dark:from-truegray-900 dark:to-truegray-900"
+            class="min-h-screen overflow-auto bg-indigo-900 dark:bg-truegray-900"
         >
             <div class="container max-w-6xl px-6 py-20 mx-auto">
                 <div
@@ -388,7 +388,7 @@
                             /></svg
                         >
                         <span
-                            class="inline w-full py-2 text-transparent bg-clip-text leading-12 bg-gradient-to-r from-indigo-500 to-indigo-600"
+                            class="inline w-full py-2 text-transparent bg-clip-text leading-12 bg-gradient-to-r from-indigo-400 to-purple-700"
                         >
                             Microsocial
                         </span>
