@@ -7,9 +7,11 @@ import secrets
 import string
 import time
 import secrets
+import random
 
 from encryption import *
 from config import *
+from wordlists import animals, adjectives
 
 security = HTTPBasic()
 
@@ -58,7 +60,7 @@ def get_my_name():
         name_obj = db.get('my_name')
         username = name_obj['value']
     except:
-        username = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        username = (random.choice(adjectives)).capitalize()  + " " +  (random.choice(animals)).capitalize()
         db.put({'key': 'my_name', 'value': username})
         
     return username
