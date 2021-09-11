@@ -550,10 +550,10 @@
                                     <div
                                         class="flex items-center text-xs text-gray-400"
                                     >
-                                        <p class="hidden md:block">
+                                        <p>
                                             {convertTimestamp(time)}
                                         </p>
-                                        <p class="hidden px-1 md:block">•</p>
+                                        <p class="px-1">•</p>
                                         <p>
                                             {timeago.format(
                                                 convertTimestamp(time)

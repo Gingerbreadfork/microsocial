@@ -237,14 +237,15 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex items-center w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
+                class="flex items-center w-full mb-2 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
                 ><div class="w-8 h-8 mb-1 ml-2">
                     {@html genAvatar(name)}
                 </div>
                 <div
-                    class="p-2 mr-auto text-sm font-semibold md:text-base sm:w-1/3 dark:text-indigo-500"
+                    class="p-2 mr-auto text-sm md:text-base sm:w-1/3 dark:text-indigo-500"
                 >
                     {name}
+                    <div class="text-xs text-gray-400 sm:hidden">{bridge}</div>
                 </div>
 
                 <div
@@ -415,12 +416,10 @@
                                         <div
                                             class="flex items-center text-xs text-gray-400"
                                         >
-                                            <p class="hidden md:block">
+                                            <p class="">
                                                 {convertTimestamp(timestamp)}
                                             </p>
-                                            <p class="hidden px-1 md:block">
-                                                •
-                                            </p>
+                                            <p class="px-1">•</p>
                                             <p>
                                                 {timeago.format(
                                                     convertTimestamp(timestamp)
