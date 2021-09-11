@@ -14,6 +14,7 @@
     "vite": "^2.3.7"
   },
   "dependencies": {
+    "@dicebear/avatars-bottts-sprites": "^4.9.1",
     "anchorme": "^2.1.2",
     "timeago.js": "^4.0.2"
   }

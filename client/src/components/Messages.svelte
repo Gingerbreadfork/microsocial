@@ -2,6 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
     import anchorme from "anchorme";
+    import { createAvatar } from "@dicebear/avatars";
+    import * as style from "@dicebear/avatars-bottts-sprites";
 
     let hostAccessKey = "";
     let friendListResp;
@@ -168,6 +170,13 @@
         }
     };
 
+    const genAvatar = (value) => {
+        var avatar = createAvatar(style, {
+            seed: value,
+        });
+        return avatar;
+    };
+
     const lazyCheck = setInterval(getFriends, 2000);
 </script>
 
@@ -228,13 +237,19 @@
                     viewingMessages = bridge;
                     currentKey = key;
                 }}
-                class="flex w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
-            >
-                <div class="w-1/3 p-2 dark:text-indigo-500">
+                class="flex items-center w-full mb-2 text-indigo-600 bg-gray-200 rounded shadow hover:bg-gray-100 focus:outline-none dark:text-truegray-300 dark:bg-truegray-800 dark:hover:bg-truegray-700"
+                ><div class="w-8 h-8 mb-1 ml-2">
+                    {@html genAvatar(name)}
+                </div>
+                <div
+                    class="p-2 mr-auto text-sm font-semibold md:text-base sm:w-1/3 dark:text-indigo-500"
+                >
                     {name}
                 </div>
 
-                <div class="self-center p-2 text-gray-500 title">
+                <div
+                    class="self-center hidden p-2 text-gray-500 title sm:block"
+                >
                     <svg
                         class="inline w-6 h-6 mb-1"
                         fill="currentColor"
@@ -248,7 +263,9 @@
                     >
                     {bridge}
                 </div>
-                <div class="self-center p-2 ml-auto mr-2 text-gray-500 title">
+                <div
+                    class="flex items-center p-2 ml-auto mr-2 text-sm text-gray-500 md:text-base title"
+                >
                     <svg
                         class="inline w-6 h-6"
                         fill="currentColor"
@@ -366,37 +383,60 @@
             {#if viewingMessages == bridge}
                 {#if messages.length > 0}
                     {#each messages as { timestamp, message, response }}
-                        <div
-                            class="p-4 mb-2 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
-                        >
-                            {#if response == false}
-                                <p class="font-medium text-indigo-600">
-                                    {name}
-                                </p>
-                            {:else}
-                                <p class="font-medium text-purple-600">
-                                    {hostUsername}
-                                </p>
-                            {/if}
-                            <div class="flex">
-                                <div
-                                    class="flex items-center text-sm text-gray-400"
-                                >
-                                    <p>{convertTimestamp(timestamp)}</p>
-                                    <p class="px-1">•</p>
-                                    <p>
-                                        {timeago.format(
-                                            convertTimestamp(timestamp)
-                                        )}
+                        <div class="p-1">
+                            <div
+                                class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                            >
+                                <div class="flex">
+                                    <div
+                                        class="w-12 h-12 p-1 mr-2 rounded-full bg-truegray-300 dark:bg-truegray-900"
+                                    >
+                                        {#if response == false}
+                                            {@html genAvatar(name)}
+                                        {:else}
+                                            {@html genAvatar(hostUsername)}
+                                        {/if}
+                                    </div>
+                                    <div>
+                                        {#if response == false}
+                                            <p
+                                                class="font-medium text-indigo-600"
+                                            >
+                                                {name}
+                                            </p>
+                                        {:else}
+                                            <p
+                                                class="font-medium text-purple-600"
+                                            >
+                                                {hostUsername}
+                                            </p>
+                                        {/if}
+
+                                        <div
+                                            class="flex items-center text-xs text-gray-400"
+                                        >
+                                            <p class="hidden md:block">
+                                                {convertTimestamp(timestamp)}
+                                            </p>
+                                            <p class="hidden px-1 md:block">
+                                                •
+                                            </p>
+                                            <p>
+                                                {timeago.format(
+                                                    convertTimestamp(timestamp)
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <p
+                                        class="text-sm text-gray-600 dark:text-truegray-300"
+                                    >
+                                        {@html anchorme(message)}
                                     </p>
                                 </div>
-                            </div>
-                            <div class="mt-2">
-                                <p
-                                    class="text-sm text-gray-600 dark:text-truegray-300"
-                                >
-                                    {@html anchorme(message)}
-                                </p>
                             </div>
                         </div>
                     {/each}

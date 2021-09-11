@@ -31,6 +31,7 @@ def shared_posts(
 @router.get("/public/profile", status_code=200)
 def get_host_bio():
     host_username = db.get('my_name')
+    
     try:
         host_bio = db.get('my_bio')
         return {'username': host_username['value'], 'bio': host_bio['value']}

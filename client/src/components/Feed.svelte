@@ -2,6 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
     import anchorme from "anchorme";
+    import { createAvatar } from "@dicebear/avatars";
+    import * as style from "@dicebear/avatars-bottts-sprites";
 
     let hostAccessKey = "";
     let newPost;
@@ -22,6 +24,7 @@
     let reactingPost;
     let lastUpdate;
     let feedLength = 50;
+    let hostSeed;
 
     if (hostBridge == "localhost") {
         devBridge = "https://41034m.deta.dev/";
@@ -42,6 +45,7 @@
         var myNameReq = await fetch(devBridge + "public/profile");
         var myNameResp = await myNameReq.json();
         hostUsername = myNameResp.username;
+        hostSeed = myNameResp.seed;
     };
 
     const getMyKey = async () => {
@@ -353,6 +357,13 @@
 
     const reactionList = ["❤️", "🔥", "🤬", "😂", "👎", "👍"];
 
+    const genAvatar = (value) => {
+        var avatar = createAvatar(style, {
+            seed: value,
+        });
+        return avatar;
+    };
+
     // Intervals
     const getNotifications = setInterval(checkNotifications, 1000);
 </script>
@@ -473,6 +484,11 @@
                             class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
                         >
                             <div class="flex">
+                                <div
+                                    class="w-12 h-12 p-2 mr-2 rounded-full bg-truegray-300 dark:bg-truegray-900"
+                                >
+                                    {@html genAvatar(name)}
+                                </div>
                                 <div>
                                     {#if name == hostUsername}
                                         <p class="font-medium text-purple-600">
@@ -534,8 +550,10 @@
                                     <div
                                         class="flex items-center text-xs text-gray-400"
                                     >
-                                        <p>{convertTimestamp(time)}</p>
-                                        <p class="px-1">•</p>
+                                        <p class="hidden md:block">
+                                            {convertTimestamp(time)}
+                                        </p>
+                                        <p class="hidden px-1 md:block">•</p>
                                         <p>
                                             {timeago.format(
                                                 convertTimestamp(time)

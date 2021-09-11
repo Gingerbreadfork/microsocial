@@ -1,5 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
+    import { createAvatar } from "@dicebear/avatars";
+    import * as style from "@dicebear/avatars-bottts-sprites";
 
     let hostAccessKey = "";
     let hostUsername = "";
@@ -124,6 +126,13 @@
             }
         });
     };
+
+    const genAvatar = (value) => {
+        var avatar = createAvatar(style, {
+            seed: value,
+        });
+        return avatar;
+    };
 </script>
 
 <div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
@@ -156,7 +165,7 @@
                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
                         clip-rule="evenodd"
                     /></svg
-                > <span> Change Username </span>
+                > <span> Change Username & Avatar </span>
             </div>
             <div
                 class="grid p-2 border border-gray-300 rounded dark:border-truegray-700 dark:bg-truegray-800"
@@ -170,6 +179,12 @@
                         class="w-full text-gray-700 focus:outline-none dark:bg-truegray-900 dark:text-truegray-300"
                     />
                 </div>
+                <div class="w-2/3 pt-2 mx-auto md:w-1/3">
+                    {@html genAvatar(newUsername)}
+                </div>
+                <p class="text-xs text-center text-truegray-500">
+                    Avatars are generated from your username
+                </p>
             </div>
 
             <div class="flex mt-2 mb-2">

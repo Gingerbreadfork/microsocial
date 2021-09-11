@@ -2,6 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
     import anchorme from "anchorme";
+    import { createAvatar } from "@dicebear/avatars";
+    import * as style from "@dicebear/avatars-bottts-sprites";
 
     let hostAccessKey = "";
     let myKeyLoaded = false;
@@ -62,25 +64,56 @@
         var readableDate = dateObject.toLocaleString();
         return readableDate;
     }
+
+    const genAvatar = (value) => {
+        var avatar = createAvatar(style, {
+            seed: value,
+        });
+        return avatar;
+    };
 </script>
 
 <div class="container w-full p-2 mx-auto sm:p-10 md:w-2/3 lg:w-1/2 xl:w-1/2">
-    {#if hostUsername != ""}
-        <h2 class="pt-4 pb-2 text-2xl">{hostUsername}'s Profile</h2>
-    {/if}
     {#if hostProfileLoaded}
         <div class="p-1">
             <div
                 class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
             >
-                <p class="text-sm text-gray-600 dark:text-truegray-300">
+                <div class="flex">
+                    <div class="w-8 md:w-12">
+                        {@html genAvatar(hostUsername)}
+                    </div>
+                    <h2
+                        class="mt-2 mb-2 ml-2 text-sm md:mt-3 lg:text-2xl md:text-xl"
+                    >
+                        {hostUsername}
+                    </h2>
+                </div>
+
+                <p
+                    class="py-4 mt-2 text-sm text-gray-600 border-t border-b border-gray-300 md:text-sm dark:text-truegray-300 dark:border-gray-700"
+                >
                     {hostBio}
                 </p>
+                {#if hostPostsLoaded}
+                    <p class="mt-2">
+                        <svg
+                            class="inline w-6 h-6 mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
+                                clip-rule="evenodd"
+                            /></svg
+                        >{hostPosts.length}
+                    </p>
+                {/if}
             </div>
         </div>
     {/if}
     {#if hostPostsLoaded}
-        <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
         {#if hostPostsLoaded && hostPosts.length < 1}
             <div
                 class="flex items-center justify-center p-8 my-6 bg-gray-200 shadow-md hover:shodow-lg rounded-2xl dark:bg-truegray-800"

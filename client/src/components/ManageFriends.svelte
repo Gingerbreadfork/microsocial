@@ -2,6 +2,8 @@
     import { onMount, onDestroy } from "svelte";
     import * as timeago from "timeago.js";
     import anchorme from "anchorme";
+    import { createAvatar } from "@dicebear/avatars";
+    import * as style from "@dicebear/avatars-bottts-sprites";
 
     let hostAccessKey = "";
     let addFriendBridge;
@@ -181,6 +183,13 @@
         var purgeCacheResp = await purgeCacheReq.json();
     };
 
+    const genAvatar = (value) => {
+        var avatar = createAvatar(style, {
+            seed: value,
+        });
+        return avatar;
+    };
+
     // Intervals
     const checkFriends = setInterval(getFriends, 5000);
 </script>
@@ -324,15 +333,18 @@
                         <div
                             class="flex w-full mb-2 text-gray-600 bg-gray-200 rounded shadow dark:bg-truegray-800 dark:text-gray-300"
                         >
+                            <div
+                                class="self-center w-12 h-12 pt-2 mt-2 ml-2 md:my-1 md:mb-3"
+                            >
+                                {@html genAvatar(name)}
+                            </div>
                             <div class="self-center w-full p-2">
-                                <div class="flex">
-                                    <div>{name}</div>
-                                </div>
-
+                                <div>{name}</div>
                                 <div class="-mt-1 text-xs text-gray-400 title">
                                     {bridge}
                                 </div>
                             </div>
+
                             <div class="self-center p-2 sec w-2/8">
                                 <div class="flex text-xs font-light">
                                     <button
@@ -460,36 +472,63 @@
             {/if}
         {/if}
     {:else}
-        <button
-            title="Go back"
-            class="text-xl text-indigo-500 focus:outline-none hover:text-indigo-400"
-            on:click={() => {
-                viewingFriendProfile = false;
-            }}
-            ><svg
-                class="w-8 h-8"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                ><path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z"
-                    clip-rule="evenodd"
-                /></svg
-            ></button
-        >
-        <h2 class="pb-2 text-2xl">{viewingProfile.username}'s Profile</h2>
         <div class="p-1">
             <div
                 class="p-4 bg-gray-200 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
             >
-                <p class="text-sm text-gray-600 dark:text-truegray-300">
+                <div class="flex">
+                    <div class="w-8 md:w-12">
+                        {@html genAvatar(viewingProfile.username)}
+                    </div>
+                    <h2
+                        class="mt-2 mb-2 ml-2 text-sm md:mt-3 lg:text-2xl md:text-xl"
+                    >
+                        {viewingProfile.username}
+                    </h2>
+                    <button
+                        class="ml-auto "
+                        title="Close Profile"
+                        on:click={() => {
+                            viewingFriendProfile = false;
+                        }}
+                    >
+                        <svg
+                            class="w-8 h-8 text-pink-700"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd"
+                            /></svg
+                        >
+                    </button>
+                </div>
+
+                <p
+                    class="py-4 mt-2 text-sm text-gray-600 border-t border-b border-gray-300 md:text-sm dark:text-truegray-300 dark:border-gray-700"
+                >
                     {viewingProfile.bio}
                 </p>
+                {#if viewingFriendsPosts}
+                    <p class="mt-2">
+                        <svg
+                            class="inline w-6 h-6 mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            ><path
+                                fill-rule="evenodd"
+                                d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
+                                clip-rule="evenodd"
+                            /></svg
+                        >{viewingPosts.length}
+                    </p>
+                {/if}
             </div>
         </div>
         {#if viewingFriendsPosts}
-            <h2 class="pt-4 pb-2 text-2xl">Posts</h2>
             {#each viewingPosts as { value, time }}
                 <div class="p-1">
                     <div
