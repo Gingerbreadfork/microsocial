@@ -523,7 +523,7 @@
                 </div>
                 <div>
                     <div
-                        class="flex flex-col p-4 mb-10 text-center text-gray-300 bg-indigo-900 rounded-lg shadow-xl cursor-pointer group bg-opacity-40 ring-2 ring-offset-2 ring-offset-indigo-800 ring-indigo-700"
+                        class="flex flex-col p-4 mb-10 text-xs text-center text-gray-300 bg-indigo-900 rounded-lg shadow-xl cursor-pointer md:text-base group bg-opacity-40 ring-2 ring-offset-2 ring-offset-indigo-800 ring-indigo-700"
                     >
                         Request a Connection to this Server Using the Link: <span
                             class="text-purple-400"
@@ -534,7 +534,7 @@
                         href="https://microsocial.xyz"
                         class="flex flex-col p-4 text-center bg-indigo-900 rounded-lg shadow-xl cursor-pointer group bg-opacity-40 ring-2 ring-offset-2 ring-offset-indigo-800 ring-indigo-700 hover:bg-indigo-800 dark:hover:bg-indigo-900 hover:bg-opacity-100 md:text-left md:flex-row md:items-center md:justify-between md:p-12"
                     >
-                        <div class="text-2xl font-semibold">
+                        <div class="text-sm font-semibold md:text-xl">
                             <div class="text-gray-300">
                                 Not Your Microsocial?
                             </div>
@@ -551,7 +551,9 @@
                             </div>
                         </div>
                     </a>
-                    <div class="py-10 text-center text-gray-200">
+                    <div
+                        class="my-10 text-xs text-center text-gray-200 md:text-sm"
+                    >
                         <a
                             href="https://github.com/Gingerbreadfork/microsocial"
                         >
