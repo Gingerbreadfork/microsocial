@@ -21,6 +21,7 @@
     let reactToPost = false;
     let reactingPost;
     let lastUpdate;
+    let feedLength = 50;
 
     if (hostBridge == "localhost") {
         devBridge = "https://41034m.deta.dev/";
@@ -164,6 +165,13 @@
                 })
         );
         friendFeedPosts = await FeedReq.json();
+
+        // Add Index
+        friendFeedPosts = friendFeedPosts.map((item, index) => ({
+            index,
+            ...item,
+        }));
+
         friendFeedLoaded = true;
         refreshingFeed = false;
     };
@@ -178,6 +186,13 @@
                 })
         );
         friendFeedPosts = await FeedReq.json();
+
+        // Add Index
+        friendFeedPosts = friendFeedPosts.map((item, index) => ({
+            index,
+            ...item,
+        }));
+
         friendFeedLoaded = true;
     };
 
@@ -451,31 +466,53 @@
                 </div>
             {/if}
 
-            {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge }}
-                <div class="p-1">
-                    <div
-                        class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
-                    >
-                        <div class="flex">
-                            <div>
-                                {#if name == hostUsername}
-                                    <p class="font-medium text-purple-600">
-                                        {name}
-                                        <span title="Host">
-                                            <svg
-                                                class="inline-block w-4 h-4 mb-1 text-green-300 dark:text-green-500"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                ><path
-                                                    fill-rule="evenodd"
-                                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                    clip-rule="evenodd"
-                                                /></svg
-                                            >
-                                        </span>
-                                        {#if edited == true}
-                                            <span title="Edited">
+            {#each friendFeedPosts as { name, value, time, edited, key, reactions, bridge, index }}
+                {#if index < feedLength}
+                    <div class="p-1">
+                        <div
+                            class="p-4 bg-gray-100 border-2 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                        >
+                            <div class="flex">
+                                <div>
+                                    {#if name == hostUsername}
+                                        <p class="font-medium text-purple-600">
+                                            {name}
+                                            <span title="Host">
+                                                <svg
+                                                    class="inline-block w-4 h-4 mb-1 text-green-300 dark:text-green-500"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    ><path
+                                                        fill-rule="evenodd"
+                                                        d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd"
+                                                    /></svg
+                                                >
+                                            </span>
+                                            {#if edited == true}
+                                                <span title="Edited">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        class="inline-block w-4 h-4 mb-1 text-blue-300"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                            {/if}
+                                        </p>
+                                    {:else}
+                                        <p class="font-medium text-indigo-600">
+                                            {name}
+                                            {#if edited == true}
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     class="inline-block w-4 h-4 mb-1 text-blue-300"
@@ -490,16 +527,104 @@
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                                     />
                                                 </svg>
-                                            </span>
-                                        {/if}
-                                    </p>
+                                            {/if}
+                                        </p>
+                                    {/if}
+
+                                    <div
+                                        class="flex items-center text-xs text-gray-400"
+                                    >
+                                        <p>{convertTimestamp(time)}</p>
+                                        <p class="px-1">•</p>
+                                        <p>
+                                            {timeago.format(
+                                                convertTimestamp(time)
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                                {#if name == hostUsername}
+                                    <button
+                                        class="ml-auto focus:outline-none"
+                                        on:click={() => {
+                                            if (postOptionSelector == key) {
+                                                postOptions = !postOptions;
+                                            } else {
+                                                postOptions = true;
+                                            }
+                                            postOptionSelector = key;
+
+                                            if (reactingPost == key) {
+                                                reactToPost = !reactToPost;
+                                            } else {
+                                                reactToPost = true;
+                                            }
+                                            reactingPost = key;
+                                        }}
+                                    >
+                                        <svg
+                                            class="w-6 h-6 text-gray-300 dark:text-truegray-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            ><path
+                                                d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                                            /></svg
+                                        >
+                                    </button>
                                 {:else}
-                                    <p class="font-medium text-indigo-600">
-                                        {name}
-                                        {#if edited == true}
+                                    <button
+                                        class="ml-auto focus:outline-none"
+                                        on:click={() => {
+                                            if (reactingPost == key) {
+                                                reactToPost = !reactToPost;
+                                            } else {
+                                                reactToPost = true;
+                                            }
+                                            reactingPost = key;
+                                        }}
+                                    >
+                                        <svg
+                                            class="w-6 h-6 text-gray-300 dark:text-truegray-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            ><path
+                                                d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                                            /></svg
+                                        >
+                                    </button>
+                                {/if}
+                            </div>
+
+                            <div class="mt-2">
+                                <p
+                                    class="text-sm text-gray-600 break-words line-clamp-3 dark:text-truegray-300"
+                                >
+                                    {@html anchorme(value)}
+                                </p>
+                                <div class="flex mt-2">
+                                    {#if name == hostUsername && postOptions == true && postOptionSelector == key}
+                                        <button
+                                            on:click={async () => {
+                                                var updatedContent = prompt(
+                                                    "Edit Post",
+                                                    value
+                                                );
+                                                if (updatedContent) {
+                                                    editPost(
+                                                        key,
+                                                        updatedContent
+                                                    );
+                                                    postOptions = false;
+                                                    reactToPost = false;
+                                                }
+                                            }}
+                                            class="flex items-center mr-2 text-yellow-400 md:mr-4 focus:outline-none hover:text-yellow-500"
+                                        >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                class="inline-block w-4 h-4 mb-1 text-blue-300"
+                                                class="w-4 h-4 mr-1"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -508,195 +633,106 @@
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
                                                     stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                                                 />
                                             </svg>
-                                        {/if}
-                                    </p>
-                                {/if}
 
-                                <div
-                                    class="flex items-center text-xs text-gray-400"
-                                >
-                                    <p>{convertTimestamp(time)}</p>
-                                    <p class="px-1">•</p>
-                                    <p>
-                                        {timeago.format(convertTimestamp(time))}
-                                    </p>
-                                </div>
-                            </div>
-                            {#if name == hostUsername}
-                                <button
-                                    class="ml-auto focus:outline-none"
-                                    on:click={() => {
-                                        if (postOptionSelector == key) {
-                                            postOptions = !postOptions;
-                                        } else {
-                                            postOptions = true;
-                                        }
-                                        postOptionSelector = key;
+                                            <span class="mt-1 text-sm">
+                                                Edit
+                                            </span>
+                                        </button>
 
-                                        if (reactingPost == key) {
-                                            reactToPost = !reactToPost;
-                                        } else {
-                                            reactToPost = true;
-                                        }
-                                        reactingPost = key;
-                                    }}
-                                >
-                                    <svg
-                                        class="w-6 h-6 text-gray-300 dark:text-truegray-700"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        ><path
-                                            d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                                        /></svg
-                                    >
-                                </button>
-                            {:else}
-                                <button
-                                    class="ml-auto focus:outline-none"
-                                    on:click={() => {
-                                        if (reactingPost == key) {
-                                            reactToPost = !reactToPost;
-                                        } else {
-                                            reactToPost = true;
-                                        }
-                                        reactingPost = key;
-                                    }}
-                                >
-                                    <svg
-                                        class="w-6 h-6 text-gray-300 dark:text-truegray-700"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        ><path
-                                            d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                                        /></svg
-                                    >
-                                </button>
-                            {/if}
-                        </div>
-
-                        <div class="mt-2">
-                            <p
-                                class="text-sm text-gray-600 break-words line-clamp-3 dark:text-truegray-300"
-                            >
-                                {@html anchorme(value)}
-                            </p>
-                            <div class="flex mt-2">
-                                {#if name == hostUsername && postOptions == true && postOptionSelector == key}
-                                    <button
-                                        on:click={async () => {
-                                            var updatedContent = prompt(
-                                                "Edit Post",
-                                                value
-                                            );
-                                            if (updatedContent) {
-                                                editPost(key, updatedContent);
-                                                postOptions = false;
-                                                reactToPost = false;
-                                            }
-                                        }}
-                                        class="flex items-center mr-2 text-yellow-400 md:mr-4 focus:outline-none hover:text-yellow-500"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-4 h-4 mr-1"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
+                                        <button
+                                            on:click={async () => {
+                                                if (
+                                                    confirm(
+                                                        "Are you sure you want to delete this post?"
+                                                    )
+                                                ) {
+                                                    deletePost(key);
+                                                    postOptions = false;
+                                                    reactToPost = false;
+                                                }
+                                            }}
+                                            class="flex items-center mr-2 text-red-300 md:mr-4 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
                                         >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                            />
-                                        </svg>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="w-4 h-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
+                                            </svg>
 
-                                        <span class="mt-1 text-sm"> Edit </span>
-                                    </button>
-
-                                    <button
-                                        on:click={async () => {
-                                            if (
-                                                confirm(
-                                                    "Are you sure you want to delete this post?"
-                                                )
-                                            ) {
-                                                deletePost(key);
-                                                postOptions = false;
-                                                reactToPost = false;
-                                            }
-                                        }}
-                                        class="flex items-center mr-2 text-red-300 md:mr-4 focus:outline-none hover:text-red-400 dark:hover:text-red-700 dark:text-red-600"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-4 h-4 mr-1"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
-
-                                        <span
-                                            class="mt-1 text-sm focus:outline-none"
-                                        >
-                                            Delete
-                                        </span>
-                                    </button>
-                                {/if}
-                                <div class="flex ml-auto">
-                                    {#if reactToPost == true && reactingPost == key}
-                                        <div class="flex justify-end">
-                                            {#each reactionList as displayedReaction}
-                                                <button
-                                                    class="ml-1 mr-1 focus:outline-none"
-                                                    on:click={async () => {
-                                                        postOptions = false;
-                                                        var reacted =
-                                                            displayedReaction;
-                                                        reactToPost = false;
-                                                        reactPost(
-                                                            key,
-                                                            reacted,
-                                                            bridge
-                                                        );
-                                                    }}
-                                                    >{displayedReaction}</button
-                                                >
-                                            {/each}
-                                        </div>
+                                            <span
+                                                class="mt-1 text-sm focus:outline-none"
+                                            >
+                                                Delete
+                                            </span>
+                                        </button>
                                     {/if}
+                                    <div class="flex ml-auto">
+                                        {#if reactToPost == true && reactingPost == key}
+                                            <div class="flex justify-end">
+                                                {#each reactionList as displayedReaction}
+                                                    <button
+                                                        class="ml-1 mr-1 focus:outline-none"
+                                                        on:click={async () => {
+                                                            postOptions = false;
+                                                            var reacted =
+                                                                displayedReaction;
+                                                            reactToPost = false;
+                                                            reactPost(
+                                                                key,
+                                                                reacted,
+                                                                bridge
+                                                            );
+                                                        }}
+                                                        >{displayedReaction}</button
+                                                    >
+                                                {/each}
+                                            </div>
+                                        {/if}
+                                    </div>
                                 </div>
+                                {#if reactions.length != 0 && friendListResp}
+                                    <div
+                                        class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
+                                    >
+                                        {#each reactions as { emoji, reacting }}
+                                            <span
+                                                title={friendNameFromBridge(
+                                                    reacting
+                                                )}
+                                                class="ml-1 mr-1">{emoji}</span
+                                            >
+                                        {/each}
+                                    </div>
+                                {/if}
                             </div>
-                            {#if reactions.length != 0 && friendListResp}
-                                <div
-                                    class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
-                                >
-                                    {#each reactions as { emoji, reacting }}
-                                        <span
-                                            title={friendNameFromBridge(
-                                                reacting
-                                            )}
-                                            class="ml-1 mr-1">{emoji}</span
-                                        >
-                                    {/each}
-                                </div>
-                            {/if}
                         </div>
                     </div>
-                </div>
+                {/if}
             {/each}
+            {#if feedLength < friendFeedPosts.length}
+                <div class="flex items-center justify-center py-4">
+                    <div
+                        class="px-3 py-2 text-purple-200 bg-purple-600 border-2 border-purple-500 rounded-lg cursor-pointer hover:bg-purple-700 hover:border-purple-600 hover:text-purple-200"
+                        on:click={() => {
+                            feedLength = feedLength + 50;
+                        }}
+                    >
+                        Show More...
+                    </div>
+                </div>
+            {/if}
         {/if}
     </div>
 </div>
