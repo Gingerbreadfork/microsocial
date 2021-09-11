@@ -11,6 +11,7 @@
     let hostBio = "";
     let hostPostsLoaded = false;
     let hostPosts;
+    let postsLength = 50;
 
     let devBridge = "";
 
@@ -46,6 +47,13 @@
         var hostPostsReq = await fetch(postsURL);
         var hostPostsResp = await hostPostsReq.json();
         hostPosts = hostPostsResp;
+
+        // Add Index
+        hostPosts = hostPosts.map((item, index) => ({
+            index,
+            ...item,
+        }));
+
         hostPostsLoaded = true;
     };
 
@@ -103,38 +111,56 @@
                 </div>
             </div>
         {/if}
-        {#each hostPosts as { value, time, reactions }}
-            <div class="p-1">
-                <div
-                    class="p-4 bg-gray-200 border-2 border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
-                >
-                    <div class="flex">
-                        <div class="flex items-center text-sm text-gray-400">
-                            <p>{convertTimestamp(time)}</p>
-                            <p class="px-1">•</p>
-                            <p>
-                                {timeago.format(convertTimestamp(time))}
+        {#each hostPosts as { value, time, reactions, index }}
+            {#if index < postsLength}
+                <div class="p-1">
+                    <div
+                        class="p-4 bg-gray-200 border-2 border-gray-300 rounded-lg shadow-lg dark:bg-truegray-800 dark:border-truegray-900"
+                    >
+                        <div class="flex">
+                            <div
+                                class="flex items-center text-sm text-gray-400"
+                            >
+                                <p>{convertTimestamp(time)}</p>
+                                <p class="px-1">•</p>
+                                <p>
+                                    {timeago.format(convertTimestamp(time))}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <p
+                                class="text-sm text-gray-600 dark:text-truegray-300"
+                            >
+                                {@html anchorme(value)}
                             </p>
                         </div>
+                        {#if reactions.length != 0 && hostProfileLoaded}
+                            <div
+                                class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
+                            >
+                                {#each reactions as { emoji, reacting }}
+                                    <span title={reacting} class="ml-1 mr-1"
+                                        >{emoji}</span
+                                    >
+                                {/each}
+                            </div>
+                        {/if}
                     </div>
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-600 dark:text-truegray-300">
-                            {@html anchorme(value)}
-                        </p>
-                    </div>
-                    {#if reactions.length != 0 && hostProfileLoaded}
-                        <div
-                            class="flex flex-shrink pl-2 pr-2 mt-2 -mb-3 bg-purple-900 border border-purple-800 cursor-default rounded-2xl w-min"
-                        >
-                            {#each reactions as { emoji, reacting }}
-                                <span title={reacting} class="ml-1 mr-1"
-                                    >{emoji}</span
-                                >
-                            {/each}
-                        </div>
-                    {/if}
+                </div>
+            {/if}
+        {/each}
+        {#if postsLength < hostPosts.length}
+            <div class="flex items-center justify-center py-4">
+                <div
+                    class="px-3 py-2 text-purple-200 bg-purple-600 border-2 border-purple-500 rounded-lg cursor-pointer hover:bg-purple-700 hover:border-purple-600 hover:text-purple-200"
+                    on:click={() => {
+                        postsLength = postsLength + 50;
+                    }}
+                >
+                    Show More...
                 </div>
             </div>
-        {/each}
+        {/if}
     {/if}
 </div>
