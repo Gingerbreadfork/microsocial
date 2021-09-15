@@ -15,7 +15,7 @@ Microsocial is an experimental approach for taking social media in a new directi
 * Deploy Microsocial for free on a Deta Micro
 
 ## ✨ Deta Micro Installation
-Firs make sure you have the [Deta CLI](https://docs.deta.sh/docs/cli/install/) tool installed, then to deploy Microsocial manually to a Deta Micro from a Linux command line:
+First make sure you have the [Deta CLI](https://docs.deta.sh/docs/cli/install/) tool installed, then to deploy Microsocial manually to a Deta Micro from a Linux command line:
 ```
 git clone https://github.com/Gingerbreadfork/microsocial
 cd microsocial
