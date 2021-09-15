@@ -12,10 +12,10 @@ Microsocial is an experimental approach for taking social media in a new directi
 * Send messages privately between friends and clear the chat any time
 * Customize your experience with full access to the source code
 * Keep control of your data and the content that you generate
-* Deploy Microsocial for free on a Deta Micro or Deta Space
+* Deploy Microsocial for free on a Deta Micro
 
 ## ✨ Deta Micro Installation
-To deploy Microsocial manually to a Deta Micro from a Linux command line:
+Firs make sure you have the [Deta CLI](https://docs.deta.sh/docs/cli/install/) tool installed, then to deploy Microsocial manually to a Deta Micro from a Linux command line:
 ```
 git clone https://github.com/Gingerbreadfork/microsocial
 cd microsocial
